@@ -1,12 +1,13 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+
 import pytest
 
 from backend.app.policy.engine import evaluate_policy
 from backend.app.policy.models import (
+    AgentProposalInput,
     MandatePolicyInput,
     ProductPolicyInput,
-    AgentProposalInput,
 )
 from backend.app.policy.reason_codes import PolicyDecision, ReasonCode
 
@@ -374,7 +375,7 @@ def test_naive_expires_at_with_aware_current_time(valid_mandate, valid_product, 
         merchant_scope=valid_mandate.merchant_scope,
         max_transaction_amount=valid_mandate.max_transaction_amount,
         status="active",
-        expires_at=datetime(2026, 8, 26, 10, 0, 0),  # Naive datetime
+        expires_at=datetime(2026, 8, 26, 10, 0, 0),  # Naive datetime  # noqa: DTZ001
     )
     aware_current = datetime(2026, 8, 26, 12, 0, 0, tzinfo=timezone.utc)  # Aware datetime
     result = evaluate_policy(naive_mandate, valid_product, valid_proposal, current_time=aware_current)
@@ -393,7 +394,7 @@ def test_aware_expires_at_with_naive_current_time(valid_mandate, valid_product, 
         status="active",
         expires_at=datetime(2026, 8, 26, 10, 0, 0, tzinfo=timezone.utc),  # Aware datetime
     )
-    naive_current = datetime(2026, 8, 26, 12, 0, 0)  # Naive datetime
+    naive_current = datetime(2026, 8, 26, 12, 0, 0)  # Naive datetime  # noqa: DTZ001
     result = evaluate_policy(aware_mandate, valid_product, valid_proposal, current_time=naive_current)
     assert result.decision == PolicyDecision.DENY
     assert result.reason_code == ReasonCode.MANDATE_EXPIRED

@@ -1,12 +1,11 @@
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Optional
 
 from backend.app.policy.models import (
-    MandatePolicyInput,
-    ProductPolicyInput,
     AgentProposalInput,
+    MandatePolicyInput,
     PolicyEvaluationResult,
+    ProductPolicyInput,
 )
 from backend.app.policy.reason_codes import PolicyDecision, ReasonCode
 
@@ -15,7 +14,7 @@ def evaluate_policy(
     mandate: MandatePolicyInput,
     product: ProductPolicyInput,
     proposal: AgentProposalInput,
-    current_time: Optional[datetime] = None,
+    current_time: datetime | None = None,
     price_tolerance: Decimal = Decimal("0.01"),
 ) -> PolicyEvaluationResult:
     """Pure Python policy engine for Agentic Commerce Firewall.

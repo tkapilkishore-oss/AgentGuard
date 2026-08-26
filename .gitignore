@@ -7,3 +7,6 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Internal documentation (not committed to public repo)
+docs/internal/BUG_FINDINGS.md

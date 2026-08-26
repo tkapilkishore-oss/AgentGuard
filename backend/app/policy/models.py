@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+
 from backend.app.policy.reason_codes import PolicyDecision, ReasonCode
 
 
@@ -11,7 +11,7 @@ class MandatePolicyInput:
     user_id: str
     budget_total: Decimal
     budget_remaining: Decimal
-    merchant_scope: Optional[str]
+    merchant_scope: str | None
     max_transaction_amount: Decimal
     status: str
     expires_at: datetime
