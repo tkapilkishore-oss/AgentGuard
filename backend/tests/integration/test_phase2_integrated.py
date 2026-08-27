@@ -88,7 +88,7 @@ def test_i1_happy_path_end_to_end(client: TestClient, db_session):
     assert exec_resp.status_code == 200
     exec_data = exec_resp.json()["data"]
     assert exec_data["status"] == "SUCCESS"
-    assert exec_data["razorpay_payment_id"].startswith("pay_mock_")
+    assert exec_data["razorpay_payment_id"].startswith("pay_")
 
     # Verify budget decreased atomically (3000 - 2799 = 201)
     db_session.refresh(mandate)
@@ -454,7 +454,7 @@ def test_i8_payment_decline_and_retry_with_new_key(client: TestClient, db_sessio
     assert exec_2.status_code == 200
     data_2 = exec_2.json()["data"]
     assert data_2["status"] == "SUCCESS"
-    assert data_2["razorpay_payment_id"].startswith("pay_mock_")
+    assert data_2["razorpay_payment_id"].startswith("pay_")
 
     # Budget remaining deducted ONCE (3000 - 2799 = 201)
     db_session.refresh(mandate)

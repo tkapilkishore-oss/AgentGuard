@@ -7,11 +7,14 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 
 # pyrefly: ignore [missing-import]
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.app.api.approve import router as approve_router
 from backend.app.api.execute import router as execute_router
 from backend.app.api.propose import router as propose_router
+from backend.app.api.routes_agent import router as agent_router
+from backend.app.api.routes_mandate import router as mandate_router
 from backend.app.api.schemas import ApiResponse
 
 app = FastAPI(
@@ -20,10 +23,22 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# Enable CORS for React/Next.js frontend development and production
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Register API routers
 app.include_router(propose_router)
 app.include_router(approve_router)
 app.include_router(execute_router)
+app.include_router(agent_router)
+app.include_router(mandate_router)
+
 
 
 @app.exception_handler(HTTPException)

@@ -211,8 +211,18 @@ def test_expiry_exact_boundary(valid_mandate, valid_product, valid_proposal):
 
 
 def test_expiry_omitted_current_time(valid_mandate, valid_product, valid_proposal):
-    # current_time is None -> defaults to current time inside evaluate_policy
-    result = evaluate_policy(valid_mandate, valid_product, valid_proposal, current_time=None)
+    # current_time is None -> defaults to datetime.now(timezone.utc) inside evaluate_policy
+    non_expired_mandate = MandatePolicyInput(
+        id=valid_mandate.id,
+        user_id=valid_mandate.user_id,
+        budget_total=valid_mandate.budget_total,
+        budget_remaining=valid_mandate.budget_remaining,
+        merchant_scope=valid_mandate.merchant_scope,
+        max_transaction_amount=valid_mandate.max_transaction_amount,
+        status=valid_mandate.status,
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+    )
+    result = evaluate_policy(non_expired_mandate, valid_product, valid_proposal, current_time=None)
     assert result.decision == PolicyDecision.ALLOW
     assert result.reason_code == ReasonCode.ALLOW
 

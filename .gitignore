@@ -10,3 +10,7 @@ __pycache__/
 
 # Internal documentation (not committed to public repo)
 docs/internal/BUG_FINDINGS.md
+
+# Frontend build / dependencies
+frontend/node_modules/
+frontend/dist/

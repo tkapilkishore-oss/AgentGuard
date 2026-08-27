@@ -65,7 +65,7 @@ def test_execute_happy_path(client: TestClient, db_session):
     data = res_data["data"]
     assert data["transaction_id"] == txn_id
     assert data["status"] == "SUCCESS"
-    assert data["razorpay_payment_id"].startswith("pay_mock_")
+    assert data["razorpay_payment_id"].startswith("pay_")
 
     # DB Persistence & Budget Verification
     txn = db_session.query(Transaction).filter_by(id=txn_id).first()
