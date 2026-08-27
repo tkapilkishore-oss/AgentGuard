@@ -74,3 +74,41 @@ class ApprovalData(BaseModel):
     approver_id: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class AuditEventItem(BaseModel):
+    seq_id: int
+    id: str
+    transaction_id: str | None = None
+    event_type: str
+    actor: str
+    payload_hash: str
+    prev_hash: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TransactionSummary(BaseModel):
+    id: str
+    product_id: str
+    product_name: str | None = None
+    claimed_price: Decimal
+    authoritative_price: Decimal
+    quantity: int
+    authoritative_total: Decimal
+    status: str
+    reason_code: str
+    created_at: datetime
+    executed_at: datetime | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TransactionAuditData(BaseModel):
+    transaction: TransactionSummary
+    events: list[AuditEventItem]
+    chain_verified: bool
+    chain_verification_error: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)

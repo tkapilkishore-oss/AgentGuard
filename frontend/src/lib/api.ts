@@ -52,6 +52,38 @@ export interface AgentChatResponseData {
   firewall_result: ProposeResponseData | null;
 }
 
+export interface AuditEventItem {
+  seq_id: number;
+  id: string;
+  transaction_id: string | null;
+  event_type: string;
+  actor: string;
+  payload_hash: string;
+  prev_hash: string;
+  created_at: string;
+}
+
+export interface TransactionSummary {
+  id: string;
+  product_id: string;
+  product_name: string | null;
+  claimed_price: string | number;
+  authoritative_price: string | number;
+  quantity: number;
+  authoritative_total: string | number;
+  status: string;
+  reason_code: string;
+  created_at: string;
+  executed_at: string | null;
+}
+
+export interface TransactionAuditData {
+  transaction: TransactionSummary;
+  events: AuditEventItem[];
+  chain_verified: boolean;
+  chain_verification_error: string | null;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 async function fetchEnvelope<T>(url: string, options?: RequestInit): Promise<{ status: number; envelope: ApiResponse<T> }> {
@@ -154,5 +186,13 @@ export const api = {
         prompt,
       }),
     });
+  },
+
+  async getTransactions(): Promise<{ status: number; envelope: ApiResponse<TransactionSummary[]> }> {
+    return fetchEnvelope<TransactionSummary[]>('/transactions');
+  },
+
+  async getTransactionAudit(transactionId: string): Promise<{ status: number; envelope: ApiResponse<TransactionAuditData> }> {
+    return fetchEnvelope<TransactionAuditData>(`/transaction/${transactionId}/audit`);
   },
 };

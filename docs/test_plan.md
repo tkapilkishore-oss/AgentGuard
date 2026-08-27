@@ -41,7 +41,7 @@ These must hit the running FastAPI app (e.g. via `TestClient` or a live server i
 - [ ] All six scenarios + hidden seventh reproducible from a clean seeded DB
 - [ ] Decision Trace panel correctly visualizes claimed vs. authoritative values for scenario 3/7
 - [ ] Attack Console can trigger each scenario on demand and shows the real response
-- [ ] Audit History view can reconstruct the full trace of any past transaction
+- [x] Audit History view can reconstruct the full trace of any past transaction
 - [ ] Full run-through timed under 5 minutes for the pitch
 - [ ] TestSprite full-app regression pass completed and clean, after all of the above, before final submission
 

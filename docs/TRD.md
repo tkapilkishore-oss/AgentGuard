@@ -162,6 +162,64 @@ audit_events
 }
 ```
 
+### `GET /transactions`
+
+**Response**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "product_id": "uuid",
+      "product_name": "Bluetooth Speaker",
+      "claimed_price": 2799.00,
+      "authoritative_price": 2799.00,
+      "quantity": 1,
+      "authoritative_total": 2799.00,
+      "status": "SUCCESS",
+      "reason_code": "ALLOW",
+      "created_at": "iso8601",
+      "executed_at": "iso8601"
+    }
+  ],
+  "error": null
+}
+```
+
+### `GET /transaction/{transaction_id}/audit`
+
+**Server logic:**
+1. Load transaction by `transaction_id` → if not found → `404 TRANSACTION_NOT_FOUND`
+2. Query `audit_events` strictly filtered by `transaction_id` ordered deterministically by `seq_id.asc()`
+3. Run `verify_audit_chain(db)` to verify full SHA-256 chain integrity from genesis to head
+4. Return standard API envelope containing transaction summary, chronological event list, and cryptographic verification status
+
+**Response**
+```json
+{
+  "success": true,
+  "data": {
+    "transaction": { ... },
+    "events": [
+      {
+        "seq_id": 1,
+        "id": "uuid",
+        "transaction_id": "uuid",
+        "event_type": "PROPOSED",
+        "actor": "agent",
+        "payload_hash": "sha256...",
+        "prev_hash": "0000...0000",
+        "created_at": "iso8601"
+      }
+    ],
+    "chain_verified": true,
+    "chain_verification_error": null
+  },
+  "error": null
+}
+```
+
 ## 4. Reason Codes (canonical list)
 `ALLOW`, `PRICE_MISMATCH`, `MERCHANT_MISMATCH`, `QUANTITY_INVALID`, `BUDGET_EXCEEDED`, `MANDATE_EXPIRED`, `MANDATE_REVOKED`, `TRANSACTION_EXPIRED`, `REPLAY_DETECTED`, `ALREADY_EXECUTED`, `ESCALATION_REQUIRED`, `APPROVED_BY_HUMAN`, `REJECTED_BY_HUMAN`, `PAYMENT_DECLINED`
 

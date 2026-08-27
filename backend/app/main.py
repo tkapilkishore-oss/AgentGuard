@@ -14,6 +14,7 @@ from backend.app.api.approve import router as approve_router
 from backend.app.api.execute import router as execute_router
 from backend.app.api.propose import router as propose_router
 from backend.app.api.routes_agent import router as agent_router
+from backend.app.api.routes_audit import router as audit_router
 from backend.app.api.routes_mandate import router as mandate_router
 from backend.app.api.schemas import ApiResponse
 
@@ -38,6 +39,7 @@ app.include_router(approve_router)
 app.include_router(execute_router)
 app.include_router(agent_router)
 app.include_router(mandate_router)
+app.include_router(audit_router)
 
 
 
