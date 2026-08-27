@@ -1,7 +1,4 @@
-# pyrefly: ignore [missing-import]
 import pytest
-
-# pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
 
 from backend.app.db.session import SessionLocal, get_db
@@ -365,3 +362,79 @@ def test_audit_client_injection_protection(client: TestClient, db_session):
 
     valid, _err = verify_audit_chain(db_session)
     assert valid is True
+
+
+def test_audit_seq_id_deterministic_ordering(db_session):
+    """SEC-02 Regression: seq_id exists, is unique, and monotonically increases sequentially."""
+    e1 = log_audit_event(
+        db=db_session,
+        event_type="TEST_1",
+        actor="system",
+        payload={"step": 1},
+    )
+    e2 = log_audit_event(
+        db=db_session,
+        event_type="TEST_2",
+        actor="system",
+        payload={"step": 2},
+    )
+    e3 = log_audit_event(
+        db=db_session,
+        event_type="TEST_3",
+        actor="system",
+        payload={"step": 3},
+    )
+
+    db_session.commit()
+
+    assert e1.seq_id is not None
+    assert e2.seq_id is not None
+    assert e3.seq_id is not None
+
+    assert e1.seq_id < e2.seq_id < e3.seq_id
+
+    events = db_session.query(AuditEvent).order_by(AuditEvent.seq_id.asc()).all()
+    seq_ids = [e.seq_id for e in events]
+    assert len(seq_ids) == len(set(seq_ids))  # Unique!
+
+    valid, err = verify_audit_chain(db_session)
+    assert valid is True, f"Audit chain verification failed: {err}"
+
+
+def test_audit_same_timestamp_events_verify_successfully(db_session):
+    """SEC-02 Regression: Multiple audit events logged with identical created_at timestamps verify successfully using seq_id ordering."""
+    from datetime import datetime, timezone
+
+    same_time = datetime.now(timezone.utc)
+
+    # Log 3 events forced to have the exact same created_at timestamp
+    e1 = log_audit_event(
+        db=db_session,
+        event_type="SAME_TIME_1",
+        actor="system",
+        payload={"batch": 1},
+    )
+    e1.created_at = same_time
+
+    e2 = log_audit_event(
+        db=db_session,
+        event_type="SAME_TIME_2",
+        actor="system",
+        payload={"batch": 2},
+    )
+    e2.created_at = same_time
+
+    e3 = log_audit_event(
+        db=db_session,
+        event_type="SAME_TIME_3",
+        actor="system",
+        payload={"batch": 3},
+    )
+    e3.created_at = same_time
+
+    db_session.commit()
+
+    # Even though timestamps are identical, seq_id ordering ensures deterministic verification
+    valid, err = verify_audit_chain(db_session)
+    assert valid is True, f"Tamper false-positive on same-timestamp events: {err}"
+

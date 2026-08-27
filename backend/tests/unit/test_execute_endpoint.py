@@ -357,3 +357,40 @@ def test_execute_db_commit_failure_rollbacks(client: TestClient, db_session):
     mandate = db_session.query(Mandate).filter_by(id="mandate-001").first()
     assert mandate is not None
     assert mandate.budget_remaining == Decimal("3000.00")
+
+
+def test_execute_executing_status_returns_409_conflict(client: TestClient, db_session):
+    """SEC-01 Regression: Attempting execution on an EXECUTING transaction returns 409 TRANSACTION_EXECUTING."""
+    txn_id = _create_allowed_transaction(client)
+
+    # Set transaction status to EXECUTING manually
+    txn = db_session.query(Transaction).filter_by(id=txn_id).first()
+    assert txn is not None
+    txn.status = "EXECUTING"
+    db_session.commit()
+
+    initial_budget = db_session.query(Mandate).filter_by(id="mandate-001").first().budget_remaining
+    initial_idemp_count = db_session.query(IdempotencyRecord).count()
+
+    with patch.object(payment_gateway, "process_payment", wraps=payment_gateway.process_payment) as mock_pg:
+        response = client.post(
+            "/transaction/execute",
+            json={"transaction_id": txn_id, "idempotency_key": "idemp-executing-test"},
+        )
+        assert response.status_code == 409
+        assert response.json()["error"]["code"] == "TRANSACTION_EXECUTING"
+
+        # Assert no payment gateway call was invoked
+        mock_pg.assert_not_called()
+
+    # Assert budget remains unchanged
+    current_budget = db_session.query(Mandate).filter_by(id="mandate-001").first().budget_remaining
+    assert current_budget == initial_budget
+
+    # Assert no duplicate idempotency record was created
+    assert db_session.query(IdempotencyRecord).count() == initial_idemp_count
+
+    # Assert transaction status remains EXECUTING
+    db_session.refresh(txn)
+    assert txn.status == "EXECUTING"
+

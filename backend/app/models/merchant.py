@@ -1,7 +1,4 @@
-# pyrefly: ignore [missing-import]
 from sqlalchemy import String
-
-# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.db.base import Base

@@ -1,11 +1,17 @@
-import uuid
 from decimal import Decimal
 
+from backend.app.integrations.razorpay_client import RazorpayClient
 
-class MockPaymentGateway:
-    """Deterministic Mock Payment Gateway for Agentic Commerce Firewall."""
 
-    def __init__(self, force_decline: bool = False):
+class PaymentGatewayService:
+    """Payment Gateway Service delegating to RazorpayClient for Agentic Commerce Firewall."""
+
+    def __init__(
+        self,
+        client: RazorpayClient | None = None,
+        force_decline: bool = False,
+    ) -> None:
+        self.client = client or RazorpayClient()
         self.force_decline = force_decline
 
     def process_payment(
@@ -13,15 +19,16 @@ class MockPaymentGateway:
         transaction_id: str,
         amount: Decimal,
     ) -> tuple[bool, str | None]:
-        """Simulate processing payment with payment gateway.
+        """Process payment via Razorpay test-mode integration.
 
         Returns (success: bool, razorpay_payment_id: str | None).
         """
-        if self.force_decline:
-            return False, None
-        payment_id = f"pay_mock_{uuid.uuid4().hex[:12]}"
-        return True, payment_id
+        return self.client.process_payment(
+            transaction_id=transaction_id,
+            amount=amount,
+            force_decline=self.force_decline,
+        )
 
 
-# Default singleton instance
-payment_gateway = MockPaymentGateway()
+# Default singleton instance maintaining Phase 2 service contract
+payment_gateway = PaymentGatewayService()

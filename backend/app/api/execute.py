@@ -49,18 +49,22 @@ def execute_transaction(
         raise HTTPException(status_code=404, detail="TRANSACTION_NOT_FOUND")
 
     # 3. Check Status Invariants & Replay Rules
+    if txn.status == "EXECUTING":
+        raise HTTPException(status_code=409, detail="TRANSACTION_EXECUTING")
+
     if txn.status == "SUCCESS":
         # New idempotency key trying to re-execute completed transaction
         raise HTTPException(status_code=409, detail="REPLAY_DETECTED")
 
-    if txn.status == "ESCALATED":
-        approval = (
-            db.query(Approval)
-            .filter_by(transaction_id=txn.id, status="approved")
-            .first()
-        )
-        if not approval:
-            raise HTTPException(status_code=202, detail="ESCALATION_REQUIRED")
+    has_approval = (
+        db.query(Approval)
+        .filter_by(transaction_id=txn.id, status="approved")
+        .first()
+        is not None
+    )
+
+    if txn.status == "ESCALATED" and not has_approval:
+        raise HTTPException(status_code=202, detail="ESCALATION_REQUIRED")
 
     if txn.status in ("DENIED", "EXPIRED", "REVOKED"):
         raise HTTPException(status_code=403, detail=txn.reason_code)
@@ -128,7 +132,7 @@ def execute_transaction(
     authoritative_total = product.price * Decimal(str(txn.quantity))
 
     # If transaction was human-approved, human approval explicitly authorized exceeding budget/max_transaction limits
-    is_human_approved = txn.reason_code == "APPROVED_BY_HUMAN"
+    is_human_approved = has_approval or txn.reason_code == "APPROVED_BY_HUMAN"
 
     if not is_human_approved and (
         mandate.budget_remaining < authoritative_total
@@ -167,6 +171,7 @@ def execute_transaction(
     # 8. Post-Payment Outcome Handling
     if success:
         txn.status = "SUCCESS"
+        txn.reason_code = "APPROVED_BY_HUMAN" if is_human_approved else "ALLOW"
         txn.executed_at = now
         txn.idempotency_key = payload.idempotency_key
 

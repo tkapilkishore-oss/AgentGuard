@@ -129,6 +129,7 @@ def upgrade() -> None:
     # 8. audit_events
     op.create_table(
         'audit_events',
+        sa.Column('seq_id', sa.Integer(), sa.Identity(start=1, cycle=False), nullable=False),
         sa.Column('id', sa.String(), nullable=False),
         sa.Column('transaction_id', sa.String(), nullable=True),
         sa.Column('event_type', sa.String(), nullable=False),
@@ -137,8 +138,9 @@ def upgrade() -> None:
         sa.Column('prev_hash', sa.String(), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(['transaction_id'], ['transactions.id'], ),
-        sa.PrimaryKeyConstraint('id')
+        sa.PrimaryKeyConstraint('seq_id')
     )
+    op.create_index(op.f('ix_audit_events_id'), 'audit_events', ['id'], unique=True)
     op.create_index(op.f('ix_audit_events_transaction_id'), 'audit_events', ['transaction_id'], unique=False)
 
     # 9. audit_chain_state

@@ -1,9 +1,6 @@
 from datetime import datetime, timezone
 
-# pyrefly: ignore [missing-import]
-from sqlalchemy import DateTime, ForeignKey, Integer, String
-
-# pyrefly: ignore [missing-import]
+from sqlalchemy import DateTime, ForeignKey, Identity, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.db.base import Base
@@ -12,7 +9,12 @@ from backend.app.db.base import Base
 class AuditEvent(Base):
     __tablename__ = "audit_events"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    seq_id: Mapped[int] = mapped_column(
+        Integer,
+        Identity(start=1, cycle=False),
+        primary_key=True,
+    )
+    id: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
     transaction_id: Mapped[str | None] = mapped_column(
         String, ForeignKey("transactions.id"), nullable=True, index=True
     )

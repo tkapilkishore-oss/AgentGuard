@@ -79,7 +79,7 @@ def verify_audit_chain(db: Session) -> tuple[bool, str | None]:
     """
     events = (
         db.query(AuditEvent)
-        .order_by(AuditEvent.created_at.asc(), AuditEvent.id.asc())
+        .order_by(AuditEvent.seq_id.asc())
         .all()
     )
     if not events:
