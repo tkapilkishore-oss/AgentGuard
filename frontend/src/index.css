@@ -1,35 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    background-color: #090d16;
-    color: #f1f5f9;
+    background-color: #EEF2F9;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(202, 185, 252, 0.90) 0px, transparent 52%),
+      radial-gradient(at 100% 100%, rgba(182, 214, 252, 0.88) 0px, transparent 52%),
+      radial-gradient(at 45% 25%, rgba(220, 204, 255, 0.78) 0px, transparent 56%),
+      radial-gradient(at 85% 45%, rgba(192, 220, 254, 0.72) 0px, transparent 52%),
+      radial-gradient(at 20% 75%, rgba(215, 200, 255, 0.65) 0px, transparent 52%);
+    background-size: 160% 160%;
+    animation: living-canvas-flow 24s ease-in-out infinite;
+    background-attachment: fixed;
+    color: #191c1e;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Monospace strictly for code, hashes, endpoints, and JSON */
+  code, pre, .font-mono {
+    font-family: 'Space Grotesk', 'JetBrains Mono', monospace;
   }
 }
 
-/* Custom scrollbar for dark security dashboard aesthetic */
+/* Living atmospheric background flowing diagonally TOP-LEFT -> BOTTOM-RIGHT */
+@keyframes living-canvas-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Precision Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #e5ebf5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: #cbd5e1;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
 
+/* Premium Fintech Glass Panels & Soft Shadows */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(220, 225, 238, 0.95);
+}
+
+.glass-panel-white {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(220, 225, 238, 0.98);
+}
+
+.bg-surface-glow {
+  background: radial-gradient(circle at 50% 0%, rgba(107, 77, 168, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.ambient-shadow-1 {
+  box-shadow: 0px 4px 24px rgba(43, 0, 102, 0.05);
+}
+
+.ambient-shadow-2 {
+  box-shadow: 0px 12px 36px rgba(43, 0, 102, 0.08);
+}
+
+.ambient-shadow-hero {
+  box-shadow: 0px 20px 50px rgba(43, 0, 102, 0.1);
+}
+
+/* 3D Card Depth */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.card-depth-hover {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.card-depth-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 14px 40px rgba(43, 0, 102, 0.09);
+}
+
+/* Energy & Pulse Animations */
+.energy-line {
+  background: linear-gradient(90deg, transparent, rgba(3, 92, 186, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: pulse-energy 3s infinite linear;
+}
+
+@keyframes pulse-energy {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.pulse-line {
+  stroke-dasharray: 8 8;
+  animation: dash 2s linear infinite;
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -16; }
+}
+
+/* Audio Waveform Bars */
+@keyframes soundwave {
+  0%, 100% { height: 4px; }
+  50% { height: 26px; }
+}
+
+.wave-bar {
+  animation: soundwave 1.2s infinite ease-in-out;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid #035cba;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    animation: none !important;
+    background-size: 100% 100% !important;
+  }
 }
