@@ -1554,9 +1554,9 @@
     "test_function": "test_propose_quantity_exceeds_stock_denied"
   },
   {
-    "content_sha256": "170023b73ff53dee15676560b3d2b13f268552c9a2fc4bf53600c5e858627a8c",
+    "content_sha256": "bb0b7ddf18638997acd5c7b98fefa79f57003b6556c5e481edf3534a6ca53baf",
     "docstring": "Exact budget boundary (3000.00) is ALLOWED.",
-    "id": "test_test_propose_endpoint_test_propose_exact_budget_boundary_170023b7",
+    "id": "test_test_propose_endpoint_test_propose_exact_budget_boundary_bb0b7ddf",
     "invariants_proven": [
       "BUDGET_EXCEEDED (ESCALATE)"
     ],

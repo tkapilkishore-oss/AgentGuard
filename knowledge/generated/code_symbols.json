@@ -5,12 +5,12 @@
       "router.post('/transaction/{transaction_id}/approve', response_model=ApiResponse[ApprovalData])"
     ],
     "dependencies": [
+      "HTTPException",
       "ApprovalData",
       "log_audit_event",
-      "str",
-      "HTTPException",
+      "Depends",
       "Approval",
-      "Depends"
+      "str"
     ],
     "docstring": "Human approval endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
     "file_path": "backend/app/api/approve.py",
@@ -27,12 +27,12 @@
       "router.post('/transaction/{transaction_id}/reject', response_model=ApiResponse[ApprovalData])"
     ],
     "dependencies": [
+      "HTTPException",
       "ApprovalData",
       "log_audit_event",
-      "str",
-      "HTTPException",
+      "Depends",
       "Approval",
-      "Depends"
+      "str"
     ],
     "docstring": "Human rejection endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
     "file_path": "backend/app/api/approve.py",
@@ -49,15 +49,15 @@
       "router.post('/transaction/execute', response_model=ApiResponse[ExecuteData])"
     ],
     "dependencies": [
-      "abs",
-      "log_audit_event",
-      "str",
-      "JSONResponse",
-      "Decimal",
       "HTTPException",
-      "ExecuteData",
+      "Decimal",
+      "JSONResponse",
+      "log_audit_event",
       "IdempotencyRecord",
-      "Depends"
+      "abs",
+      "Depends",
+      "ExecuteData",
+      "str"
     ],
     "docstring": "Execute a server-authorized transaction against the payment gateway with atomic budget reservation.",
     "file_path": "backend/app/api/execute.py",
@@ -74,17 +74,17 @@
       "router.post('/transaction/propose', response_model=ApiResponse[ProposeData])"
     ],
     "dependencies": [
-      "ProposeData",
-      "str",
+      "HTTPException",
+      "AgentProposalInput",
       "log_audit_event",
       "ProductPolicyInput",
-      "evaluate_policy",
-      "AgentProposalInput",
-      "HTTPException",
-      "timedelta",
+      "ProposeData",
       "Transaction",
       "MandatePolicyInput",
-      "Depends"
+      "Depends",
+      "timedelta",
+      "evaluate_policy",
+      "str"
     ],
     "docstring": "Process an untrusted agent transaction proposal and persist the server-authorized decision.",
     "file_path": "backend/app/api/propose.py",
@@ -116,13 +116,13 @@
       "router.post('/agent/chat', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "ProposeRequest",
-      "str",
-      "GeminiShoppingAgentClient",
       "HTTPException",
       "propose_transaction",
+      "AgentClaim",
+      "GeminiShoppingAgentClient",
       "Depends",
-      "AgentClaim"
+      "ProposeRequest",
+      "str"
     ],
     "docstring": "Reference Shopping Agent chat endpoint.\n\nInterprets user prompt, generates agent proposal claims, and passes them to\nthe server-authoritative firewall proposal endpoint.",
     "file_path": "backend/app/api/routes_agent.py",
@@ -139,8 +139,8 @@
       "router.get('/transactions', response_model=ApiResponse[list[TransactionSummary]])"
     ],
     "dependencies": [
-      "Depends",
-      "TransactionSummary"
+      "TransactionSummary",
+      "Depends"
     ],
     "docstring": "List past transactions in descending order by created_at for audit selection.",
     "file_path": "backend/app/api/routes_audit.py",
@@ -157,12 +157,12 @@
       "router.get('/transaction/{transaction_id}/audit', response_model=ApiResponse[TransactionAuditData])"
     ],
     "dependencies": [
-      "AuditEventItem",
       "TransactionSummary",
-      "HTTPException",
       "verify_audit_chain",
-      "Depends",
-      "TransactionAuditData"
+      "HTTPException",
+      "TransactionAuditData",
+      "AuditEventItem",
+      "Depends"
     ],
     "docstring": "Retrieve the authoritative server-generated audit event trace for a transaction.\n\nVerifies transaction existence, returns events in deterministic chronological\nsequence order (seq_id ASC), and reports cryptographic SHA-256 chain integrity.",
     "file_path": "backend/app/api/routes_audit.py",
@@ -179,10 +179,10 @@
       "router.post('/mandate/{mandate_id}/revoke', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "Depends",
+      "HTTPException",
       "str",
-      "log_audit_event",
-      "HTTPException"
+      "Depends",
+      "log_audit_event"
     ],
     "docstring": "Revoke an active mandate by ID.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -199,9 +199,9 @@
       "router.get('/mandate/{mandate_id}', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "Depends",
+      "HTTPException",
       "str",
-      "HTTPException"
+      "Depends"
     ],
     "docstring": "Fetch mandate details and remaining budget.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -218,8 +218,8 @@
       "router.get('/products', response_model=ApiResponse[list[dict[str, Any]]])"
     ],
     "dependencies": [
-      "Depends",
-      "str"
+      "str",
+      "Depends"
     ],
     "docstring": "Fetch product catalog for shopping agent and frontend UI.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -284,8 +284,8 @@
       "classmethod"
     ],
     "dependencies": [
-      "cls",
-      "ApiError"
+      "ApiError",
+      "cls"
     ],
     "docstring": null,
     "file_path": "backend/app/api/schemas.py",
@@ -586,8 +586,8 @@
     "content_sha256": "9f417ffed01ec890320cc01b6e804de0afcc8c3a6ac38a2eb45d75f0bef72e5a",
     "decorators": [],
     "dependencies": [
-      "int",
       "Decimal",
+      "int",
       "str"
     ],
     "docstring": "Interprets a user shopping prompt against the catalog and returns a transaction proposal.\n\nReturns a dict with structure:\n{\n    \"product_id\": str,\n    \"claimed_price\": Decimal,\n    \"quantity\": int,\n    \"thought\": str\n}",
@@ -603,9 +603,9 @@
     "content_sha256": "a8715fa251fc77863721bad0833d32b62c7c19e0fd06e4902ce1cfd89f9a004f",
     "decorators": [],
     "dependencies": [
-      "any",
       "Decimal",
-      "str"
+      "str",
+      "any"
     ],
     "docstring": "Deterministic keyword matching for demo & test reliability without external API calls.",
     "file_path": "backend/app/integrations/gemini_client.py",
@@ -732,9 +732,9 @@
     "content_sha256": "57d8f40dcb03042f59706729c0432df5011841350347b1b309b3f89a05e6f740",
     "decorators": [],
     "dependencies": [
+      "getattr",
       "hasattr",
-      "isinstance",
-      "getattr"
+      "isinstance"
     ],
     "docstring": "Recursively unpacks FastAPI routes, including nested routers and _IncludedRouter objects.",
     "file_path": "backend/app/knowledge/api_extractor.py",
@@ -749,16 +749,16 @@
     "content_sha256": "59501077f0ef76d4454c4e8b347529d44a56c8d2551fb87a42a19fc7b56327d5",
     "decorators": [],
     "dependencies": [
-      "KnowledgeUnit",
-      "list",
-      "len",
-      "str",
-      "hasattr",
-      "ApiRouteRecord",
       "Path",
+      "ApiRouteRecord",
+      "len",
+      "min",
       "max",
+      "list",
+      "hasattr",
       "getattr",
-      "min"
+      "str",
+      "KnowledgeUnit"
     ],
     "docstring": "Introspects all registered routes from the FastAPI app instance.",
     "file_path": "backend/app/knowledge/api_extractor.py",
@@ -814,11 +814,11 @@
     "content_sha256": "7374a06f07451cc629179c5bc2dd9f841ab1f14501eab2cef9ca128991479853",
     "decorators": [],
     "dependencies": [
+      "QAIssue",
+      "Path",
+      "len",
       "KnowledgeUnit",
       "str",
-      "len",
-      "Path",
-      "QAIssue",
       "isinstance"
     ],
     "docstring": "Parses a Python file using AST and extracts symbols and knowledge units.",
@@ -834,12 +834,12 @@
     "content_sha256": "7ab183fa13ac66decbee2fc4085fa0b70e8a377af6babc5e3ff77648ce1d4ba2",
     "decorators": [],
     "dependencies": [
-      "KnowledgeUnit",
-      "set",
-      "list",
-      "CodeSymbolRecord",
       "Path",
+      "KnowledgeUnit",
+      "list",
       "CodeRelationship",
+      "CodeSymbolRecord",
+      "set",
       "isinstance"
     ],
     "docstring": "Extracts a function/method symbol and knowledge unit.",
@@ -855,10 +855,10 @@
     "content_sha256": "babd546247093e30f5950b845a62aef7b8a8b6ad642fd462394ff603bfa8fd6a",
     "decorators": [],
     "dependencies": [
-      "KnowledgeUnit",
-      "CodeSymbolRecord",
       "Path",
+      "KnowledgeUnit",
       "CodeRelationship",
+      "CodeSymbolRecord",
       "isinstance"
     ],
     "docstring": "Extracts a class symbol, its methods, and knowledge units.",
@@ -915,18 +915,18 @@
     "content_sha256": "8ede881f789bd59485376a496dc8476a7e47b401e16fec1664e944b043e64c19",
     "decorators": [],
     "dependencies": [
-      "FrontendExtractor",
-      "CodeAstExtractor",
       "len",
-      "any",
+      "CodeAstExtractor",
       "KnowledgeManifest",
-      "ConflictDetector",
-      "DocIngestor",
+      "FrontendExtractor",
       "ApiExtractor",
-      "TestExtractor",
-      "sum",
+      "any",
       "QAReport",
-      "CoverageMetrics"
+      "CoverageMetrics",
+      "DocIngestor",
+      "ConflictDetector",
+      "sum",
+      "TestExtractor"
     ],
     "docstring": "Executes full knowledge extraction, secret scanning, QA validation, and persistence.",
     "file_path": "backend/app/knowledge/builder.py",
@@ -1066,9 +1066,9 @@
     "content_sha256": "57d8f40dcb03042f59706729c0432df5011841350347b1b309b3f89a05e6f740",
     "decorators": [],
     "dependencies": [
+      "getattr",
       "hasattr",
-      "isinstance",
-      "getattr"
+      "isinstance"
     ],
     "docstring": "Recursively unpacks FastAPI routes, including nested routers and _IncludedRouter objects.",
     "file_path": "backend/app/knowledge/conflict_detector.py",
@@ -1141,9 +1141,9 @@
     "decorators": [],
     "dependencies": [
       "QAIssue",
+      "str",
       "enumerate",
-      "len",
-      "str"
+      "len"
     ],
     "docstring": "Parses a single markdown documentation file into heading-structured KnowledgeUnits.",
     "file_path": "backend/app/knowledge/doc_ingestor.py",
@@ -1158,8 +1158,8 @@
     "content_sha256": "9e3379139188bde7a4ab98f2b7c201b946b468e5ce32aa2c6449f1cf41e6223d",
     "decorators": [],
     "dependencies": [
-      "KnowledgeUnit",
-      "Path"
+      "Path",
+      "KnowledgeUnit"
     ],
     "docstring": "Constructs a deterministic KnowledgeUnit.",
     "file_path": "backend/app/knowledge/doc_ingestor.py",
@@ -1228,12 +1228,12 @@
     "content_sha256": "bdfc5f752fea199f6f2ef681d81a92b2fbe4b0ee75e4fbff8c6ed3f66e4c16ca",
     "decorators": [],
     "dependencies": [
-      "KnowledgeUnit",
-      "set",
-      "len",
-      "str",
       "QAIssue",
-      "CodeRelationship"
+      "len",
+      "CodeRelationship",
+      "set",
+      "str",
+      "KnowledgeUnit"
     ],
     "docstring": "Extracts component definitions, UI actions, and API bindings from a TS/TSX file.",
     "file_path": "backend/app/knowledge/frontend_extractor.py",
@@ -1568,8 +1568,8 @@
       "classmethod"
     ],
     "dependencies": [
-      "CodeRelationship",
-      "list"
+      "list",
+      "CodeRelationship"
     ],
     "docstring": "Enriches knowledge units with cross-layer architecture relationships.",
     "file_path": "backend/app/knowledge/relationships.py",
@@ -1616,9 +1616,9 @@
       "classmethod"
     ],
     "dependencies": [
-      "any",
       "QAIssue",
-      "list"
+      "list",
+      "any"
     ],
     "docstring": "Scans text for secrets, redacts any matches, and returns (redacted_text, issues, is_clean).\n\nIf a non-placeholder secret is detected, an ERROR issue is emitted.",
     "file_path": "backend/app/knowledge/secret_scanner.py",
@@ -1674,15 +1674,15 @@
     "content_sha256": "0e73443a0c5df57b1722dafb54d2c125c5204f682537e9338e0101563d886016",
     "decorators": [],
     "dependencies": [
-      "TestKnowledgeRecord",
-      "KnowledgeUnit",
-      "set",
-      "list",
-      "str",
-      "Path",
       "QAIssue",
+      "Path",
+      "TestKnowledgeRecord",
+      "list",
       "CodeRelationship",
-      "isinstance"
+      "isinstance",
+      "set",
+      "str",
+      "KnowledgeUnit"
     ],
     "docstring": "Parses a test file using AST and extracts test metadata and knowledge units.",
     "file_path": "backend/app/knowledge/test_extractor.py",
@@ -1972,9 +1972,9 @@
     "content_sha256": "949c215c0b2d52715474360ba8bd24e7153c344adf66355987f3236b09d8eefc",
     "decorators": [],
     "dependencies": [
-      "abs",
       "PolicyEvaluationResult",
       "Decimal",
+      "abs",
       "isinstance"
     ],
     "docstring": "Pure Python policy engine for Agentic Commerce Firewall.\n\nAuthoritative Validation Order:\n1. Check mandate status (must be active)\n2. Check mandate expiry\n3. Authoritative product/merchant data supplied directly\n4. Validate quantity (int, not bool, >= 1, <= stock, <= 10)\n5. Compare claimed price vs authoritative price\n6. Verify merchant scope using server-derived product.merchant_id\n7. Compute authoritative_total = product.price * quantity\n8. Compare authoritative_total against budget_remaining & max_transaction_amount\n9. Return decision (ALLOW, ESCALATE, DENY) and canonical reason code",
@@ -2125,9 +2125,9 @@
     "content_sha256": "1155ead1076e4a74e995b75f579a5cd1f37af41d3c0a7191cc643848f046756e",
     "decorators": [],
     "dependencies": [
-      "RetrievalResult",
+      "RetrievalScoreBreakdown",
       "set",
-      "RetrievalScoreBreakdown"
+      "RetrievalResult"
     ],
     "docstring": "Finds direct AST symbol evidence plus associated tests and callers.",
     "file_path": "backend/app/retrieval/ast_retriever.py",
@@ -2168,8 +2168,8 @@
     "content_sha256": "ed4156dd440029c001c39bdafaeb4f2380bda915ad421209982bb0c5e5b605d6",
     "decorators": [],
     "dependencies": [
-      "bool",
-      "DynamicLiveAction"
+      "DynamicLiveAction",
+      "bool"
     ],
     "docstring": "Explainable bidirectional detection of live operational state queries.",
     "file_path": "backend/app/retrieval/classifier.py",
@@ -2185,8 +2185,8 @@
     "decorators": [],
     "dependencies": [
       "bool",
-      "QueryClassification",
-      "len"
+      "len",
+      "QueryClassification"
     ],
     "docstring": "Classifies a natural language query into a structured QueryClassification.",
     "file_path": "backend/app/retrieval/classifier.py",
@@ -2231,8 +2231,8 @@
       "staticmethod"
     ],
     "dependencies": [
-      "RetrievalResult",
-      "RetrievalScoreBreakdown"
+      "RetrievalScoreBreakdown",
+      "RetrievalResult"
     ],
     "docstring": "Generates the authoritative LIVE_QUERY_REQUIRED sentinel result for dynamic queries.",
     "file_path": "backend/app/retrieval/dynamic_safeguards.py",
@@ -2275,12 +2275,12 @@
     "content_sha256": "1af105a3a35a642dd95df246599b704c7e73da616ad954ac35886b1b8546a610",
     "decorators": [],
     "dependencies": [
-      "SemanticMatcher",
       "ExactMatcher",
-      "QueryClassifier",
+      "SemanticMatcher",
       "LexicalBM25Matcher",
-      "AstCodeRetriever",
-      "AuthorityReranker"
+      "QueryClassifier",
+      "AuthorityReranker",
+      "AstCodeRetriever"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/engine.py",
@@ -2436,17 +2436,17 @@
     "content_sha256": "07dc23d49c31b63c6f9da12fe0b89aa174d46a4fdd757c82b816bc8143a69b34",
     "decorators": [],
     "dependencies": [
-      "defaultdict",
-      "len",
-      "range",
-      "any",
-      "EvaluationSummary",
-      "CategoryEvaluationMetric",
-      "round",
       "dict",
+      "zip",
+      "range",
+      "len",
+      "defaultdict",
+      "any",
       "sum",
       "max",
-      "zip"
+      "CategoryEvaluationMetric",
+      "round",
+      "EvaluationSummary"
     ],
     "docstring": "Executes the benchmark evaluation dataset and computes granular category metrics.",
     "file_path": "backend/app/retrieval/evaluation.py",
@@ -2519,8 +2519,8 @@
     "content_sha256": "e8160aaa154cf821ded387c3c94409a943f8131ea0b40766a2a165c5b2f1d3c7",
     "decorators": [],
     "dependencies": [
-      "Path",
-      "len"
+      "len",
+      "Path"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/exact_matcher.py",
@@ -2535,9 +2535,9 @@
     "content_sha256": "ed691d6f260559dc9ff3160663913e8996a13873ed4b62ea1a554a5dbb5b9315",
     "decorators": [],
     "dependencies": [
-      "sorted",
-      "RetrievalResult",
       "RetrievalScoreBreakdown",
+      "RetrievalResult",
+      "sorted",
       "len"
     ],
     "docstring": "Performs multi-key exact matching against extracted query entities.",
@@ -2597,8 +2597,8 @@
     "content_sha256": "73a064b54178522be63b5f6f46708d011ea6358fa6bf552302adcc58949346ad",
     "decorators": [],
     "dependencies": [
-      "max",
       "Counter",
+      "max",
       "len"
     ],
     "docstring": null,
@@ -2615,10 +2615,10 @@
     "decorators": [],
     "dependencies": [
       "range",
-      "max",
+      "min",
       "RetrievalScoreBreakdown",
-      "RetrievalResult",
-      "min"
+      "max",
+      "RetrievalResult"
     ],
     "docstring": "Executes BM25 search over the indexed knowledge units.",
     "file_path": "backend/app/retrieval/lexical_matcher.py",
@@ -2842,8 +2842,8 @@
     "content_sha256": "6579a6ce11b8657a2d561bb465205b07ea71ffe264bc13a59b42702e8511acea",
     "decorators": [],
     "dependencies": [
-      "max",
       "round",
+      "max",
       "len",
       "any"
     ],
@@ -2933,9 +2933,9 @@
     "content_sha256": "86115aeda43d00a0c048e9d2ee5cd8ac9aec5aba985e3637dfd3d56bd1ba7cb6",
     "decorators": [],
     "dependencies": [
-      "len",
+      "range",
       "list",
-      "range"
+      "len"
     ],
     "docstring": "Extracts word tokens, character 3-grams and 4-grams for subword semantic capture.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -2950,11 +2950,11 @@
     "content_sha256": "6e5db617138ce81ef4532d8b95afcf4200014ae7638530602ce427ebe0bd4cd8",
     "decorators": [],
     "dependencies": [
-      "set",
       "enumerate",
-      "defaultdict",
       "len",
-      "sorted"
+      "defaultdict",
+      "sorted",
+      "set"
     ],
     "docstring": "Builds the vocabulary and IDF tables from the knowledge corpus.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -2969,8 +2969,8 @@
     "content_sha256": "b2e06c156171cdd16061fd70d6f8c16faa7680d3e683f32cd47a2181db88fda8",
     "decorators": [],
     "dependencies": [
-      "sum",
       "Counter",
+      "sum",
       "len"
     ],
     "docstring": null,
@@ -3113,11 +3113,11 @@
     "decorators": [],
     "dependencies": [
       "enumerate",
+      "min",
+      "RetrievalScoreBreakdown",
       "any",
       "max",
-      "RetrievalScoreBreakdown",
-      "RetrievalResult",
-      "min"
+      "RetrievalResult"
     ],
     "docstring": "Performs cosine vector search across all indexed units.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -3158,11 +3158,11 @@
     "content_sha256": "946a9f20261080e2280f1b2ae255e003fa0501244d7859f6c418f9203307b5a5",
     "decorators": [],
     "dependencies": [
-      "str",
-      "compute_payload_hash",
-      "compute_event_hash",
       "AuditChainState",
-      "AuditEvent"
+      "compute_payload_hash",
+      "AuditEvent",
+      "compute_event_hash",
+      "str"
     ],
     "docstring": "Appends a new tamper-evident audit event to the server-side hash chain under row lock.",
     "file_path": "backend/app/services/audit_log.py",

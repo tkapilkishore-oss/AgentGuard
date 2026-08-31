@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -244,23 +245,25 @@ def test_propose_quantity_exceeds_stock_denied(client: TestClient, db_session):
 
 def test_propose_exact_budget_boundary(client: TestClient):
     """Exact budget boundary (3000.00) is ALLOWED."""
-    payload = {
+    claim_data: dict[str, Any] = {
+        "product_id": "prod-002",
+        "claimed_price": 2799.00,
+        "quantity": 1,
+    }
+    payload: dict[str, Any] = {
         "user_id": "user-001",
         "mandate_id": "mandate-001",
-        "agent_claim": {
-            "product_id": "prod-002",
-            "claimed_price": 2799.00,
-            "quantity": 1,
-        },
+        "agent_claim": claim_data,
     }
     # Update product price to exact 3000.00
     db = SessionLocal()
     prod = db.query(Product).filter_by(id="prod-002").first()
+    assert prod is not None
     prod.price = Decimal("3000.00")
     db.commit()
     db.close()
 
-    payload["agent_claim"]["claimed_price"] = 3000.00
+    claim_data["claimed_price"] = 3000.00
     response = client.post("/transaction/propose", json=payload)
     assert response.status_code == 200
     data = response.json()["data"]

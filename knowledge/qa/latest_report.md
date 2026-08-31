@@ -1,7 +1,7 @@
 # AgentGuard Knowledge QA & Validation Report
 
 - **Status**: `VALID`
-- **Generated At**: `2026-08-31T09:31:14.163294+00:00`
+- **Generated At**: `2026-08-31T09:35:08.996318+00:00`
 - **Secret Scan Clean**: `PASS`
 
 ## Coverage Metrics
