@@ -137,6 +137,10 @@ class AuthorityReranker:
                         align_bonus += 0.30
                 elif item.source_tier in (SourceTier.TIER_5_SPEC_DOCS, SourceTier.TIER_6_HISTORICAL):
                     align_bonus -= 0.20
+            elif classification.category == QueryCategory.CONCEPTUAL_PROJECT and (
+                item.source_tier == SourceTier.TIER_5_SPEC_DOCS or item.source_type == "CANONICAL_FACT"
+            ):
+                align_bonus += self.weights.bonus_alignment
             elif classification.category == QueryCategory.DYNAMIC_LIVE_DATA and item.authority == AuthorityType.DYNAMIC_LIVE_REQUIRED:
                 align_bonus += 0.50
 

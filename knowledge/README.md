@@ -5,8 +5,8 @@ Validated, versioned knowledge repository for the AgentGuard Conversational Brai
 ## Manifest Summary
 - **Version**: `5.5B-1.0.0`
 - **QA Status**: `VALID`
-- **Total Knowledge Units**: `651`
-- **Built At**: `2026-08-31T09:35:08.996318+00:00`
+- **Total Knowledge Units**: `777`
+- **Built At**: `2026-08-31T12:29:52.248914+00:00`
 
 ## Directory Layout
 - `canonical/`: Authoritative facts and domain classifications.

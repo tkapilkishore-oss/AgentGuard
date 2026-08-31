@@ -130,6 +130,45 @@
     "source_line": 50
   },
   {
+    "handler_name": "conversational_query",
+    "id": "api_post_conversational_query",
+    "is_mutation": true,
+    "method": "POST",
+    "path": "/conversational/query",
+    "request_model": "ConversationalQueryRequest",
+    "response_model": "ApiResponse[AssistantResponse]",
+    "safety_level": "PROPOSE_ONLY",
+    "security_significance": "Standard API endpoint.",
+    "source_file": "backend/app/api/routes_conversational.py",
+    "source_line": 23
+  },
+  {
+    "handler_name": "get_session",
+    "id": "api_get_conversational_session__session_id",
+    "is_mutation": false,
+    "method": "GET",
+    "path": "/conversational/session/{session_id}",
+    "request_model": null,
+    "response_model": "ApiResponse[ConversationSession]",
+    "safety_level": "READ_ONLY",
+    "security_significance": "Standard API endpoint.",
+    "source_file": "backend/app/api/routes_conversational.py",
+    "source_line": 42
+  },
+  {
+    "handler_name": "reset_session",
+    "id": "api_delete_conversational_session__session_id",
+    "is_mutation": true,
+    "method": "DELETE",
+    "path": "/conversational/session/{session_id}",
+    "request_model": null,
+    "response_model": "ApiResponse[dict[str, Any]]",
+    "safety_level": "PROPOSE_ONLY",
+    "security_significance": "Standard API endpoint.",
+    "source_file": "backend/app/api/routes_conversational.py",
+    "source_line": 52
+  },
+  {
     "handler_name": "health_check",
     "id": "api_get_health",
     "is_mutation": false,
@@ -140,7 +179,7 @@
     "safety_level": "READ_ONLY",
     "security_significance": "Service liveness and health probe.",
     "source_file": "backend/app/main.py",
-    "source_line": 93
+    "source_line": 95
   },
   {
     "handler_name": "_endpoint",

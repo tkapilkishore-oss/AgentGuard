@@ -714,6 +714,382 @@
     "test_function": "test_audit_same_timestamp_events_verify_successfully"
   },
   {
+    "content_sha256": "e69cf5ff9f811def20eacb202307e9952715a185899b13055b7ce9811ecc9421",
+    "docstring": "Verify POST /conversational/query processes queries and returns structured response.",
+    "id": "test_test_conversational_api_test_conversational_query_endpoint_e69cf5ff",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_api.py",
+    "test_function": "test_conversational_query_endpoint"
+  },
+  {
+    "content_sha256": "c20de632cb77481757d257a737ee0037a4686ff408cc99b5743a1207db0d15ae",
+    "docstring": "Verify GET /conversational/session/{id} and DELETE /conversational/session/{id}.",
+    "id": "test_test_conversational_api_test_conversational_session_inspection_and_reset_c20de632",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_api.py",
+    "test_function": "test_conversational_session_inspection_and_reset"
+  },
+  {
+    "content_sha256": "bb5505199867146b2018139a9db6466a84de2365a47ff990dac5dc37b2f3cd01",
+    "docstring": "Verify intent categories are comprehensive and match taxonomy.",
+    "id": "test_test_conversational_contracts_test_intent_category_enum_values_bb550519",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_contracts.py",
+    "test_function": "test_intent_category_enum_values"
+  },
+  {
+    "content_sha256": "8c63f1b62f50da499bcf01941abb5604b05f629aec3f69ead1383872211bd6eb",
+    "docstring": "Verify ConversationTurn model fields and serialization.",
+    "id": "test_test_conversational_contracts_test_conversation_turn_model_instantiation_8c63f1b6",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_contracts.py",
+    "test_function": "test_conversation_turn_model_instantiation"
+  },
+  {
+    "content_sha256": "a8c71dd34507139f50d5445a16e9ae7252c4f0a9c539b38fdf57b8bc6722bf2b",
+    "docstring": "Verify live tool request/result models.",
+    "id": "test_test_conversational_contracts_test_live_tool_request_and_result_contracts_a8c71dd3",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_contracts.py",
+    "test_function": "test_live_tool_request_and_result_contracts"
+  },
+  {
+    "content_sha256": "d4400648783730f31f477988cb0900d482ba026cba5460f1b55f89ad438d8433",
+    "docstring": "Verify AssistantResponse envelope with trace and followups.",
+    "id": "test_test_conversational_contracts_test_assistant_response_contract_serialization_d4400648",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_contracts.py",
+    "test_function": "test_assistant_response_contract_serialization"
+  },
+  {
+    "content_sha256": "470d69972831cf6e28959843573f7284230bd7a23fc1c4b6048e3b9dbf47f0ea",
+    "docstring": "Verify conceptual questions are mapped to CONCEPT_EXPLANATION.",
+    "id": "test_test_conversational_intent_test_basic_concept_intent_470d6997",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_basic_concept_intent"
+  },
+  {
+    "content_sha256": "c53b02e31153137bd27554f5d1d4b9b3fff597ad2755b090b78cc715bd0cbadc",
+    "docstring": "Verify threat questions are mapped to SECURITY_SCENARIO.",
+    "id": "test_test_conversational_intent_test_security_scenario_intent_c53b02e3",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_security_scenario_intent"
+  },
+  {
+    "content_sha256": "084411854d45d06373e176a3168eb3189a7feb26d595ce4835f3cc53f6dcf161",
+    "docstring": "Verify budget questions deterministically route to live tool.",
+    "id": "test_test_conversational_intent_test_deterministic_live_budget_routing_08441185",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_deterministic_live_budget_routing"
+  },
+  {
+    "content_sha256": "4d7a7b83f9fb18ebc04920b460ca26865bcf14e0009843a62992a7d2b7b464ec",
+    "docstring": "Verify transaction status queries route to live tool.",
+    "id": "test_test_conversational_intent_test_deterministic_live_transaction_routing_4d7a7b83",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_deterministic_live_transaction_routing"
+  },
+  {
+    "content_sha256": "cca1dd8d30be9865ff43c6d79b0fdb8d3096ec2528156b58636030050b2eb28b",
+    "docstring": "Verify 'where is that implemented' resolves using previous active topic.",
+    "id": "test_test_conversational_intent_test_pronoun_resolution_with_session_context_cca1dd8d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_pronoun_resolution_with_session_context"
+  },
+  {
+    "content_sha256": "cd8649bd9e610773f5bfc1114a784fc4874d0fa2e9bda3910939be8aa2ff9912",
+    "docstring": "Verify user saying 'No, forget that. Tell me about replay attacks' switches topic cleanly.",
+    "id": "test_test_conversational_intent_test_topic_rejection_and_switch_cd8649bd",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_topic_rejection_and_switch"
+  },
+  {
+    "content_sha256": "1490857e5b3ff220d7cd8b1bebbc7e5a40233e2ea6783278c69ff5f9a44b7245",
+    "docstring": "Verify prompt injection overrides are caught and flagged as adversarial.",
+    "id": "test_test_conversational_intent_test_adversarial_injection_detection_1490857e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intent.py",
+    "test_function": "test_adversarial_injection_detection"
+  },
+  {
+    "content_sha256": "0ff1d004593c7d1d19a02d68bd1124845689d66202a8f0889b1c3fabccc38e3f",
+    "docstring": "Verify live mandate budget returns authoritative values from PostgreSQL.",
+    "id": "test_test_conversational_live_bridge_test_live_mandate_budget_query_0ff1d004",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_live_bridge.py",
+    "test_function": "test_live_mandate_budget_query"
+  },
+  {
+    "content_sha256": "a877da5009869ddee2f9555f530006deba5decb5ce318b440e92562b7bf39412",
+    "docstring": "Verify budget shortfall calculation against product catalog.",
+    "id": "test_test_conversational_live_bridge_test_live_product_affordability_query_a877da50",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_live_bridge.py",
+    "test_function": "test_live_product_affordability_query"
+  },
+  {
+    "content_sha256": "046ebb349abacece558088cef6d94a64bcadc48965d94c8b0c8b1e4be9c640e4",
+    "docstring": "Verify product catalog queries active inventory.",
+    "id": "test_test_conversational_live_bridge_test_live_product_catalog_query_046ebb34",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_live_bridge.py",
+    "test_function": "test_live_product_catalog_query"
+  },
+  {
+    "content_sha256": "c423c0523a84a16b9f6014bc0ed8e9ba7bf780fb01bd34b4ce50d5d7610c6d5d",
+    "docstring": "Verify live cryptographic SHA-256 audit chain check.",
+    "id": "test_test_conversational_live_bridge_test_live_audit_chain_verification_query_c423c052",
+    "invariants_proven": [
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_live_bridge.py",
+    "test_function": "test_live_audit_chain_verification_query"
+  },
+  {
+    "content_sha256": "84c7f03371f1ab749b1c1a2ab5dce0eaf2f3935fd721286ed3322464d752fdde",
+    "docstring": "Verify Conversation A: Identity -> Untrusted LLM -> Price Tampering -> Code -> Page.",
+    "id": "test_test_conversational_orchestrator_test_conversation_a_architecture_and_code_84c7f033",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_a_architecture_and_code"
+  },
+  {
+    "content_sha256": "d0ddaa2e95c180a600db8671fba69117a85a202726fe08eb3992bf9f990258d3",
+    "docstring": "Verify Conversation B: Audit Chain -> Tamper Proof -> Code -> Forensic Lookup.",
+    "id": "test_test_conversational_orchestrator_test_conversation_b_audit_chain_and_forensics_d0ddaa2e",
+    "invariants_proven": [
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_b_audit_chain_and_forensics"
+  },
+  {
+    "content_sha256": "be899e469fa3623e59372986bb114e6e9f1bce904ad29144e495f2098312306d",
+    "docstring": "Verify Conversation C: Live Budget -> Earbuds Affordability -> Txn Status -> Decision Trace.",
+    "id": "test_test_conversational_orchestrator_test_conversation_c_live_budget_and_affordability_be899e46",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_c_live_budget_and_affordability"
+  },
+  {
+    "content_sha256": "415afc3d23cc9fbe98472ad9a857070cefc0cf569daeb2bae68da45f024f2c7b",
+    "docstring": "Verify Conversation D: Threat Lab -> Scenario -> Topic Switch to Replay -> Code.",
+    "id": "test_test_conversational_orchestrator_test_conversation_d_threat_lab_and_topic_switch_415afc3d",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_d_threat_lab_and_topic_switch"
+  },
+  {
+    "content_sha256": "7ac5994785a939299197a26a5bc2e130f5add93c1e69f8c08dd019baa8f4304d",
+    "docstring": "Verify Conversation E: Injection -> Secrets -> Bypass -> Educational Explanation.",
+    "id": "test_test_conversational_orchestrator_test_conversation_e_adversarial_safety_and_refusal_7ac59947",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_e_adversarial_safety_and_refusal"
+  },
+  {
+    "content_sha256": "cc761da49942517383484a64ba0956398f6796d7c35a85c1cdc4da42e25af4a6",
+    "docstring": "Verify 12-turn complex multi-turn stress test sequence.",
+    "id": "test_test_conversational_orchestrator_test_conversation_f_multi_turn_stress_12_turns_cc761da4",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_f_multi_turn_stress_12_turns"
+  },
+  {
+    "content_sha256": "92116c26742e8b0bcc538f3a7d3e9742fd256bd97a3407d2b5c0c7999284f00f",
+    "docstring": "Verify progressive disclosure acceptance, rejection, and suppression.",
+    "id": "test_test_conversational_orchestrator_test_conversation_g_progressive_disclosure_dynamics_92116c26",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_g_progressive_disclosure_dynamics"
+  },
+  {
+    "content_sha256": "2f133714a078e82c7ee19638a1b2ece2945ff46445596a1bcff550e6a83f1d3e",
+    "docstring": "Verify failure safety, edge cases, missing entities, and out-of-scope queries.",
+    "id": "test_test_conversational_orchestrator_test_conversation_h_failure_safety_and_edge_cases_2f133714",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_h_failure_safety_and_edge_cases"
+  },
+  {
+    "content_sha256": "a0d8002fd446160b6e6547577b178d5e9caa65686537421f3a2c04fc551d750c",
+    "docstring": "Verify natural paraphrase expressions for code location and UI navigation.",
+    "id": "test_test_conversational_orchestrator_test_conversation_i_natural_paraphrases_and_code_a0d8002f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_i_natural_paraphrases_and_code"
+  },
+  {
+    "content_sha256": "a864d391a27cd6745c8dd667bf21276d89590a1c4bd3d18a603e75c93cf4ff86",
+    "docstring": "Verify unbreakable zero-financial-authority across all 7 prompt attacks.",
+    "id": "test_test_conversational_orchestrator_test_conversation_j_security_stress_suite_a864d391",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_orchestrator.py",
+    "test_function": "test_conversation_j_security_stress_suite"
+  },
+  {
+    "content_sha256": "5fdb73bf5d3f1b45011cfa7de669b0987efbfbb2bb789e33ff24f414da820e63",
+    "docstring": "Verify price tampering topic generates a targeted code implementation offer.",
+    "id": "test_test_conversational_progressive_test_progressive_disclosure_for_price_tampering_5fdb73bf",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_progressive.py",
+    "test_function": "test_progressive_disclosure_for_price_tampering"
+  },
+  {
+    "content_sha256": "de7a8747d05501a2ba83fde1cf9a7c6dafdcddfbf8225b298010ae93684d2367",
+    "docstring": "Verify disclosure offers are suppressed for adversarial queries.",
+    "id": "test_test_conversational_progressive_test_suppress_disclosure_for_adversarial_de7a8747",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_progressive.py",
+    "test_function": "test_suppress_disclosure_for_adversarial"
+  },
+  {
+    "content_sha256": "bd238029c2d19110e065a187cc1849f4ae30d41ad3c6cf7b8bc8c46026107aaf",
+    "docstring": "Verify accepting a follow-up does not endlessly chain further code offers.",
+    "id": "test_test_conversational_progressive_test_progressive_disclosure_followup_accepted_bd238029",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_progressive.py",
+    "test_function": "test_progressive_disclosure_followup_accepted"
+  },
+  {
+    "content_sha256": "902ebde20b6b49e58bd94aec985e04437a1ab15f1ae1057fe7c72ab863f74e7c",
+    "docstring": "Verify that direct transaction execution/approval attempts are blocked.",
+    "id": "test_test_conversational_safety_test_zero_financial_authority_enforcement_902ebde2",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_safety.py",
+    "test_function": "test_zero_financial_authority_enforcement"
+  },
+  {
+    "content_sha256": "e69ff971eab4dfc59cb74db26596e1640f1873acab49201d34f71060c0c96a98",
+    "docstring": "Verify secret requests are blocked and refused safely.",
+    "id": "test_test_conversational_safety_test_secret_exfiltration_blocking_e69ff971",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_safety.py",
+    "test_function": "test_secret_exfiltration_blocking"
+  },
+  {
+    "content_sha256": "1a104f758799658526f6a2629e9e61006a0febd8978010165429c93ffdce9976",
+    "docstring": "Verify output text is scrubbed of potential secrets or keys.",
+    "id": "test_test_conversational_safety_test_output_secret_scrubbing_1a104f75",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_safety.py",
+    "test_function": "test_output_secret_scrubbing"
+  },
+  {
+    "content_sha256": "fb72b24f9dac8e9fe0c75c452aebea82f876733af5f46d679ab3812c480fb562",
+    "docstring": "Verify session creation, retrieval, reset, and deletion.",
+    "id": "test_test_conversational_state_test_session_lifecycle_fb72b24f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_state.py",
+    "test_function": "test_session_lifecycle"
+  },
+  {
+    "content_sha256": "6ccbb7ff81e2d7ddb008ecd9c4226eb13ce366e30ebdce99bd878838127dbf7f",
+    "docstring": "Verify history respects max_history_turns sliding window.",
+    "id": "test_test_conversational_state_test_history_sliding_window_6ccbb7ff",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_state.py",
+    "test_function": "test_history_sliding_window"
+  },
+  {
+    "content_sha256": "25abd676c8f0a205f01a1d5a61f96e44821291c5cfaa5f45c557eb63f6cfd213",
+    "docstring": "Verify topic evolution across turns.",
+    "id": "test_test_conversational_state_test_topic_context_evolution_25abd676",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_state.py",
+    "test_function": "test_topic_context_evolution"
+  },
+  {
     "content_sha256": "546966b96074177713930de104747af9eb7bdbbabd9e2998ab58f7bf70cb0595",
     "docstring": "Verify database connection and SELECT 1 query.",
     "id": "test_test_db_foundation_test_database_connectivity_546966b9",
