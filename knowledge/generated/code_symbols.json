@@ -6,11 +6,11 @@
     ],
     "dependencies": [
       "ApprovalData",
+      "log_audit_event",
       "str",
-      "Depends",
-      "Approval",
       "HTTPException",
-      "log_audit_event"
+      "Approval",
+      "Depends"
     ],
     "docstring": "Human approval endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
     "file_path": "backend/app/api/approve.py",
@@ -28,11 +28,11 @@
     ],
     "dependencies": [
       "ApprovalData",
+      "log_audit_event",
       "str",
-      "Depends",
-      "Approval",
       "HTTPException",
-      "log_audit_event"
+      "Approval",
+      "Depends"
     ],
     "docstring": "Human rejection endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
     "file_path": "backend/app/api/approve.py",
@@ -49,15 +49,15 @@
       "router.post('/transaction/execute', response_model=ApiResponse[ExecuteData])"
     ],
     "dependencies": [
-      "Decimal",
-      "IdempotencyRecord",
-      "str",
-      "Depends",
       "abs",
-      "HTTPException",
+      "log_audit_event",
+      "str",
       "JSONResponse",
+      "Decimal",
+      "HTTPException",
       "ExecuteData",
-      "log_audit_event"
+      "IdempotencyRecord",
+      "Depends"
     ],
     "docstring": "Execute a server-authorized transaction against the payment gateway with atomic budget reservation.",
     "file_path": "backend/app/api/execute.py",
@@ -76,15 +76,15 @@
     "dependencies": [
       "ProposeData",
       "str",
-      "MandatePolicyInput",
-      "Depends",
+      "log_audit_event",
+      "ProductPolicyInput",
       "evaluate_policy",
+      "AgentProposalInput",
       "HTTPException",
       "timedelta",
-      "log_audit_event",
-      "AgentProposalInput",
       "Transaction",
-      "ProductPolicyInput"
+      "MandatePolicyInput",
+      "Depends"
     ],
     "docstring": "Process an untrusted agent transaction proposal and persist the server-authorized decision.",
     "file_path": "backend/app/api/propose.py",
@@ -117,12 +117,12 @@
     ],
     "dependencies": [
       "ProposeRequest",
-      "AgentClaim",
       "str",
-      "Depends",
+      "GeminiShoppingAgentClient",
       "HTTPException",
       "propose_transaction",
-      "GeminiShoppingAgentClient"
+      "Depends",
+      "AgentClaim"
     ],
     "docstring": "Reference Shopping Agent chat endpoint.\n\nInterprets user prompt, generates agent proposal claims, and passes them to\nthe server-authoritative firewall proposal endpoint.",
     "file_path": "backend/app/api/routes_agent.py",
@@ -139,8 +139,8 @@
       "router.get('/transactions', response_model=ApiResponse[list[TransactionSummary]])"
     ],
     "dependencies": [
-      "TransactionSummary",
-      "Depends"
+      "Depends",
+      "TransactionSummary"
     ],
     "docstring": "List past transactions in descending order by created_at for audit selection.",
     "file_path": "backend/app/api/routes_audit.py",
@@ -157,12 +157,12 @@
       "router.get('/transaction/{transaction_id}/audit', response_model=ApiResponse[TransactionAuditData])"
     ],
     "dependencies": [
-      "TransactionAuditData",
-      "Depends",
+      "AuditEventItem",
       "TransactionSummary",
       "HTTPException",
       "verify_audit_chain",
-      "AuditEventItem"
+      "Depends",
+      "TransactionAuditData"
     ],
     "docstring": "Retrieve the authoritative server-generated audit event trace for a transaction.\n\nVerifies transaction existence, returns events in deterministic chronological\nsequence order (seq_id ASC), and reports cryptographic SHA-256 chain integrity.",
     "file_path": "backend/app/api/routes_audit.py",
@@ -179,9 +179,9 @@
       "router.post('/mandate/{mandate_id}/revoke', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "log_audit_event",
-      "str",
       "Depends",
+      "str",
+      "log_audit_event",
       "HTTPException"
     ],
     "docstring": "Revoke an active mandate by ID.",
@@ -199,8 +199,8 @@
       "router.get('/mandate/{mandate_id}', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "str",
       "Depends",
+      "str",
       "HTTPException"
     ],
     "docstring": "Fetch mandate details and remaining budget.",
@@ -218,8 +218,8 @@
       "router.get('/products', response_model=ApiResponse[list[dict[str, Any]]])"
     ],
     "dependencies": [
-      "str",
-      "Depends"
+      "Depends",
+      "str"
     ],
     "docstring": "Fetch product catalog for shopping agent and frontend UI.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -284,8 +284,8 @@
       "classmethod"
     ],
     "dependencies": [
-      "ApiError",
-      "cls"
+      "cls",
+      "ApiError"
     ],
     "docstring": null,
     "file_path": "backend/app/api/schemas.py",
@@ -583,16 +583,16 @@
     "symbol_type": "method"
   },
   {
-    "content_sha256": "7047c1246e7cd9b80ba2f1818263e5f01795bd5f7c0d9d8156970fd17a67509a",
+    "content_sha256": "9f417ffed01ec890320cc01b6e804de0afcc8c3a6ac38a2eb45d75f0bef72e5a",
     "decorators": [],
     "dependencies": [
+      "int",
       "Decimal",
-      "str",
-      "int"
+      "str"
     ],
     "docstring": "Interprets a user shopping prompt against the catalog and returns a transaction proposal.\n\nReturns a dict with structure:\n{\n    \"product_id\": str,\n    \"claimed_price\": Decimal,\n    \"quantity\": int,\n    \"thought\": str\n}",
     "file_path": "backend/app/integrations/gemini_client.py",
-    "id": "sym_gemini_client_GeminiShoppingAgentClient.interpret_user_request_7047c124",
+    "id": "sym_gemini_client_GeminiShoppingAgentClient.interpret_user_request_9f417ffe",
     "line_end": 78,
     "line_start": 30,
     "name": "GeminiShoppingAgentClient.interpret_user_request",
@@ -603,8 +603,8 @@
     "content_sha256": "a8715fa251fc77863721bad0833d32b62c7c19e0fd06e4902ce1cfd89f9a004f",
     "decorators": [],
     "dependencies": [
-      "Decimal",
       "any",
+      "Decimal",
       "str"
     ],
     "docstring": "Deterministic keyword matching for demo & test reliability without external API calls.",
@@ -750,15 +750,15 @@
     "decorators": [],
     "dependencies": [
       "KnowledgeUnit",
-      "getattr",
+      "list",
       "len",
+      "str",
+      "hasattr",
+      "ApiRouteRecord",
       "Path",
       "max",
-      "list",
-      "ApiRouteRecord",
-      "str",
-      "min",
-      "hasattr"
+      "getattr",
+      "min"
     ],
     "docstring": "Introspects all registered routes from the FastAPI app instance.",
     "file_path": "backend/app/knowledge/api_extractor.py",
@@ -815,9 +815,9 @@
     "decorators": [],
     "dependencies": [
       "KnowledgeUnit",
+      "str",
       "len",
       "Path",
-      "str",
       "QAIssue",
       "isinstance"
     ],
@@ -835,12 +835,12 @@
     "decorators": [],
     "dependencies": [
       "KnowledgeUnit",
-      "Path",
-      "CodeRelationship",
+      "set",
       "list",
       "CodeSymbolRecord",
-      "isinstance",
-      "set"
+      "Path",
+      "CodeRelationship",
+      "isinstance"
     ],
     "docstring": "Extracts a function/method symbol and knowledge unit.",
     "file_path": "backend/app/knowledge/ast_extractor.py",
@@ -856,9 +856,9 @@
     "decorators": [],
     "dependencies": [
       "KnowledgeUnit",
+      "CodeSymbolRecord",
       "Path",
       "CodeRelationship",
-      "CodeSymbolRecord",
       "isinstance"
     ],
     "docstring": "Extracts a class symbol, its methods, and knowledge units.",
@@ -890,8 +890,8 @@
     "docstring": "Master orchestrator for knowledge extraction, QA validation, and asset persistence.",
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder_685ad89b",
-    "line_end": 272,
-    "line_start": 31,
+    "line_end": 273,
+    "line_start": 32,
     "name": "KnowledgeBuilder",
     "signature": "class KnowledgeBuilder()",
     "symbol_type": "class"
@@ -905,8 +905,8 @@
     "docstring": null,
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder.__init___f4c11f0d",
-    "line_end": 36,
-    "line_start": 34,
+    "line_end": 37,
+    "line_start": 35,
     "name": "KnowledgeBuilder.__init__",
     "signature": "def __init__(...)",
     "symbol_type": "method"
@@ -915,24 +915,24 @@
     "content_sha256": "8ede881f789bd59485376a496dc8476a7e47b401e16fec1664e944b043e64c19",
     "decorators": [],
     "dependencies": [
-      "CoverageMetrics",
-      "len",
-      "KnowledgeManifest",
-      "ApiExtractor",
-      "sum",
       "FrontendExtractor",
-      "any",
-      "QAReport",
-      "DocIngestor",
       "CodeAstExtractor",
+      "len",
+      "any",
+      "KnowledgeManifest",
       "ConflictDetector",
-      "TestExtractor"
+      "DocIngestor",
+      "ApiExtractor",
+      "TestExtractor",
+      "sum",
+      "QAReport",
+      "CoverageMetrics"
     ],
     "docstring": "Executes full knowledge extraction, secret scanning, QA validation, and persistence.",
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder.build_all_8ede881f",
-    "line_end": 156,
-    "line_start": 38,
+    "line_end": 157,
+    "line_start": 39,
     "name": "KnowledgeBuilder.build_all",
     "signature": "def build_all(...)",
     "symbol_type": "method"
@@ -944,8 +944,8 @@
     "docstring": "Writes structured JSON datasets and QA reports to knowledge/.",
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder._persist_assets_4a10a89f",
-    "line_end": 204,
-    "line_start": 158,
+    "line_end": 205,
+    "line_start": 159,
     "name": "KnowledgeBuilder._persist_assets",
     "signature": "def _persist_assets(...)",
     "symbol_type": "method"
@@ -957,8 +957,8 @@
     "docstring": "Writes deterministically sorted and indented JSON.",
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder._write_json_28629129",
-    "line_end": 209,
-    "line_start": 206,
+    "line_end": 210,
+    "line_start": 207,
     "name": "KnowledgeBuilder._write_json",
     "signature": "def _write_json(...)",
     "symbol_type": "method"
@@ -970,8 +970,8 @@
     "docstring": "Writes a human-readable QA report in markdown.",
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder._write_markdown_qa_report_0089488d",
-    "line_end": 248,
-    "line_start": 211,
+    "line_end": 249,
+    "line_start": 212,
     "name": "KnowledgeBuilder._write_markdown_qa_report",
     "signature": "def _write_markdown_qa_report(...)",
     "symbol_type": "method"
@@ -983,8 +983,8 @@
     "docstring": "Writes the knowledge directory README.",
     "file_path": "backend/app/knowledge/builder.py",
     "id": "sym_builder_KnowledgeBuilder._write_readme_3d7a725d",
-    "line_end": 272,
-    "line_start": 250,
+    "line_end": 273,
+    "line_start": 251,
     "name": "KnowledgeBuilder._write_readme",
     "signature": "def _write_readme(...)",
     "symbol_type": "method"
@@ -1009,8 +1009,8 @@
     ],
     "dependencies": [
       "CanonicalFactRecord",
-      "KnowledgeUnit",
-      "str"
+      "str",
+      "KnowledgeUnit"
     ],
     "docstring": "Constructs canonical fact records and converts them to KnowledgeUnits.",
     "file_path": "backend/app/knowledge/canonical_facts.py",
@@ -1141,9 +1141,9 @@
     "decorators": [],
     "dependencies": [
       "QAIssue",
+      "enumerate",
       "len",
-      "str",
-      "enumerate"
+      "str"
     ],
     "docstring": "Parses a single markdown documentation file into heading-structured KnowledgeUnits.",
     "file_path": "backend/app/knowledge/doc_ingestor.py",
@@ -1228,12 +1228,12 @@
     "content_sha256": "bdfc5f752fea199f6f2ef681d81a92b2fbe4b0ee75e4fbff8c6ed3f66e4c16ca",
     "decorators": [],
     "dependencies": [
-      "len",
       "KnowledgeUnit",
-      "CodeRelationship",
+      "set",
+      "len",
       "str",
       "QAIssue",
-      "set"
+      "CodeRelationship"
     ],
     "docstring": "Extracts component definitions, UI actions, and API bindings from a TS/TSX file.",
     "file_path": "backend/app/knowledge/frontend_extractor.py",
@@ -1568,8 +1568,8 @@
       "classmethod"
     ],
     "dependencies": [
-      "list",
-      "CodeRelationship"
+      "CodeRelationship",
+      "list"
     ],
     "docstring": "Enriches knowledge units with cross-layer architecture relationships.",
     "file_path": "backend/app/knowledge/relationships.py",
@@ -1616,9 +1616,9 @@
       "classmethod"
     ],
     "dependencies": [
-      "list",
+      "any",
       "QAIssue",
-      "any"
+      "list"
     ],
     "docstring": "Scans text for secrets, redacts any matches, and returns (redacted_text, issues, is_clean).\n\nIf a non-placeholder secret is detected, an ERROR issue is emitted.",
     "file_path": "backend/app/knowledge/secret_scanner.py",
@@ -1674,15 +1674,15 @@
     "content_sha256": "0e73443a0c5df57b1722dafb54d2c125c5204f682537e9338e0101563d886016",
     "decorators": [],
     "dependencies": [
-      "KnowledgeUnit",
       "TestKnowledgeRecord",
-      "CodeRelationship",
+      "KnowledgeUnit",
+      "set",
       "list",
-      "Path",
       "str",
+      "Path",
       "QAIssue",
-      "isinstance",
-      "set"
+      "CodeRelationship",
+      "isinstance"
     ],
     "docstring": "Parses a test file using AST and extracts test metadata and knowledge units.",
     "file_path": "backend/app/knowledge/test_extractor.py",
@@ -1738,8 +1738,8 @@
     "content_sha256": "9cbc8a4134ecebaf9aaccd9aa1013f4dde03145c04b4a82641f5bc94b3cd5f3d",
     "decorators": [],
     "dependencies": [
-      "len",
-      "enumerate"
+      "enumerate",
+      "len"
     ],
     "docstring": "Validates existing knowledge assets on disk.\n\nReturns (is_valid: bool, error_messages: list[str]).",
     "file_path": "backend/app/knowledge/validator.py",
@@ -1754,8 +1754,8 @@
     "content_sha256": "02b61dfbdd42dc971763209350c3b32e1766e29b925a326f50c509f982ec3005",
     "decorators": [],
     "dependencies": [
-      "print",
-      "KnowledgeValidator"
+      "KnowledgeValidator",
+      "print"
     ],
     "docstring": "CLI runner for standalone knowledge validation.",
     "file_path": "backend/app/knowledge/validator.py",
@@ -1972,9 +1972,9 @@
     "content_sha256": "949c215c0b2d52715474360ba8bd24e7153c344adf66355987f3236b09d8eefc",
     "decorators": [],
     "dependencies": [
+      "abs",
       "PolicyEvaluationResult",
       "Decimal",
-      "abs",
       "isinstance"
     ],
     "docstring": "Pure Python policy engine for Agentic Commerce Firewall.\n\nAuthoritative Validation Order:\n1. Check mandate status (must be active)\n2. Check mandate expiry\n3. Authoritative product/merchant data supplied directly\n4. Validate quantity (int, not bool, >= 1, <= stock, <= 10)\n5. Compare claimed price vs authoritative price\n6. Verify merchant scope using server-derived product.merchant_id\n7. Compute authoritative_total = product.price * quantity\n8. Compare authoritative_total against budget_remaining & max_transaction_amount\n9. Return decision (ALLOW, ESCALATE, DENY) and canonical reason code",
@@ -2184,8 +2184,8 @@
     "content_sha256": "1b0b156cdbf7027aa824d832804beea2aad41fbb01a28effe9f434e43dd42e5c",
     "decorators": [],
     "dependencies": [
-      "QueryClassification",
       "bool",
+      "QueryClassification",
       "len"
     ],
     "docstring": "Classifies a natural language query into a structured QueryClassification.",
@@ -2275,12 +2275,12 @@
     "content_sha256": "1af105a3a35a642dd95df246599b704c7e73da616ad954ac35886b1b8546a610",
     "decorators": [],
     "dependencies": [
-      "AuthorityReranker",
+      "SemanticMatcher",
       "ExactMatcher",
-      "AstCodeRetriever",
       "QueryClassifier",
       "LexicalBM25Matcher",
-      "SemanticMatcher"
+      "AstCodeRetriever",
+      "AuthorityReranker"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/engine.py",
@@ -2297,8 +2297,8 @@
       "classmethod"
     ],
     "dependencies": [
-      "cls",
       "FileNotFoundError",
+      "cls",
       "Path"
     ],
     "docstring": "Factory initializing the engine directly from canonical knowledge directory JSON.",
@@ -2355,8 +2355,8 @@
     "content_sha256": "8d52c33e7a6a2a7c794590a74f697b095cc3bdb30d472b14e70dd65b1dccff64",
     "decorators": [],
     "dependencies": [
-      "len",
-      "round"
+      "round",
+      "len"
     ],
     "docstring": "Performs retrieval and synthesizes the minimal sufficient multi-source EvidenceSet.",
     "file_path": "backend/app/retrieval/engine.py",
@@ -2436,17 +2436,17 @@
     "content_sha256": "07dc23d49c31b63c6f9da12fe0b89aa174d46a4fdd757c82b816bc8143a69b34",
     "decorators": [],
     "dependencies": [
-      "EvaluationSummary",
-      "len",
-      "dict",
-      "max",
-      "CategoryEvaluationMetric",
       "defaultdict",
-      "sum",
+      "len",
+      "range",
       "any",
-      "zip",
+      "EvaluationSummary",
+      "CategoryEvaluationMetric",
       "round",
-      "range"
+      "dict",
+      "sum",
+      "max",
+      "zip"
     ],
     "docstring": "Executes the benchmark evaluation dataset and computes granular category metrics.",
     "file_path": "backend/app/retrieval/evaluation.py",
@@ -2519,8 +2519,8 @@
     "content_sha256": "e8160aaa154cf821ded387c3c94409a943f8131ea0b40766a2a165c5b2f1d3c7",
     "decorators": [],
     "dependencies": [
-      "len",
-      "Path"
+      "Path",
+      "len"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/exact_matcher.py",
@@ -2535,10 +2535,10 @@
     "content_sha256": "ed691d6f260559dc9ff3160663913e8996a13873ed4b62ea1a554a5dbb5b9315",
     "decorators": [],
     "dependencies": [
-      "RetrievalScoreBreakdown",
-      "len",
+      "sorted",
       "RetrievalResult",
-      "sorted"
+      "RetrievalScoreBreakdown",
+      "len"
     ],
     "docstring": "Performs multi-key exact matching against extracted query entities.",
     "file_path": "backend/app/retrieval/exact_matcher.py",
@@ -2566,8 +2566,8 @@
     "content_sha256": "9ede778958bccb36f3c5eebb6dcc991e3bba6951fbc55254292216d60bd9ed73",
     "decorators": [],
     "dependencies": [
-      "len",
-      "defaultdict"
+      "defaultdict",
+      "len"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/lexical_matcher.py",
@@ -2597,9 +2597,9 @@
     "content_sha256": "73a064b54178522be63b5f6f46708d011ea6358fa6bf552302adcc58949346ad",
     "decorators": [],
     "dependencies": [
+      "max",
       "Counter",
-      "len",
-      "max"
+      "len"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/lexical_matcher.py",
@@ -2614,11 +2614,11 @@
     "content_sha256": "d16d44264932aec9c63f898b56e878be2c9fdacc810c2c82429ab0af50f48ae6",
     "decorators": [],
     "dependencies": [
+      "range",
       "max",
-      "min",
-      "RetrievalResult",
       "RetrievalScoreBreakdown",
-      "range"
+      "RetrievalResult",
+      "min"
     ],
     "docstring": "Executes BM25 search over the indexed knowledge units.",
     "file_path": "backend/app/retrieval/lexical_matcher.py",
@@ -2842,10 +2842,10 @@
     "content_sha256": "6579a6ce11b8657a2d561bb465205b07ea71ffe264bc13a59b42702e8511acea",
     "decorators": [],
     "dependencies": [
-      "len",
-      "any",
+      "max",
       "round",
-      "max"
+      "len",
+      "any"
     ],
     "docstring": "Performs multi-signal deterministic scoring with authority constraints.",
     "file_path": "backend/app/retrieval/reranker.py",
@@ -2933,8 +2933,8 @@
     "content_sha256": "86115aeda43d00a0c048e9d2ee5cd8ac9aec5aba985e3637dfd3d56bd1ba7cb6",
     "decorators": [],
     "dependencies": [
-      "list",
       "len",
+      "list",
       "range"
     ],
     "docstring": "Extracts word tokens, character 3-grams and 4-grams for subword semantic capture.",
@@ -2950,11 +2950,11 @@
     "content_sha256": "6e5db617138ce81ef4532d8b95afcf4200014ae7638530602ce427ebe0bd4cd8",
     "decorators": [],
     "dependencies": [
-      "len",
-      "sorted",
-      "defaultdict",
       "set",
-      "enumerate"
+      "enumerate",
+      "defaultdict",
+      "len",
+      "sorted"
     ],
     "docstring": "Builds the vocabulary and IDF tables from the knowledge corpus.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -2969,9 +2969,9 @@
     "content_sha256": "b2e06c156171cdd16061fd70d6f8c16faa7680d3e683f32cd47a2181db88fda8",
     "decorators": [],
     "dependencies": [
+      "sum",
       "Counter",
-      "len",
-      "sum"
+      "len"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -3112,12 +3112,12 @@
     "content_sha256": "1f5b2ebd509f189288bc0c7690248d8c071e45561834d4e02e06aeef0f8c143b",
     "decorators": [],
     "dependencies": [
-      "RetrievalScoreBreakdown",
-      "max",
+      "enumerate",
       "any",
-      "min",
+      "max",
+      "RetrievalScoreBreakdown",
       "RetrievalResult",
-      "enumerate"
+      "min"
     ],
     "docstring": "Performs cosine vector search across all indexed units.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -3158,11 +3158,11 @@
     "content_sha256": "946a9f20261080e2280f1b2ae255e003fa0501244d7859f6c418f9203307b5a5",
     "decorators": [],
     "dependencies": [
-      "compute_event_hash",
       "str",
-      "AuditEvent",
+      "compute_payload_hash",
+      "compute_event_hash",
       "AuditChainState",
-      "compute_payload_hash"
+      "AuditEvent"
     ],
     "docstring": "Appends a new tamper-evident audit event to the server-side hash chain under row lock.",
     "file_path": "backend/app/services/audit_log.py",

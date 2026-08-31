@@ -95,6 +95,7 @@ def test_classify_natural_dynamic_other_resources(classifier: QueryClassifier) -
     q_stock = "Is product prod-002 in stock right now?"
     qc_stock = classifier.classify(q_stock)
     assert qc_stock.is_dynamic_live is True
+    assert qc_stock.dynamic_action is not None
     assert qc_stock.dynamic_action.target_resource == "product_stock"
     assert qc_stock.dynamic_action.required_endpoint == "GET /products"
 
@@ -102,6 +103,7 @@ def test_classify_natural_dynamic_other_resources(classifier: QueryClassifier) -
     q_audit = "What is the current audit ledger health?"
     qc_audit = classifier.classify(q_audit)
     assert qc_audit.is_dynamic_live is True
+    assert qc_audit.dynamic_action is not None
     assert qc_audit.dynamic_action.target_resource == "audit_chain"
     assert qc_audit.dynamic_action.required_endpoint == "GET /audit/verify"
 
@@ -109,6 +111,7 @@ def test_classify_natural_dynamic_other_resources(classifier: QueryClassifier) -
     q_txn = "Is transaction txn-456 currently executed?"
     qc_txn = classifier.classify(q_txn)
     assert qc_txn.is_dynamic_live is True
+    assert qc_txn.dynamic_action is not None
     assert qc_txn.dynamic_action.target_resource == "transaction_status"
     assert qc_txn.dynamic_action.required_endpoint == "GET /transaction/{id}"
 
@@ -116,6 +119,7 @@ def test_classify_natural_dynamic_other_resources(classifier: QueryClassifier) -
     q_health = "What is the current system health?"
     qc_health = classifier.classify(q_health)
     assert qc_health.is_dynamic_live is True
+    assert qc_health.dynamic_action is not None
     assert qc_health.dynamic_action.target_resource == "system_health"
     assert qc_health.dynamic_action.required_endpoint == "GET /health"
 

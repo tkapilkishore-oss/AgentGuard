@@ -8,6 +8,7 @@ QA conflict detection, and deterministic dataset persistence.
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from backend.app.knowledge.api_extractor import ApiExtractor
 from backend.app.knowledge.ast_extractor import CodeAstExtractor

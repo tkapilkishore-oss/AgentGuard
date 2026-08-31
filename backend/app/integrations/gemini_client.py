@@ -57,7 +57,7 @@ class GeminiShoppingAgentClient:
                     contents=user_msg,
                     config={"system_instruction": sys_instruct},
                 )
-                text = response.text.strip()
+                text = (response.text or "").strip()
                 if text.startswith("```json"):
                     text = text.split("```json")[1].split("```")[0].strip()
                 elif text.startswith("```"):

@@ -1,9 +1,6 @@
-"""Unit tests for AuthorityReranker."""
-
-import pytest
 from backend.app.knowledge.models import AuthorityType, DomainCategory, SourceTier
 from backend.app.retrieval.classifier import QueryClassifier
-from backend.app.retrieval.models import QueryCategory, RetrievalResult, RetrievalScoreBreakdown
+from backend.app.retrieval.models import RetrievalResult, RetrievalScoreBreakdown
 from backend.app.retrieval.reranker import AuthorityReranker
 
 

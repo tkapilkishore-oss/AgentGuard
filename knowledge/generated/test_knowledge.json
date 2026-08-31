@@ -1878,9 +1878,9 @@
     "test_function": "test_classify_natural_dynamic_budget_variations"
   },
   {
-    "content_sha256": "f7805cd4ed64ae737e4bb9146181142a747ea7c61e3ed55ee6f5b4c6eb7b8e51",
+    "content_sha256": "d89b06ada1bca4d011ba0d69fad468d307eb451ac228ff96a0e58bebedfb29c5",
     "docstring": null,
-    "id": "test_test_retrieval_classifier_test_classify_natural_dynamic_other_resources_f7805cd4",
+    "id": "test_test_retrieval_classifier_test_classify_natural_dynamic_other_resources_d89b06ad",
     "invariants_proven": [],
     "target_symbols": [],
     "test_category": "unit_policy",
