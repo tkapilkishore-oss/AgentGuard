@@ -1,0 +1,101 @@
+[
+  {
+    "action_label": "Revoke Mandate",
+    "action_type": "EXECUTION",
+    "api_endpoint": "/mandate/{id}/revoke",
+    "component_name": "SecurityCockpitHeader",
+    "description": "Revokes the active spending mandate, preventing subsequent payments.",
+    "id": "action_cockpit_revoke_mandate",
+    "safety_level": "REQUIRES_USER_CONFIRMATION",
+    "view_name": "GlobalCockpit",
+    "view_path": "/*"
+  },
+  {
+    "action_label": "Talk to AgentGuard",
+    "action_type": "NAVIGATION",
+    "api_endpoint": null,
+    "component_name": "SecurityCockpitHeader",
+    "description": "Opens the Conversational Assistant voice & text drawer.",
+    "id": "action_cockpit_talk_to_assistant",
+    "safety_level": "READ_ONLY",
+    "view_name": "GlobalCockpit",
+    "view_path": "/*"
+  },
+  {
+    "action_label": "Execute Payment via Razorpay Gateway",
+    "action_type": "EXECUTION",
+    "api_endpoint": "/transaction/execute",
+    "component_name": "FirewallInspectionHero",
+    "description": "Dispatches authorized transaction for atomic budget reservation and Razorpay capture.",
+    "id": "action_firewall_execute_payment",
+    "safety_level": "REQUIRES_USER_CONFIRMATION",
+    "view_name": "LiveProtectionView",
+    "view_path": "/live"
+  },
+  {
+    "action_label": "Approve Over-Budget Purchase",
+    "action_type": "EXECUTION",
+    "api_endpoint": "/transaction/{id}/approve",
+    "component_name": "FirewallInspectionHero",
+    "description": "Human supervisor explicit authorization for an escalated purchase.",
+    "id": "action_firewall_approve_escalation",
+    "safety_level": "SUPERVISOR_ONLY",
+    "view_name": "LiveProtectionView",
+    "view_path": "/live"
+  },
+  {
+    "action_label": "Reject Proposal",
+    "action_type": "EXECUTION",
+    "api_endpoint": "/transaction/{id}/reject",
+    "component_name": "FirewallInspectionHero",
+    "description": "Human supervisor explicit denial of an escalated purchase.",
+    "id": "action_firewall_reject_escalation",
+    "safety_level": "SUPERVISOR_ONLY",
+    "view_name": "LiveProtectionView",
+    "view_path": "/live"
+  },
+  {
+    "action_label": "Export Evidence JSON",
+    "action_type": "INSPECTION",
+    "api_endpoint": "/transaction/{id}/audit",
+    "component_name": "ForensicLedger",
+    "description": "Exports the complete chronological cryptographic SHA-256 audit trace as JSON.",
+    "id": "action_forensics_export_json",
+    "safety_level": "READ_ONLY",
+    "view_name": "ForensicLedgerView",
+    "view_path": "/forensics"
+  },
+  {
+    "action_label": "Run Simulation Scenario (1-6)",
+    "action_type": "SIMULATION",
+    "api_endpoint": "/transaction/propose",
+    "component_name": "ThreatSimulationLab",
+    "description": "Executes one of the 6 deterministic threat simulation attacks.",
+    "id": "action_threat_run_scenario",
+    "safety_level": "SAFE_SIMULATION",
+    "view_name": "ThreatLabView",
+    "view_path": "/threats"
+  },
+  {
+    "action_label": "Inject Custom Claim to Firewall",
+    "action_type": "PROPOSAL",
+    "api_endpoint": "/transaction/propose",
+    "component_name": "ThreatSimulationLab",
+    "description": "Submits a custom claimed price and quantity proposal to the firewall.",
+    "id": "action_threat_custom_attack",
+    "safety_level": "PROPOSE_ONLY",
+    "view_name": "ThreatLabView",
+    "view_path": "/threats"
+  },
+  {
+    "action_label": "Export Evidence JSON",
+    "action_type": "INSPECTION",
+    "api_endpoint": "/transaction/{id}/audit",
+    "component_name": "ForensicLedgerView",
+    "description": "Exports the complete chronological cryptographic SHA-256 audit trace as JSON.",
+    "id": "action_forensics_export_json",
+    "safety_level": "READ_ONLY",
+    "view_name": "ForensicLedgerView",
+    "view_path": "/forensics"
+  }
+]

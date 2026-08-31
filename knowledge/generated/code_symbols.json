@@ -1,0 +1,3232 @@
+[
+  {
+    "content_sha256": "862f0b5a824aa5ed665e3e0c57a66a00f2a16403e146781825d26e94dec0300b",
+    "decorators": [
+      "router.post('/transaction/{transaction_id}/approve', response_model=ApiResponse[ApprovalData])"
+    ],
+    "dependencies": [
+      "ApprovalData",
+      "str",
+      "Depends",
+      "Approval",
+      "HTTPException",
+      "log_audit_event"
+    ],
+    "docstring": "Human approval endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
+    "file_path": "backend/app/api/approve.py",
+    "id": "sym_approve_approve_transaction_862f0b5a",
+    "line_end": 80,
+    "line_start": 18,
+    "name": "approve_transaction",
+    "signature": "def approve_transaction(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "1021bc9f0fb8a5a05826025d8addbf24c74d79adbe371710da9b5eb959c7707b",
+    "decorators": [
+      "router.post('/transaction/{transaction_id}/reject', response_model=ApiResponse[ApprovalData])"
+    ],
+    "dependencies": [
+      "ApprovalData",
+      "str",
+      "Depends",
+      "Approval",
+      "HTTPException",
+      "log_audit_event"
+    ],
+    "docstring": "Human rejection endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
+    "file_path": "backend/app/api/approve.py",
+    "id": "sym_approve_reject_transaction_1021bc9f",
+    "line_end": 146,
+    "line_start": 84,
+    "name": "reject_transaction",
+    "signature": "def reject_transaction(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "830ec207ec22b683b74e502e3f0bd6f79870dba77edb7f226654e15aea45e6c8",
+    "decorators": [
+      "router.post('/transaction/execute', response_model=ApiResponse[ExecuteData])"
+    ],
+    "dependencies": [
+      "Decimal",
+      "IdempotencyRecord",
+      "str",
+      "Depends",
+      "abs",
+      "HTTPException",
+      "JSONResponse",
+      "ExecuteData",
+      "log_audit_event"
+    ],
+    "docstring": "Execute a server-authorized transaction against the payment gateway with atomic budget reservation.",
+    "file_path": "backend/app/api/execute.py",
+    "id": "sym_execute_execute_transaction_830ec207",
+    "line_end": 269,
+    "line_start": 25,
+    "name": "execute_transaction",
+    "signature": "def execute_transaction(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "8591f90086b8be56df3a4b31368958dd6e835721e42f85f4987a5649a1c15cfd",
+    "decorators": [
+      "router.post('/transaction/propose', response_model=ApiResponse[ProposeData])"
+    ],
+    "dependencies": [
+      "ProposeData",
+      "str",
+      "MandatePolicyInput",
+      "Depends",
+      "evaluate_policy",
+      "HTTPException",
+      "timedelta",
+      "log_audit_event",
+      "AgentProposalInput",
+      "Transaction",
+      "ProductPolicyInput"
+    ],
+    "docstring": "Process an untrusted agent transaction proposal and persist the server-authorized decision.",
+    "file_path": "backend/app/api/propose.py",
+    "id": "sym_propose_propose_transaction_8591f900",
+    "line_end": 155,
+    "line_start": 26,
+    "name": "propose_transaction",
+    "signature": "def propose_transaction(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "30acd285bb34ff489a6df3bd29e93f3576f826cd5de2b3a80fdecd3bc1a1aab3",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/routes_agent.py",
+    "id": "sym_routes_agent_AgentChatRequest_30acd285",
+    "line_end": 19,
+    "line_start": 16,
+    "name": "AgentChatRequest",
+    "signature": "class AgentChatRequest(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "44f6aa67c68c259839b5d4f1e7536f683d75f7c87a588cd89139b218aa40118a",
+    "decorators": [
+      "router.post('/agent/chat', response_model=ApiResponse[dict[str, Any]])"
+    ],
+    "dependencies": [
+      "ProposeRequest",
+      "AgentClaim",
+      "str",
+      "Depends",
+      "HTTPException",
+      "propose_transaction",
+      "GeminiShoppingAgentClient"
+    ],
+    "docstring": "Reference Shopping Agent chat endpoint.\n\nInterprets user prompt, generates agent proposal claims, and passes them to\nthe server-authoritative firewall proposal endpoint.",
+    "file_path": "backend/app/api/routes_agent.py",
+    "id": "sym_routes_agent_agent_chat_44f6aa67",
+    "line_end": 80,
+    "line_start": 23,
+    "name": "agent_chat",
+    "signature": "def agent_chat(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "dd667e70e97c638e38efc22f60d897423c831425d46b6b0ef2f051bfc7c5f1aa",
+    "decorators": [
+      "router.get('/transactions', response_model=ApiResponse[list[TransactionSummary]])"
+    ],
+    "dependencies": [
+      "TransactionSummary",
+      "Depends"
+    ],
+    "docstring": "List past transactions in descending order by created_at for audit selection.",
+    "file_path": "backend/app/api/routes_audit.py",
+    "id": "sym_routes_audit_list_transactions_dd667e70",
+    "line_end": 47,
+    "line_start": 18,
+    "name": "list_transactions",
+    "signature": "def list_transactions(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "7ba9dc8d2338390ff9cd9cdd15887f187b22d3f174ad8b13b42c564bcd660494",
+    "decorators": [
+      "router.get('/transaction/{transaction_id}/audit', response_model=ApiResponse[TransactionAuditData])"
+    ],
+    "dependencies": [
+      "TransactionAuditData",
+      "Depends",
+      "TransactionSummary",
+      "HTTPException",
+      "verify_audit_chain",
+      "AuditEventItem"
+    ],
+    "docstring": "Retrieve the authoritative server-generated audit event trace for a transaction.\n\nVerifies transaction existence, returns events in deterministic chronological\nsequence order (seq_id ASC), and reports cryptographic SHA-256 chain integrity.",
+    "file_path": "backend/app/api/routes_audit.py",
+    "id": "sym_routes_audit_get_transaction_audit_7ba9dc8d",
+    "line_end": 117,
+    "line_start": 54,
+    "name": "get_transaction_audit",
+    "signature": "def get_transaction_audit(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "8d7bc1bf84cc0fd88a0b51ca1c93480c64d4dd56da4212e39bd17771098f1e99",
+    "decorators": [
+      "router.post('/mandate/{mandate_id}/revoke', response_model=ApiResponse[dict[str, Any]])"
+    ],
+    "dependencies": [
+      "log_audit_event",
+      "str",
+      "Depends",
+      "HTTPException"
+    ],
+    "docstring": "Revoke an active mandate by ID.",
+    "file_path": "backend/app/api/routes_mandate.py",
+    "id": "sym_routes_mandate_revoke_mandate_8d7bc1bf",
+    "line_end": 49,
+    "line_start": 15,
+    "name": "revoke_mandate",
+    "signature": "def revoke_mandate(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "2f8b1bb5375192b6475f815df2bd31ab0a9fad55239480ff10192ebfa161e19c",
+    "decorators": [
+      "router.get('/mandate/{mandate_id}', response_model=ApiResponse[dict[str, Any]])"
+    ],
+    "dependencies": [
+      "str",
+      "Depends",
+      "HTTPException"
+    ],
+    "docstring": "Fetch mandate details and remaining budget.",
+    "file_path": "backend/app/api/routes_mandate.py",
+    "id": "sym_routes_mandate_get_mandate_2f8b1bb5",
+    "line_end": 73,
+    "line_start": 53,
+    "name": "get_mandate",
+    "signature": "def get_mandate(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "db3ac492147b8523c1bff2fe560ccc33d78cfcef62b8d6da1e72dbc9a60eeb85",
+    "decorators": [
+      "router.get('/products', response_model=ApiResponse[list[dict[str, Any]]])"
+    ],
+    "dependencies": [
+      "str",
+      "Depends"
+    ],
+    "docstring": "Fetch product catalog for shopping agent and frontend UI.",
+    "file_path": "backend/app/api/routes_mandate.py",
+    "id": "sym_routes_mandate_list_products_db3ac492",
+    "line_end": 93,
+    "line_start": 77,
+    "name": "list_products",
+    "signature": "def list_products(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "95315a2bf9d1500db3e1a943c0273459f5ddf7ca29d036cf0aace643a4254d29",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ApiError_95315a2b",
+    "line_end": 12,
+    "line_start": 10,
+    "name": "ApiError",
+    "signature": "class ApiError(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "35fabf06802794975b7b43a4163bfd82496b75a90d8d0330f14e696f64b82e33",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel",
+      "Generic[T]"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ApiResponse_35fabf06",
+    "line_end": 26,
+    "line_start": 15,
+    "name": "ApiResponse",
+    "signature": "class ApiResponse(BaseModel, Generic[T])",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "bfddc1dcf6acf57b959b2d95fceb5bbe5164169b279e6ef9b0873a70469c35d7",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "cls"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ApiResponse.ok_bfddc1dc",
+    "line_end": 22,
+    "line_start": 21,
+    "name": "ApiResponse.ok",
+    "signature": "def ok(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "418445d1232cd84d27409dd19c69d9d40bdbc40adfc7deff85992082cd0e53a5",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "ApiError",
+      "cls"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ApiResponse.fail_418445d1",
+    "line_end": 26,
+    "line_start": 25,
+    "name": "ApiResponse.fail",
+    "signature": "def fail(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "5deba89cfddb49ee78782bfe249d99d6867b375ca8662987b8ab96ee1986f010",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_AgentClaim_5deba89c",
+    "line_end": 34,
+    "line_start": 29,
+    "name": "AgentClaim",
+    "signature": "class AgentClaim(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "ba1e869aac9d64178a811f704df4420422691a76df1f3f7529e7340ef9771a2a",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ProposeRequest_ba1e869a",
+    "line_end": 42,
+    "line_start": 37,
+    "name": "ProposeRequest",
+    "signature": "class ProposeRequest(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "db5a81ef2f78da38fe84a593502cc534ceb1f66122aaa8a12cf23db2aa0cd144",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ProposeData_db5a81ef",
+    "line_end": 52,
+    "line_start": 45,
+    "name": "ProposeData",
+    "signature": "class ProposeData(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "5167d9bf582ffd1a950a2054e8c4317ab85dca2bbaa84946435042dcd834b4ab",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ExecuteRequest_5167d9bf",
+    "line_end": 59,
+    "line_start": 55,
+    "name": "ExecuteRequest",
+    "signature": "class ExecuteRequest(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "56feb4d8b2a5c25285410e58ead66245c6274ca29ce236f8569f99eaa7be47c6",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ExecuteData_56feb4d8",
+    "line_end": 68,
+    "line_start": 62,
+    "name": "ExecuteData",
+    "signature": "class ExecuteData(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "a06b81e375f4f3861ecc61e3ef270d919cf8204cb5a3af3cc5736d5f6c064f0e",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_ApprovalData_a06b81e3",
+    "line_end": 76,
+    "line_start": 71,
+    "name": "ApprovalData",
+    "signature": "class ApprovalData(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "67b38bef60993d1fafc2394f4d6c1fbda832c8db0c463e7dbe5d2c602b70c332",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_AuditEventItem_67b38bef",
+    "line_end": 89,
+    "line_start": 79,
+    "name": "AuditEventItem",
+    "signature": "class AuditEventItem(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "746d216188639cd9311fcd443f36261774ebdf38f913abdc056bb386bc88ee19",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_TransactionSummary_746d2161",
+    "line_end": 105,
+    "line_start": 92,
+    "name": "TransactionSummary",
+    "signature": "class TransactionSummary(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "7158964a607ce7ae4a5ac438f6135ba14956433972a93aac5369a23da83ea073",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/api/schemas.py",
+    "id": "sym_schemas_TransactionAuditData_7158964a",
+    "line_end": 114,
+    "line_start": 108,
+    "name": "TransactionAuditData",
+    "signature": "class TransactionAuditData(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "c513735eace89f732925923fc0389f312771ad7a40cbe482fde920796024cc90",
+    "decorators": [],
+    "dependencies": [
+      "BaseSettings"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/config.py",
+    "id": "sym_config_Settings_c513735e",
+    "line_end": 17,
+    "line_start": 6,
+    "name": "Settings",
+    "signature": "class Settings(BaseSettings)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "20d5def49b72edcb879928bdcb30ab62acbd08de6ab20ca8002c03d078681635",
+    "decorators": [],
+    "dependencies": [
+      "DeclarativeBase"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/db/base.py",
+    "id": "sym_base_Base_20d5def4",
+    "line_end": 5,
+    "line_start": 4,
+    "name": "Base",
+    "signature": "class Base(DeclarativeBase)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "916dd599c5ec76cd88d8e42be8f5cf8870af747bf89a13a955b3cb1092efba85",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/db/migrations/env.py",
+    "id": "sym_env_run_migrations_offline_916dd599",
+    "line_end": 31,
+    "line_start": 21,
+    "name": "run_migrations_offline",
+    "signature": "def run_migrations_offline(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "c5df6d0d0314058e4504efe602f2b5ff3ea1f163300a8acfa6a65f066dbcb789",
+    "decorators": [],
+    "dependencies": [
+      "engine_from_config"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/db/migrations/env.py",
+    "id": "sym_env_run_migrations_online_c5df6d0d",
+    "line_end": 49,
+    "line_start": 34,
+    "name": "run_migrations_online",
+    "signature": "def run_migrations_online(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "1e6b8dd9aa57d8442c92a2e72ba908900543b2fd4cb927ca5c7810e06c6e5455",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/db/migrations/versions/0001_initial_schema.py",
+    "id": "sym_0001_initial_schema_upgrade_1e6b8dd9",
+    "line_end": 152,
+    "line_start": 21,
+    "name": "upgrade",
+    "signature": "def upgrade(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "3610ba2791c61db2799126b5734937adba9ce095b80783576c7e20566485145a",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/db/migrations/versions/0001_initial_schema.py",
+    "id": "sym_0001_initial_schema_downgrade_3610ba27",
+    "line_end": 171,
+    "line_start": 155,
+    "name": "downgrade",
+    "signature": "def downgrade(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "babe91c4656e47a49fe9f1a68b2ad128c540672eca6fbca9816985c97c3e75a4",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/db/migrations/versions/0002_add_audit_events_seq_id.py",
+    "id": "sym_0002_add_audit_events_seq_id_upgrade_babe91c4",
+    "line_end": 36,
+    "line_start": 20,
+    "name": "upgrade",
+    "signature": "def upgrade(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "b485719c977be58f37d7cd26cf95b92957aafd8da9cf1d16a3c748440991aeda",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/db/migrations/versions/0002_add_audit_events_seq_id.py",
+    "id": "sym_0002_add_audit_events_seq_id_downgrade_b485719c",
+    "line_end": 46,
+    "line_start": 39,
+    "name": "downgrade",
+    "signature": "def downgrade(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "c219ff7b384fc1c9a4b02a255b21f6d8f6de4ac337f8c17340b8f589cd8a01d3",
+    "decorators": [],
+    "dependencies": [
+      "SessionLocal"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/db/session.py",
+    "id": "sym_session_get_db_c219ff7b",
+    "line_end": 21,
+    "line_start": 16,
+    "name": "get_db",
+    "signature": "def get_db(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "b95bc8105cdf73eb993d3ee69c196c09ef14815139ec9fe7870ab2b3116c19bc",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Reference Shopping Agent client utilizing Gemini API with deterministic fallback.\n\nThe LLM is an untrusted client component. Its output is a candidate claim with\nzero authorization weight.",
+    "file_path": "backend/app/integrations/gemini_client.py",
+    "id": "sym_gemini_client_GeminiShoppingAgentClient_b95bc810",
+    "line_end": 116,
+    "line_start": 11,
+    "name": "GeminiShoppingAgentClient",
+    "signature": "class GeminiShoppingAgentClient()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "5200e0f56f6780f8b6ed82364258925903d59e5ddf8f010ef24d3b8deffb1504",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/integrations/gemini_client.py",
+    "id": "sym_gemini_client_GeminiShoppingAgentClient.__init___5200e0f5",
+    "line_end": 27,
+    "line_start": 18,
+    "name": "GeminiShoppingAgentClient.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "7047c1246e7cd9b80ba2f1818263e5f01795bd5f7c0d9d8156970fd17a67509a",
+    "decorators": [],
+    "dependencies": [
+      "Decimal",
+      "str",
+      "int"
+    ],
+    "docstring": "Interprets a user shopping prompt against the catalog and returns a transaction proposal.\n\nReturns a dict with structure:\n{\n    \"product_id\": str,\n    \"claimed_price\": Decimal,\n    \"quantity\": int,\n    \"thought\": str\n}",
+    "file_path": "backend/app/integrations/gemini_client.py",
+    "id": "sym_gemini_client_GeminiShoppingAgentClient.interpret_user_request_7047c124",
+    "line_end": 78,
+    "line_start": 30,
+    "name": "GeminiShoppingAgentClient.interpret_user_request",
+    "signature": "def interpret_user_request(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "a8715fa251fc77863721bad0833d32b62c7c19e0fd06e4902ce1cfd89f9a004f",
+    "decorators": [],
+    "dependencies": [
+      "Decimal",
+      "any",
+      "str"
+    ],
+    "docstring": "Deterministic keyword matching for demo & test reliability without external API calls.",
+    "file_path": "backend/app/integrations/gemini_client.py",
+    "id": "sym_gemini_client_GeminiShoppingAgentClient._heuristic_fallback_a8715fa2",
+    "line_end": 116,
+    "line_start": 80,
+    "name": "GeminiShoppingAgentClient._heuristic_fallback",
+    "signature": "def _heuristic_fallback(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "48c357189f10451e86b1c123f577f583b7a17cc121281eacfb6ad40500ee0b86",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Razorpay Test-Mode Client Wrapper for Agentic Commerce Firewall.",
+    "file_path": "backend/app/integrations/razorpay_client.py",
+    "id": "sym_razorpay_client_RazorpayClient_48c35718",
+    "line_end": 119,
+    "line_start": 13,
+    "name": "RazorpayClient",
+    "signature": "class RazorpayClient()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "6f4ee2c4d08024801baaac4514a0d7379c0981a1e5dc69f5f55a956d199da389",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/integrations/razorpay_client.py",
+    "id": "sym_razorpay_client_RazorpayClient.__init___6f4ee2c4",
+    "line_end": 30,
+    "line_start": 18,
+    "name": "RazorpayClient.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "4cb345dbab343f5564aa1586c5c6aba3764561b98bc28add8938698a3659a816",
+    "decorators": [
+      "property"
+    ],
+    "dependencies": [
+      "bool"
+    ],
+    "docstring": "Return True if real Razorpay test-mode API keys are present.",
+    "file_path": "backend/app/integrations/razorpay_client.py",
+    "id": "sym_razorpay_client_RazorpayClient.is_configured_4cb345db",
+    "line_end": 35,
+    "line_start": 33,
+    "name": "RazorpayClient.is_configured",
+    "signature": "def is_configured(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "ad8a4c8a0db467751f93b6a6700b9c06ffdb2017db15151ec0c382b26801546e",
+    "decorators": [],
+    "dependencies": [
+      "int"
+    ],
+    "docstring": "Convert standard currency amount (Rupees) to paise integer.",
+    "file_path": "backend/app/integrations/razorpay_client.py",
+    "id": "sym_razorpay_client_RazorpayClient.amount_to_paise_ad8a4c8a",
+    "line_end": 39,
+    "line_start": 37,
+    "name": "RazorpayClient.amount_to_paise",
+    "signature": "def amount_to_paise(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "b55748845f9b4a0c9a908131387949ff5f0e5707e4b4989b1b65a1b28a7bf30f",
+    "decorators": [],
+    "dependencies": [
+      "RuntimeError"
+    ],
+    "docstring": "Create a Razorpay order in test mode (or mock order if unconfigured).",
+    "file_path": "backend/app/integrations/razorpay_client.py",
+    "id": "sym_razorpay_client_RazorpayClient.create_order_b5574884",
+    "line_end": 82,
+    "line_start": 41,
+    "name": "RazorpayClient.create_order",
+    "signature": "def create_order(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "895aa11b739990a48933f14c0783ef8031731099b5d42c6a636638e0b452e8e4",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Process payment via Razorpay test-mode API (or mock fallback).\n\nReturns:\n    (success: bool, razorpay_payment_id: str | None)",
+    "file_path": "backend/app/integrations/razorpay_client.py",
+    "id": "sym_razorpay_client_RazorpayClient.process_payment_895aa11b",
+    "line_end": 119,
+    "line_start": 84,
+    "name": "RazorpayClient.process_payment",
+    "signature": "def process_payment(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "be2d7f281b9db3df8bcd91d8ccc4905011ca03c5f35c04cf402a59e93873e2ff",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Introspects FastAPI application routes and generates canonical API records.",
+    "file_path": "backend/app/knowledge/api_extractor.py",
+    "id": "sym_api_extractor_ApiExtractor_be2d7f28",
+    "line_end": 212,
+    "line_start": 84,
+    "name": "ApiExtractor",
+    "signature": "class ApiExtractor()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "495a81ffe5e7e0b10e955d8ba3f8db6976e5a7a889007071b6b73189ce067933",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/api_extractor.py",
+    "id": "sym_api_extractor_ApiExtractor.__init___495a81ff",
+    "line_end": 88,
+    "line_start": 87,
+    "name": "ApiExtractor.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "57d8f40dcb03042f59706729c0432df5011841350347b1b309b3f89a05e6f740",
+    "decorators": [],
+    "dependencies": [
+      "hasattr",
+      "isinstance",
+      "getattr"
+    ],
+    "docstring": "Recursively unpacks FastAPI routes, including nested routers and _IncludedRouter objects.",
+    "file_path": "backend/app/knowledge/api_extractor.py",
+    "id": "sym_api_extractor_ApiExtractor._collect_api_routes_57d8f40d",
+    "line_end": 102,
+    "line_start": 90,
+    "name": "ApiExtractor._collect_api_routes",
+    "signature": "def _collect_api_routes(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "59501077f0ef76d4454c4e8b347529d44a56c8d2551fb87a42a19fc7b56327d5",
+    "decorators": [],
+    "dependencies": [
+      "KnowledgeUnit",
+      "getattr",
+      "len",
+      "Path",
+      "max",
+      "list",
+      "ApiRouteRecord",
+      "str",
+      "min",
+      "hasattr"
+    ],
+    "docstring": "Introspects all registered routes from the FastAPI app instance.",
+    "file_path": "backend/app/knowledge/api_extractor.py",
+    "id": "sym_api_extractor_ApiExtractor.extract_routes_59501077",
+    "line_end": 212,
+    "line_start": 104,
+    "name": "ApiExtractor.extract_routes",
+    "signature": "def extract_routes(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "a6f7c0789516e158ee90dd0f75aaa7dcc91d17aa578ffd92cf029222a2db533b",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Extracts code symbols, metadata, and cross-reference edges from Python files.",
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor_a6f7c078",
+    "line_end": 320,
+    "line_start": 41,
+    "name": "CodeAstExtractor",
+    "signature": "class CodeAstExtractor()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "495a81ffe5e7e0b10e955d8ba3f8db6976e5a7a889007071b6b73189ce067933",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor.__init___495a81ff",
+    "line_end": 45,
+    "line_start": 44,
+    "name": "CodeAstExtractor.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "dbb04f109dfeededfb4a05c1ca42fcd26b74450f25f2a1dfa341175fc734057f",
+    "decorators": [],
+    "dependencies": [
+      "sorted"
+    ],
+    "docstring": "Discovers all active backend Python files excluding tests and caches.",
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor.discover_python_files_dbb04f10",
+    "line_end": 58,
+    "line_start": 47,
+    "name": "CodeAstExtractor.discover_python_files",
+    "signature": "def discover_python_files(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "7374a06f07451cc629179c5bc2dd9f841ab1f14501eab2cef9ca128991479853",
+    "decorators": [],
+    "dependencies": [
+      "KnowledgeUnit",
+      "len",
+      "Path",
+      "str",
+      "QAIssue",
+      "isinstance"
+    ],
+    "docstring": "Parses a Python file using AST and extracts symbols and knowledge units.",
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor.extract_file_7374a06f",
+    "line_end": 147,
+    "line_start": 60,
+    "name": "CodeAstExtractor.extract_file",
+    "signature": "def extract_file(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "7ab183fa13ac66decbee2fc4085fa0b70e8a377af6babc5e3ff77648ce1d4ba2",
+    "decorators": [],
+    "dependencies": [
+      "KnowledgeUnit",
+      "Path",
+      "CodeRelationship",
+      "list",
+      "CodeSymbolRecord",
+      "isinstance",
+      "set"
+    ],
+    "docstring": "Extracts a function/method symbol and knowledge unit.",
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor._process_function_7ab183fa",
+    "line_end": 224,
+    "line_start": 149,
+    "name": "CodeAstExtractor._process_function",
+    "signature": "def _process_function(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "babd546247093e30f5950b845a62aef7b8a8b6ad642fd462394ff603bfa8fd6a",
+    "decorators": [],
+    "dependencies": [
+      "KnowledgeUnit",
+      "Path",
+      "CodeRelationship",
+      "CodeSymbolRecord",
+      "isinstance"
+    ],
+    "docstring": "Extracts a class symbol, its methods, and knowledge units.",
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor._process_class_babd5462",
+    "line_end": 303,
+    "line_start": 226,
+    "name": "CodeAstExtractor._process_class",
+    "signature": "def _process_class(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "a54a8c376bd67234ff2aaaa77c2873a5bb27419655dec2cff8341fe482d7fd66",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Discovers and extracts all backend Python symbols and knowledge units.",
+    "file_path": "backend/app/knowledge/ast_extractor.py",
+    "id": "sym_ast_extractor_CodeAstExtractor.extract_all_a54a8c37",
+    "line_end": 320,
+    "line_start": 305,
+    "name": "CodeAstExtractor.extract_all",
+    "signature": "def extract_all(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "685ad89b29851d32658bc338b85edc825d6cf64d3d9206fbdf56ed021568d543",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Master orchestrator for knowledge extraction, QA validation, and asset persistence.",
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder_685ad89b",
+    "line_end": 272,
+    "line_start": 31,
+    "name": "KnowledgeBuilder",
+    "signature": "class KnowledgeBuilder()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "f4c11f0d2cd5ae6626ddc51878fff765f75ea279692aad0366c9059a7d0d56c1",
+    "decorators": [],
+    "dependencies": [
+      "Path"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder.__init___f4c11f0d",
+    "line_end": 36,
+    "line_start": 34,
+    "name": "KnowledgeBuilder.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "8ede881f789bd59485376a496dc8476a7e47b401e16fec1664e944b043e64c19",
+    "decorators": [],
+    "dependencies": [
+      "CoverageMetrics",
+      "len",
+      "KnowledgeManifest",
+      "ApiExtractor",
+      "sum",
+      "FrontendExtractor",
+      "any",
+      "QAReport",
+      "DocIngestor",
+      "CodeAstExtractor",
+      "ConflictDetector",
+      "TestExtractor"
+    ],
+    "docstring": "Executes full knowledge extraction, secret scanning, QA validation, and persistence.",
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder.build_all_8ede881f",
+    "line_end": 156,
+    "line_start": 38,
+    "name": "KnowledgeBuilder.build_all",
+    "signature": "def build_all(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "4a10a89f69ec7366c9d7f6674379b1512f6183247a08ca9e2cbfd96a08334866",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Writes structured JSON datasets and QA reports to knowledge/.",
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder._persist_assets_4a10a89f",
+    "line_end": 204,
+    "line_start": 158,
+    "name": "KnowledgeBuilder._persist_assets",
+    "signature": "def _persist_assets(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "2862912924c4d99f1f2d335358c252cec77742b6d45bccb2e5e271fd64599021",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Writes deterministically sorted and indented JSON.",
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder._write_json_28629129",
+    "line_end": 209,
+    "line_start": 206,
+    "name": "KnowledgeBuilder._write_json",
+    "signature": "def _write_json(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "0089488d702c07f54a5b4f86843926224a9272946b8a8b1d850bda651f7ee49f",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Writes a human-readable QA report in markdown.",
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder._write_markdown_qa_report_0089488d",
+    "line_end": 248,
+    "line_start": 211,
+    "name": "KnowledgeBuilder._write_markdown_qa_report",
+    "signature": "def _write_markdown_qa_report(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "3d7a725d13b3ecf512d2461ca311aaef7f8000bf82f3d89fec4075df9662e38b",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Writes the knowledge directory README.",
+    "file_path": "backend/app/knowledge/builder.py",
+    "id": "sym_builder_KnowledgeBuilder._write_readme_3d7a725d",
+    "line_end": 272,
+    "line_start": 250,
+    "name": "KnowledgeBuilder._write_readme",
+    "signature": "def _write_readme(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "5829f5fd396093251da9f6bcd78330e07150309b1959f2272fe87ecc3b647e72",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Builds authoritative canonical facts and evaluates domain coverage.",
+    "file_path": "backend/app/knowledge/canonical_facts.py",
+    "id": "sym_canonical_facts_CanonicalFactsBuilder_5829f5fd",
+    "line_end": 458,
+    "line_start": 384,
+    "name": "CanonicalFactsBuilder",
+    "signature": "class CanonicalFactsBuilder()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "649fcd647f49611c403346cd2edb0760d102a99a12f111170769e5dff7ad90a5",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "CanonicalFactRecord",
+      "KnowledgeUnit",
+      "str"
+    ],
+    "docstring": "Constructs canonical fact records and converts them to KnowledgeUnits.",
+    "file_path": "backend/app/knowledge/canonical_facts.py",
+    "id": "sym_canonical_facts_CanonicalFactsBuilder.build_facts_649fcd64",
+    "line_end": 440,
+    "line_start": 388,
+    "name": "CanonicalFactsBuilder.build_facts",
+    "signature": "def build_facts(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "2335c3e22dfde068af3f8c959c37e3ecf244f813b06da3835460a133a841f65d",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [],
+    "docstring": "Evaluates which domains from A to AE are COVERED, PARTIALLY_COVERED, or KNOWLEDGE_GAP.",
+    "file_path": "backend/app/knowledge/canonical_facts.py",
+    "id": "sym_canonical_facts_CanonicalFactsBuilder.evaluate_domain_coverage_2335c3e2",
+    "line_end": 458,
+    "line_start": 443,
+    "name": "CanonicalFactsBuilder.evaluate_domain_coverage",
+    "signature": "def evaluate_domain_coverage(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "293dbb25762710515f15abf73f777e1c0c284bcb4f030fd0a5459eadb0732c2a",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Detects discrepancies, broken links, stale fingerprints, and route gaps in knowledge units.",
+    "file_path": "backend/app/knowledge/conflict_detector.py",
+    "id": "sym_conflict_detector_ConflictDetector_293dbb25",
+    "line_end": 136,
+    "line_start": 25,
+    "name": "ConflictDetector",
+    "signature": "class ConflictDetector()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "495a81ffe5e7e0b10e955d8ba3f8db6976e5a7a889007071b6b73189ce067933",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/conflict_detector.py",
+    "id": "sym_conflict_detector_ConflictDetector.__init___495a81ff",
+    "line_end": 29,
+    "line_start": 28,
+    "name": "ConflictDetector.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "57d8f40dcb03042f59706729c0432df5011841350347b1b309b3f89a05e6f740",
+    "decorators": [],
+    "dependencies": [
+      "hasattr",
+      "isinstance",
+      "getattr"
+    ],
+    "docstring": "Recursively unpacks FastAPI routes, including nested routers and _IncludedRouter objects.",
+    "file_path": "backend/app/knowledge/conflict_detector.py",
+    "id": "sym_conflict_detector_ConflictDetector._collect_api_routes_57d8f40d",
+    "line_end": 43,
+    "line_start": 31,
+    "name": "ConflictDetector._collect_api_routes",
+    "signature": "def _collect_api_routes(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "c189b3d738fa28e24c850ce7f8bfbf69d3244822d9b53941dbfeb6315ec67775",
+    "decorators": [],
+    "dependencies": [
+      "QAIssue",
+      "set"
+    ],
+    "docstring": "Runs comprehensive conflict, staleness, broken link, and route consistency checks.",
+    "file_path": "backend/app/knowledge/conflict_detector.py",
+    "id": "sym_conflict_detector_ConflictDetector.detect_conflicts_c189b3d7",
+    "line_end": 136,
+    "line_start": 45,
+    "name": "ConflictDetector.detect_conflicts",
+    "signature": "def detect_conflicts(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "22bf3950b636f138cf959d1313cea2b5cb1ecbd987d63828e5efb0af1200d551",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Ingests, chunks, and fingerprints documentation files into KnowledgeUnits.",
+    "file_path": "backend/app/knowledge/doc_ingestor.py",
+    "id": "sym_doc_ingestor_DocIngestor_22bf3950",
+    "line_end": 191,
+    "line_start": 35,
+    "name": "DocIngestor",
+    "signature": "class DocIngestor()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "495a81ffe5e7e0b10e955d8ba3f8db6976e5a7a889007071b6b73189ce067933",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/doc_ingestor.py",
+    "id": "sym_doc_ingestor_DocIngestor.__init___495a81ff",
+    "line_end": 39,
+    "line_start": 38,
+    "name": "DocIngestor.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "d5ad599aee7bec53573e39c51a9eea3251671917b0fef9c46662e82c120e0322",
+    "decorators": [],
+    "dependencies": [
+      "sorted"
+    ],
+    "docstring": "Finds all valid specification markdown files, excluding protected/ignored paths.",
+    "file_path": "backend/app/knowledge/doc_ingestor.py",
+    "id": "sym_doc_ingestor_DocIngestor.discover_doc_files_d5ad599a",
+    "line_end": 56,
+    "line_start": 41,
+    "name": "DocIngestor.discover_doc_files",
+    "signature": "def discover_doc_files(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "e2394332d0f929963c429fde1309d1ff792bdcdff2bf03fe0568105ebb758403",
+    "decorators": [],
+    "dependencies": [
+      "QAIssue",
+      "len",
+      "str",
+      "enumerate"
+    ],
+    "docstring": "Parses a single markdown documentation file into heading-structured KnowledgeUnits.",
+    "file_path": "backend/app/knowledge/doc_ingestor.py",
+    "id": "sym_doc_ingestor_DocIngestor.ingest_file_e2394332",
+    "line_end": 130,
+    "line_start": 58,
+    "name": "DocIngestor.ingest_file",
+    "signature": "def ingest_file(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "9e3379139188bde7a4ab98f2b7c201b946b468e5ce32aa2c6449f1cf41e6223d",
+    "decorators": [],
+    "dependencies": [
+      "KnowledgeUnit",
+      "Path"
+    ],
+    "docstring": "Constructs a deterministic KnowledgeUnit.",
+    "file_path": "backend/app/knowledge/doc_ingestor.py",
+    "id": "sym_doc_ingestor_DocIngestor._create_unit_9e337913",
+    "line_end": 178,
+    "line_start": 132,
+    "name": "DocIngestor._create_unit",
+    "signature": "def _create_unit(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "fc67fc57d7cf5ff31d9de91826a3959a738700c86b455a44f4d71ca5cb3fef9d",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Discovers and ingests all valid documentation files.",
+    "file_path": "backend/app/knowledge/doc_ingestor.py",
+    "id": "sym_doc_ingestor_DocIngestor.ingest_all_fc67fc57",
+    "line_end": 191,
+    "line_start": 180,
+    "name": "DocIngestor.ingest_all",
+    "signature": "def ingest_all(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "7e68947de2db14f6efee0352f014bada9297d40503d25b9a83cbf618fa0b7cbc",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Extracts frontend component metadata, interactive triggers, and API bindings.",
+    "file_path": "backend/app/knowledge/frontend_extractor.py",
+    "id": "sym_frontend_extractor_FrontendExtractor_7e68947d",
+    "line_end": 292,
+    "line_start": 40,
+    "name": "FrontendExtractor",
+    "signature": "class FrontendExtractor()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "495a81ffe5e7e0b10e955d8ba3f8db6976e5a7a889007071b6b73189ce067933",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/frontend_extractor.py",
+    "id": "sym_frontend_extractor_FrontendExtractor.__init___495a81ff",
+    "line_end": 44,
+    "line_start": 43,
+    "name": "FrontendExtractor.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "fb3a0c7dff3ce9184f4a779ecf0b6fe132a55980613a508699cae358e64bb5f4",
+    "decorators": [],
+    "dependencies": [
+      "sorted"
+    ],
+    "docstring": "Discovers active TS/TSX source files in frontend/src, excluding dist and node_modules.",
+    "file_path": "backend/app/knowledge/frontend_extractor.py",
+    "id": "sym_frontend_extractor_FrontendExtractor.discover_frontend_files_fb3a0c7d",
+    "line_end": 61,
+    "line_start": 46,
+    "name": "FrontendExtractor.discover_frontend_files",
+    "signature": "def discover_frontend_files(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "bdfc5f752fea199f6f2ef681d81a92b2fbe4b0ee75e4fbff8c6ed3f66e4c16ca",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "KnowledgeUnit",
+      "CodeRelationship",
+      "str",
+      "QAIssue",
+      "set"
+    ],
+    "docstring": "Extracts component definitions, UI actions, and API bindings from a TS/TSX file.",
+    "file_path": "backend/app/knowledge/frontend_extractor.py",
+    "id": "sym_frontend_extractor_FrontendExtractor.extract_file_bdfc5f75",
+    "line_end": 158,
+    "line_start": 63,
+    "name": "FrontendExtractor.extract_file",
+    "signature": "def extract_file(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "eb16e57725f2dbdfa1a294c8f8b0ee1e48c6f4257bb07ed5319da8f2c84e3440",
+    "decorators": [],
+    "dependencies": [
+      "FrontendActionRecord"
+    ],
+    "docstring": "Extracts high-value user-triggerable actions mapped to safety tiers.",
+    "file_path": "backend/app/knowledge/frontend_extractor.py",
+    "id": "sym_frontend_extractor_FrontendExtractor._extract_specific_actions_eb16e577",
+    "line_end": 275,
+    "line_start": 160,
+    "name": "FrontendExtractor._extract_specific_actions",
+    "signature": "def _extract_specific_actions(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "6410673fa0da8c69f596aabd4f2b14f7070b619b1d31a45431e31308373e689b",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Discovers and extracts all frontend TS/TSX component knowledge.",
+    "file_path": "backend/app/knowledge/frontend_extractor.py",
+    "id": "sym_frontend_extractor_FrontendExtractor.extract_all_6410673f",
+    "line_end": 292,
+    "line_start": 277,
+    "name": "FrontendExtractor.extract_all",
+    "signature": "def extract_all(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "440698f95124c480b9f3abdaca3193cd7356adeaad9e8c0f520bb8b63a85c53f",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "Deterministic Source Precedence Hierarchy.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_SourceTier_440698f9",
+    "line_end": 17,
+    "line_start": 9,
+    "name": "SourceTier",
+    "signature": "class SourceTier(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "a9bf4643481d148ec6a4e3c1e7640020314a6045f89dcc081efe96287c5dd1aa",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "Authority Classification for Knowledge Units.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_AuthorityType_a9bf4643",
+    "line_end": 28,
+    "line_start": 20,
+    "name": "AuthorityType",
+    "signature": "class AuthorityType(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "f9f4dc40f8c0c56f55002448c6082f69d6786ce18adc1863eb1bdb8f1c22bf1e",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "Freshness of Knowledge Unit against current repository state.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_FreshnessStatus_f9f4dc40",
+    "line_end": 38,
+    "line_start": 31,
+    "name": "FreshnessStatus",
+    "signature": "class FreshnessStatus(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "e6db347250c328c1f363f8e703c9eb5b64f1e7ed271f180651fbb6cb023300c1",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "The 31 Comprehensive Project Knowledge Domains (A through AE).",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_DomainCategory_e6db3472",
+    "line_end": 74,
+    "line_start": 41,
+    "name": "DomainCategory",
+    "signature": "class DomainCategory(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "087563e071afd03c42b0f2219f9626c5a75f9eebf83e8dcb31b3199968634936",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "Domain coverage verification status.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_DomainCoverageStatus_087563e0",
+    "line_end": 83,
+    "line_start": 77,
+    "name": "DomainCoverageStatus",
+    "signature": "class DomainCoverageStatus(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "4bbee7d27a32873fca51be107bb63596438ed7f74ee15302d105dfc9c96111ba",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "QA Build / Validation Status.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_QAStatus_4bbee7d2",
+    "line_end": 92,
+    "line_start": 86,
+    "name": "QAStatus",
+    "signature": "class QAStatus(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "b0084c04ff494d471a73469c0a62914380f21d783171c435016e04c45f3e8433",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "Severity of a QA Issue.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_QASeverity_b0084c04",
+    "line_end": 100,
+    "line_start": 95,
+    "name": "QASeverity",
+    "signature": "class QASeverity(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "885ec4366243874e7f063370f5600ba48fcc04d331596196b3e19c473d897bee",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "QA finding or validation discrepancy.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_QAIssue_885ec436",
+    "line_end": 113,
+    "line_start": 103,
+    "name": "QAIssue",
+    "signature": "class QAIssue(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "38f48c6899c3a4d8a3980bf785f7b85582f31dc2fac51a15b9c3789dcf7a7af8",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Lightweight cross-reference edge between symbols.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_CodeRelationship_38f48c68",
+    "line_end": 124,
+    "line_start": 116,
+    "name": "CodeRelationship",
+    "signature": "class CodeRelationship(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "7183243e0b63e712c6494d9fe01bf585c37e7f4bec5fcc27a515dac1df458576",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Canonical Atomic Knowledge Unit for RAG grounding and reasoning.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_KnowledgeUnit_7183243e",
+    "line_end": 149,
+    "line_start": 127,
+    "name": "KnowledgeUnit",
+    "signature": "class KnowledgeUnit(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "44fcbe70d588c1b31152eb778f8a4aa7c596865827dc0bee38c905b85200d92d",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "AST-extracted code symbol metadata.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_CodeSymbolRecord_44fcbe70",
+    "line_end": 167,
+    "line_start": 152,
+    "name": "CodeSymbolRecord",
+    "signature": "class CodeSymbolRecord(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "ca56d88fd14e35cee3e50db1f49fd3753685f233470161495e24e49cd10ca57b",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Introspected FastAPI route metadata.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_ApiRouteRecord_ca56d88f",
+    "line_end": 185,
+    "line_start": 170,
+    "name": "ApiRouteRecord",
+    "signature": "class ApiRouteRecord(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "0e554b4c42a0b856732c4957304f370472312953c722e2c1f6536b57dd94369f",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Extracted Frontend UI surface and action metadata.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_FrontendActionRecord_0e554b4c",
+    "line_end": 201,
+    "line_start": 188,
+    "name": "FrontendActionRecord",
+    "signature": "class FrontendActionRecord(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "a0dd204d9c9e0ab331ca4b45a83c11890230770560cf96f9092bb58adfc4fb37",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Pytest test case knowledge metadata.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_TestKnowledgeRecord_a0dd204d",
+    "line_end": 216,
+    "line_start": 204,
+    "name": "TestKnowledgeRecord",
+    "signature": "class TestKnowledgeRecord(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "bf4b1afc5e9b6e30a76bd3e258e198d4e320ec7364e990cc2428cd2b90619a74",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Hand-curated, authoritative fact record for Domains A-AE.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_CanonicalFactRecord_bf4b1afc",
+    "line_end": 233,
+    "line_start": 219,
+    "name": "CanonicalFactRecord",
+    "signature": "class CanonicalFactRecord(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "ab0f4daf9f7807175987b9c1b1061170a35545bc949adaa3926912158d6c00d9",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Detailed coverage statistics for the Knowledge Base.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_CoverageMetrics_ab0f4daf",
+    "line_end": 252,
+    "line_start": 236,
+    "name": "CoverageMetrics",
+    "signature": "class CoverageMetrics(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "f6dffe11c7c02a75b3ba6b5057f93973312fa7eb0acb0aff89e7a862df7ac8bc",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Complete Knowledge QA Validation Report.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_QAReport_f6dffe11",
+    "line_end": 266,
+    "line_start": 255,
+    "name": "QAReport",
+    "signature": "class QAReport(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "6fba23a5431db88b7950cee0351067da1243e1e00399284d3fb7047ee7891ed0",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Manifest for generated knowledge assets.",
+    "file_path": "backend/app/knowledge/models.py",
+    "id": "sym_models_KnowledgeManifest_6fba23a5",
+    "line_end": 280,
+    "line_start": 269,
+    "name": "KnowledgeManifest",
+    "signature": "class KnowledgeManifest(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "6810fcf314fc236bcf4d9abfd3ef59b597402501b2d0462ad4207cfea2e90aac",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Links disparate knowledge units with lightweight cross-reference edges.",
+    "file_path": "backend/app/knowledge/relationships.py",
+    "id": "sym_relationships_RelationshipLinker_6810fcf3",
+    "line_end": 72,
+    "line_start": 10,
+    "name": "RelationshipLinker",
+    "signature": "class RelationshipLinker()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "4ad4ce2f0fadec316c8a99c13264b36cc74edb0aee27e0b50918078fbb469f50",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "list",
+      "CodeRelationship"
+    ],
+    "docstring": "Enriches knowledge units with cross-layer architecture relationships.",
+    "file_path": "backend/app/knowledge/relationships.py",
+    "id": "sym_relationships_RelationshipLinker.enrich_relationships_4ad4ce2f",
+    "line_end": 72,
+    "line_start": 37,
+    "name": "RelationshipLinker.enrich_relationships",
+    "signature": "def enrich_relationships(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "9b27831dcf7362b0795966eec0065c6411cd239c43c46285f70d97cb779608db",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Automated security scanner verifying that source text is safe for knowledge ingestion.",
+    "file_path": "backend/app/knowledge/secret_scanner.py",
+    "id": "sym_secret_scanner_SecretScanner_9b27831d",
+    "line_end": 109,
+    "line_start": 56,
+    "name": "SecretScanner",
+    "signature": "class SecretScanner()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "154b1cef9b7d1e34b03a42751210c4bf7798a2a97bb3c950250e193f4a5eac98",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "str"
+    ],
+    "docstring": "Return True if the file path is explicitly excluded/protected from indexing.",
+    "file_path": "backend/app/knowledge/secret_scanner.py",
+    "id": "sym_secret_scanner_SecretScanner.is_path_excluded_154b1cef",
+    "line_end": 73,
+    "line_start": 64,
+    "name": "SecretScanner.is_path_excluded",
+    "signature": "def is_path_excluded(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "36af936216e3ed5439985cf51238a4b646690ad475702c51b2ce0a6d0e3484b4",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "list",
+      "QAIssue",
+      "any"
+    ],
+    "docstring": "Scans text for secrets, redacts any matches, and returns (redacted_text, issues, is_clean).\n\nIf a non-placeholder secret is detected, an ERROR issue is emitted.",
+    "file_path": "backend/app/knowledge/secret_scanner.py",
+    "id": "sym_secret_scanner_SecretScanner.scan_and_redact_36af9362",
+    "line_end": 109,
+    "line_start": 76,
+    "name": "SecretScanner.scan_and_redact",
+    "signature": "def scan_and_redact(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "e91a82b3c92c9c5fc7504aa0b816c2e0f85a0c5dfc79350a19abb29d32d13d63",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Extracts test knowledge records mapping test cases to proven invariants and targets.",
+    "file_path": "backend/app/knowledge/test_extractor.py",
+    "id": "sym_test_extractor_TestExtractor_e91a82b3",
+    "line_end": 185,
+    "line_start": 24,
+    "name": "TestExtractor",
+    "signature": "class TestExtractor()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "495a81ffe5e7e0b10e955d8ba3f8db6976e5a7a889007071b6b73189ce067933",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/test_extractor.py",
+    "id": "sym_test_extractor_TestExtractor.__init___495a81ff",
+    "line_end": 30,
+    "line_start": 29,
+    "name": "TestExtractor.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "993960eb90af4ba875cb86ebfd891735253252eb18e67e4c23e9c3498d60a4d0",
+    "decorators": [],
+    "dependencies": [
+      "sorted"
+    ],
+    "docstring": "Discovers all test files in backend/tests/.",
+    "file_path": "backend/app/knowledge/test_extractor.py",
+    "id": "sym_test_extractor_TestExtractor.discover_test_files_993960eb",
+    "line_end": 43,
+    "line_start": 32,
+    "name": "TestExtractor.discover_test_files",
+    "signature": "def discover_test_files(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "0e73443a0c5df57b1722dafb54d2c125c5204f682537e9338e0101563d886016",
+    "decorators": [],
+    "dependencies": [
+      "KnowledgeUnit",
+      "TestKnowledgeRecord",
+      "CodeRelationship",
+      "list",
+      "Path",
+      "str",
+      "QAIssue",
+      "isinstance",
+      "set"
+    ],
+    "docstring": "Parses a test file using AST and extracts test metadata and knowledge units.",
+    "file_path": "backend/app/knowledge/test_extractor.py",
+    "id": "sym_test_extractor_TestExtractor.extract_file_0e73443a",
+    "line_end": 168,
+    "line_start": 45,
+    "name": "TestExtractor.extract_file",
+    "signature": "def extract_file(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "00aa038be46e96a70a3eb24e45a56a763113450ef581f3ff101eb67035bb68ac",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Discovers and extracts all Pytest test cases.",
+    "file_path": "backend/app/knowledge/test_extractor.py",
+    "id": "sym_test_extractor_TestExtractor.extract_all_00aa038b",
+    "line_end": 185,
+    "line_start": 170,
+    "name": "TestExtractor.extract_all",
+    "signature": "def extract_all(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "bf43f3696314a24a19c34117c44d119496c2b098eee8bd4e969f502a7cc626e7",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Validates already-generated knowledge assets.",
+    "file_path": "backend/app/knowledge/validator.py",
+    "id": "sym_validator_KnowledgeValidator_bf43f369",
+    "line_end": 107,
+    "line_start": 20,
+    "name": "KnowledgeValidator",
+    "signature": "class KnowledgeValidator()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "f4c11f0d2cd5ae6626ddc51878fff765f75ea279692aad0366c9059a7d0d56c1",
+    "decorators": [],
+    "dependencies": [
+      "Path"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/knowledge/validator.py",
+    "id": "sym_validator_KnowledgeValidator.__init___f4c11f0d",
+    "line_end": 25,
+    "line_start": 23,
+    "name": "KnowledgeValidator.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "9cbc8a4134ecebaf9aaccd9aa1013f4dde03145c04b4a82641f5bc94b3cd5f3d",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "enumerate"
+    ],
+    "docstring": "Validates existing knowledge assets on disk.\n\nReturns (is_valid: bool, error_messages: list[str]).",
+    "file_path": "backend/app/knowledge/validator.py",
+    "id": "sym_validator_KnowledgeValidator.validate_9cbc8a41",
+    "line_end": 107,
+    "line_start": 27,
+    "name": "KnowledgeValidator.validate",
+    "signature": "def validate(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "02b61dfbdd42dc971763209350c3b32e1766e29b925a326f50c509f982ec3005",
+    "decorators": [],
+    "dependencies": [
+      "print",
+      "KnowledgeValidator"
+    ],
+    "docstring": "CLI runner for standalone knowledge validation.",
+    "file_path": "backend/app/knowledge/validator.py",
+    "id": "sym_validator_main_02b61dfb",
+    "line_end": 122,
+    "line_start": 110,
+    "name": "main",
+    "signature": "def main(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "7d37a82fc4af12f09ad4a41b520d7048087fb7cdb9c2f694a58efffa49927d2d",
+    "decorators": [
+      "app.exception_handler(HTTPException)"
+    ],
+    "dependencies": [
+      "JSONResponse",
+      "isinstance"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/main.py",
+    "id": "sym_main_http_exception_handler_7d37a82f",
+    "line_end": 58,
+    "line_start": 47,
+    "name": "http_exception_handler",
+    "signature": "def http_exception_handler(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "88325f0bb2c810351063b8317b9828c302feee04ea239ae31ec8fbbdcae1451a",
+    "decorators": [
+      "app.exception_handler(RequestValidationError)"
+    ],
+    "dependencies": [
+      "JSONResponse"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/main.py",
+    "id": "sym_main_validation_exception_handler_88325f0b",
+    "line_end": 75,
+    "line_start": 62,
+    "name": "validation_exception_handler",
+    "signature": "def validation_exception_handler(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "9ba88bd040ea0cd82ddd2428436d75785f567322385aeb51c8ba2e4181866cab",
+    "decorators": [
+      "app.exception_handler(Exception)"
+    ],
+    "dependencies": [
+      "JSONResponse"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/main.py",
+    "id": "sym_main_unhandled_exception_handler_9ba88bd0",
+    "line_end": 90,
+    "line_start": 79,
+    "name": "unhandled_exception_handler",
+    "signature": "def unhandled_exception_handler(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "99065bd4e7ebc9471b8240c1ad6343c05c40150c2022d6c80e76eebca8677da4",
+    "decorators": [
+      "app.get('/health', response_model=ApiResponse[dict[str, Any]])"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/main.py",
+    "id": "sym_main_health_check_99065bd4",
+    "line_end": 95,
+    "line_start": 94,
+    "name": "health_check",
+    "signature": "def health_check(...)",
+    "symbol_type": "route_handler"
+  },
+  {
+    "content_sha256": "f229c1419aadacee7025e76b502f3b2dcdc0d264d4958d888744bff3fa0d5c10",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/approval.py",
+    "id": "sym_approval_Approval_f229c141",
+    "line_end": 25,
+    "line_start": 9,
+    "name": "Approval",
+    "signature": "class Approval(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "69f999815978caea5d5e312093dec2692f4e8cdfde63bad6396f80ce2c97bc19",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/audit.py",
+    "id": "sym_audit_AuditEvent_69f99981",
+    "line_end": 29,
+    "line_start": 9,
+    "name": "AuditEvent",
+    "signature": "class AuditEvent(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "7d9c4ff8452bc04af0a2a5b7e014b829bb277efb1cbc60c2a908ee340013adf1",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/audit.py",
+    "id": "sym_audit_AuditChainState_7d9c4ff8",
+    "line_end": 36,
+    "line_start": 32,
+    "name": "AuditChainState",
+    "signature": "class AuditChainState(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "6a716924cc247d958faecdba7949856528aef002a725cf602f4f34edfd90f8b5",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/idempotency.py",
+    "id": "sym_idempotency_IdempotencyRecord_6a716924",
+    "line_end": 23,
+    "line_start": 11,
+    "name": "IdempotencyRecord",
+    "signature": "class IdempotencyRecord(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "9c3acbc3faaae4443431708ada526a026136c571f2c462b122e7061031b8ce2b",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/mandate.py",
+    "id": "sym_mandate_Mandate_9c3acbc3",
+    "line_end": 28,
+    "line_start": 10,
+    "name": "Mandate",
+    "signature": "class Mandate(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "ef9f4ee0f53696c1f34aff2e5739bd035530b72e068b72b3fb9c045b7182c750",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/merchant.py",
+    "id": "sym_merchant_Merchant_ef9f4ee0",
+    "line_end": 13,
+    "line_start": 7,
+    "name": "Merchant",
+    "signature": "class Merchant(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "ee2a5730e727c57759b8b51161abb6697ff10840667c4a221b03b25caf61ffc4",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/product.py",
+    "id": "sym_product_Product_ee2a5730",
+    "line_end": 20,
+    "line_start": 9,
+    "name": "Product",
+    "signature": "class Product(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "16c2a799184b4bd179ee5276cdb11984c16f044a23ec64c3714485e373a0d008",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/transaction.py",
+    "id": "sym_transaction_Transaction_16c2a799",
+    "line_end": 39,
+    "line_start": 10,
+    "name": "Transaction",
+    "signature": "class Transaction(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "7f8482d0060149c920c1192b6e5517a0f8d7d1bca7434ec485d58df1e4796c78",
+    "decorators": [],
+    "dependencies": [
+      "Base"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/models/user.py",
+    "id": "sym_user_User_7f8482d0",
+    "line_end": 19,
+    "line_start": 9,
+    "name": "User",
+    "signature": "class User(Base)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "949c215c0b2d52715474360ba8bd24e7153c344adf66355987f3236b09d8eefc",
+    "decorators": [],
+    "dependencies": [
+      "PolicyEvaluationResult",
+      "Decimal",
+      "abs",
+      "isinstance"
+    ],
+    "docstring": "Pure Python policy engine for Agentic Commerce Firewall.\n\nAuthoritative Validation Order:\n1. Check mandate status (must be active)\n2. Check mandate expiry\n3. Authoritative product/merchant data supplied directly\n4. Validate quantity (int, not bool, >= 1, <= stock, <= 10)\n5. Compare claimed price vs authoritative price\n6. Verify merchant scope using server-derived product.merchant_id\n7. Compute authoritative_total = product.price * quantity\n8. Compare authoritative_total against budget_remaining & max_transaction_amount\n9. Return decision (ALLOW, ESCALATE, DENY) and canonical reason code",
+    "file_path": "backend/app/policy/engine.py",
+    "id": "sym_engine_evaluate_policy_949c215c",
+    "line_end": 135,
+    "line_start": 13,
+    "name": "evaluate_policy",
+    "signature": "def evaluate_policy(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "1b08549745a3bc56414524dcc00a87b91e40637cac5dcc0a81c5d5d6b3063bba",
+    "decorators": [
+      "dataclass(frozen=True)"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/policy/models.py",
+    "id": "sym_models_MandatePolicyInput_1b085497",
+    "line_end": 17,
+    "line_start": 9,
+    "name": "MandatePolicyInput",
+    "signature": "class MandatePolicyInput()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "e6041253c29744b31a912c09fa717e51b4a8b2b085c6d5146b4fa1c6174e959f",
+    "decorators": [
+      "dataclass(frozen=True)"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/policy/models.py",
+    "id": "sym_models_ProductPolicyInput_e6041253",
+    "line_end": 27,
+    "line_start": 21,
+    "name": "ProductPolicyInput",
+    "signature": "class ProductPolicyInput()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "619dd9ad35117282916e37f707d80ca3e1dba895980e908b1195e00941d02f46",
+    "decorators": [
+      "dataclass(frozen=True)"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/policy/models.py",
+    "id": "sym_models_AgentProposalInput_619dd9ad",
+    "line_end": 34,
+    "line_start": 31,
+    "name": "AgentProposalInput",
+    "signature": "class AgentProposalInput()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "e2120206476a5ce5e82cb400b815aa98acf34916b0f32ca0b3a4363a30a094f2",
+    "decorators": [
+      "dataclass(frozen=True)"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/policy/models.py",
+    "id": "sym_models_PolicyEvaluationResult_e2120206",
+    "line_end": 43,
+    "line_start": 38,
+    "name": "PolicyEvaluationResult",
+    "signature": "class PolicyEvaluationResult()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "b0a98dd9eb3b757e5936c9c332a4389284b7c0a01ab27ade401c4eeb02ebca4a",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/policy/reason_codes.py",
+    "id": "sym_reason_codes_PolicyDecision_b0a98dd9",
+    "line_end": 7,
+    "line_start": 4,
+    "name": "PolicyDecision",
+    "signature": "class PolicyDecision(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "7309dda501068c574117cbc5feca8c0ad5b63b69a2faac8d16836bc161f6f0dc",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/policy/reason_codes.py",
+    "id": "sym_reason_codes_ReasonCode_7309dda5",
+    "line_end": 24,
+    "line_start": 10,
+    "name": "ReasonCode",
+    "signature": "class ReasonCode(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "d3af27b9f875cccf2ad78da7f0cdd8d355a5929a3352eada31a667b3bf977f8c",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Navigates AST symbol relationships, linking functions to routes, handlers, and tests.",
+    "file_path": "backend/app/retrieval/ast_retriever.py",
+    "id": "sym_ast_retriever_AstCodeRetriever_d3af27b9",
+    "line_end": 145,
+    "line_start": 10,
+    "name": "AstCodeRetriever",
+    "signature": "class AstCodeRetriever()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "584490e0ab8402c984daec0bccf751e54b108c2dfb7cfd99fc2127b22722dd09",
+    "decorators": [],
+    "dependencies": [
+      "defaultdict"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/ast_retriever.py",
+    "id": "sym_ast_retriever_AstCodeRetriever.__init___584490e0",
+    "line_end": 21,
+    "line_start": 13,
+    "name": "AstCodeRetriever.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "68aba666bc75a936fee718b1e75cfaa1bb88827bd2144cfeb4fb301945b1c850",
+    "decorators": [],
+    "dependencies": [
+      "len"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/ast_retriever.py",
+    "id": "sym_ast_retriever_AstCodeRetriever._index_ast_68aba666",
+    "line_end": 45,
+    "line_start": 23,
+    "name": "AstCodeRetriever._index_ast",
+    "signature": "def _index_ast(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "1155ead1076e4a74e995b75f579a5cd1f37af41d3c0a7191cc643848f046756e",
+    "decorators": [],
+    "dependencies": [
+      "RetrievalResult",
+      "set",
+      "RetrievalScoreBreakdown"
+    ],
+    "docstring": "Finds direct AST symbol evidence plus associated tests and callers.",
+    "file_path": "backend/app/retrieval/ast_retriever.py",
+    "id": "sym_ast_retriever_AstCodeRetriever.find_symbol_evidence_1155ead1",
+    "line_end": 94,
+    "line_start": 47,
+    "name": "AstCodeRetriever.find_symbol_evidence",
+    "signature": "def find_symbol_evidence(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "c812af052bd24359c6a4dea94fc7d6cd51b577dc98e77a04e98ab9624e59e375",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Reconstructs the full vertical trace: UI Component -> Route -> Handler/Policy -> Test.",
+    "file_path": "backend/app/retrieval/ast_retriever.py",
+    "id": "sym_ast_retriever_AstCodeRetriever.find_code_trace_c812af05",
+    "line_end": 145,
+    "line_start": 96,
+    "name": "AstCodeRetriever.find_code_trace",
+    "signature": "def find_code_trace(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "fee7ab0fa17f956a4a26533ccd0d43e6031a1a9e4fcfcd51d8f3d20fa9fb04b6",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Classifies user queries into retrieval intents and extracts structured entity hints.",
+    "file_path": "backend/app/retrieval/classifier.py",
+    "id": "sym_classifier_QueryClassifier_fee7ab0f",
+    "line_end": 524,
+    "line_start": 13,
+    "name": "QueryClassifier",
+    "signature": "class QueryClassifier()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "ed4156dd440029c001c39bdafaeb4f2380bda915ad421209982bb0c5e5b605d6",
+    "decorators": [],
+    "dependencies": [
+      "bool",
+      "DynamicLiveAction"
+    ],
+    "docstring": "Explainable bidirectional detection of live operational state queries.",
+    "file_path": "backend/app/retrieval/classifier.py",
+    "id": "sym_classifier_QueryClassifier._check_dynamic_live_state_ed4156dd",
+    "line_end": 339,
+    "line_start": 199,
+    "name": "QueryClassifier._check_dynamic_live_state",
+    "signature": "def _check_dynamic_live_state(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "1b0b156cdbf7027aa824d832804beea2aad41fbb01a28effe9f434e43dd42e5c",
+    "decorators": [],
+    "dependencies": [
+      "QueryClassification",
+      "bool",
+      "len"
+    ],
+    "docstring": "Classifies a natural language query into a structured QueryClassification.",
+    "file_path": "backend/app/retrieval/classifier.py",
+    "id": "sym_classifier_QueryClassifier.classify_1b0b156c",
+    "line_end": 524,
+    "line_start": 341,
+    "name": "QueryClassifier.classify",
+    "signature": "def classify(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "7fec727535d664ca400cd3656820d6fc408559d0e42362d68c3f86834da1e85b",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Ground truth evaluation test case.",
+    "file_path": "backend/app/retrieval/dataset.py",
+    "id": "sym_dataset_EvaluationQuery_7fec7275",
+    "line_end": 26,
+    "line_start": 12,
+    "name": "EvaluationQuery",
+    "signature": "class EvaluationQuery(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "bd5b8e3d97ee6ff5337b281654b96086e49f1246c8b605e23c86d18f0bf612f4",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Enforces the hard security invariant that dynamic runtime values must not be fabricated.",
+    "file_path": "backend/app/retrieval/dynamic_safeguards.py",
+    "id": "sym_dynamic_safeguards_DynamicDataSafeguard_bd5b8e3d",
+    "line_end": 97,
+    "line_start": 12,
+    "name": "DynamicDataSafeguard",
+    "signature": "class DynamicDataSafeguard()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "6460c7ef15eb9c0e9f580355e8b0ca55d0741f670251fc304b839af030d12101",
+    "decorators": [
+      "staticmethod"
+    ],
+    "dependencies": [
+      "RetrievalResult",
+      "RetrievalScoreBreakdown"
+    ],
+    "docstring": "Generates the authoritative LIVE_QUERY_REQUIRED sentinel result for dynamic queries.",
+    "file_path": "backend/app/retrieval/dynamic_safeguards.py",
+    "id": "sym_dynamic_safeguards_DynamicDataSafeguard.create_live_required_result_6460c7ef",
+    "line_end": 73,
+    "line_start": 16,
+    "name": "DynamicDataSafeguard.create_live_required_result",
+    "signature": "def create_live_required_result(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "a9b025aaf0565ae37bfb5637c88bc62e3e20091c7bb541c11cd31d66f62512b5",
+    "decorators": [
+      "staticmethod"
+    ],
+    "dependencies": [],
+    "docstring": "Ensures that for dynamic queries, static units are labeled as explanatory context only.",
+    "file_path": "backend/app/retrieval/dynamic_safeguards.py",
+    "id": "sym_dynamic_safeguards_DynamicDataSafeguard.sanitize_dynamic_results_a9b025aa",
+    "line_end": 97,
+    "line_start": 76,
+    "name": "DynamicDataSafeguard.sanitize_dynamic_results",
+    "signature": "def sanitize_dynamic_results(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "ae4cbf8f41a0ce6a33b1b274ddc789e0dd5ddd77b02762fdffde7e74205eb02f",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Master engine orchestrating query classification, exact, lexical, semantic, AST retrieval,\n\nauthority-aware reranking, dynamic safeguards, and minimal sufficient evidence synthesis.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine_ae4cbf8f",
+    "line_end": 190,
+    "line_start": 31,
+    "name": "RetrievalEngine",
+    "signature": "class RetrievalEngine()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "1af105a3a35a642dd95df246599b704c7e73da616ad954ac35886b1b8546a610",
+    "decorators": [],
+    "dependencies": [
+      "AuthorityReranker",
+      "ExactMatcher",
+      "AstCodeRetriever",
+      "QueryClassifier",
+      "LexicalBM25Matcher",
+      "SemanticMatcher"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.__init___1af105a3",
+    "line_end": 60,
+    "line_start": 47,
+    "name": "RetrievalEngine.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "5208ee86668ba3fb06b8e25ab7df62d01054a89efc45849a5662ff4fa46d26be",
+    "decorators": [
+      "classmethod"
+    ],
+    "dependencies": [
+      "cls",
+      "FileNotFoundError",
+      "Path"
+    ],
+    "docstring": "Factory initializing the engine directly from canonical knowledge directory JSON.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.from_knowledge_dir_5208ee86",
+    "line_end": 79,
+    "line_start": 63,
+    "name": "RetrievalEngine.from_knowledge_dir",
+    "signature": "def from_knowledge_dir(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "fd79b52213bb60b6e8c1574af404db82afb50d4d87a7cd39cb44ee2d50c53ff9",
+    "decorators": [],
+    "dependencies": [
+      "any"
+    ],
+    "docstring": "Ensures secrets and protected files are never indexed or exposed.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine._filter_protected_units_fd79b522",
+    "line_end": 93,
+    "line_start": 81,
+    "name": "RetrievalEngine._filter_protected_units",
+    "signature": "def _filter_protected_units(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "bb288660e9411654dd0ec34cb7c76e35b2dd2b9ae7d6265fa8825683ebf4cc2a",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Classifies query intent and extracts entity hints.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.classify_query_bb288660",
+    "line_end": 97,
+    "line_start": 95,
+    "name": "RetrievalEngine.classify_query",
+    "signature": "def classify_query(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "52fecd8374ea87be38f35144bc23bfac4f2ca46d2ca906ad1e53f1e50ebae80b",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Performs end-to-end hybrid retrieval and returns ranked results.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.retrieve_52fecd83",
+    "line_end": 147,
+    "line_start": 99,
+    "name": "RetrievalEngine.retrieve",
+    "signature": "def retrieve(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "8d52c33e7a6a2a7c794590a74f697b095cc3bdb30d472b14e70dd65b1dccff64",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "round"
+    ],
+    "docstring": "Performs retrieval and synthesizes the minimal sufficient multi-source EvidenceSet.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.retrieve_with_evidence_8d52c33e",
+    "line_end": 163,
+    "line_start": 149,
+    "name": "RetrievalEngine.retrieve_with_evidence",
+    "signature": "def retrieve_with_evidence(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "04c8cdf7406935d8bfdca03add86e6575401984d2f8db635c7ca83e6e14fb756",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Convenience alias for retrieve.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.query_04c8cdf7",
+    "line_end": 167,
+    "line_start": 165,
+    "name": "RetrievalEngine.query",
+    "signature": "def query(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "3f30c5765f63d8cc418725c15855d940237f62b28591960d8798da4fe6b7262c",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Provides human-readable explainability breakdown for a retrieval result.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_RetrievalEngine.explain_3f30c576",
+    "line_end": 190,
+    "line_start": 169,
+    "name": "RetrievalEngine.explain",
+    "signature": "def explain(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "8ceb8ea636e7860d5a23f1c6a8d7cd42dfa954ff13c359f8c64522f1936e436c",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Returns the cached singleton RetrievalEngine instance.",
+    "file_path": "backend/app/retrieval/engine.py",
+    "id": "sym_engine_get_retrieval_engine_8ceb8ea6",
+    "line_end": 202,
+    "line_start": 197,
+    "name": "get_retrieval_engine",
+    "signature": "def get_retrieval_engine(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "50ade322b2ba839f7c115b2867a419a555145b99228cb4c34251b1d2c9b7a438",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Runs automated quality, security, and performance benchmarks against the Retrieval Engine.",
+    "file_path": "backend/app/retrieval/evaluation.py",
+    "id": "sym_evaluation_RetrievalEvaluator_50ade322",
+    "line_end": 185,
+    "line_start": 16,
+    "name": "RetrievalEvaluator",
+    "signature": "class RetrievalEvaluator()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "b3458a5701a6fe161cc48b91b6ee1fb76dc7a3d137bcdc8d811e41bca137a0f2",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/evaluation.py",
+    "id": "sym_evaluation_RetrievalEvaluator.__init___b3458a57",
+    "line_end": 20,
+    "line_start": 19,
+    "name": "RetrievalEvaluator.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "07dc23d49c31b63c6f9da12fe0b89aa174d46a4fdd757c82b816bc8143a69b34",
+    "decorators": [],
+    "dependencies": [
+      "EvaluationSummary",
+      "len",
+      "dict",
+      "max",
+      "CategoryEvaluationMetric",
+      "defaultdict",
+      "sum",
+      "any",
+      "zip",
+      "round",
+      "range"
+    ],
+    "docstring": "Executes the benchmark evaluation dataset and computes granular category metrics.",
+    "file_path": "backend/app/retrieval/evaluation.py",
+    "id": "sym_evaluation_RetrievalEvaluator.run_benchmark_07dc23d4",
+    "line_end": 185,
+    "line_start": 22,
+    "name": "RetrievalEvaluator.run_benchmark",
+    "signature": "def run_benchmark(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "65e7db19e8e50b88216d9039443fe8cb894ef426b15cfcf68922973cf08a5b81",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Aggregates and filters candidate results into a concise, minimal sufficient evidence set.",
+    "file_path": "backend/app/retrieval/evidence_aggregator.py",
+    "id": "sym_evidence_aggregator_EvidenceAggregator_65e7db19",
+    "line_end": 132,
+    "line_start": 12,
+    "name": "EvidenceAggregator",
+    "signature": "class EvidenceAggregator()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "3e0f35e4bfcea32f8e280666163e6605a5586b0f44fa731a7359066afc5fdc4a",
+    "decorators": [
+      "staticmethod"
+    ],
+    "dependencies": [
+      "EvidenceSet"
+    ],
+    "docstring": "Constructs an EvidenceSet containing the minimum sufficient sources for the query category.",
+    "file_path": "backend/app/retrieval/evidence_aggregator.py",
+    "id": "sym_evidence_aggregator_EvidenceAggregator.aggregate_3e0f35e4",
+    "line_end": 132,
+    "line_start": 16,
+    "name": "EvidenceAggregator.aggregate",
+    "signature": "def aggregate(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "286bd45e89e273ac10e1a7e381ac4a0630f9abe6e0f8de111c7b175e097931f4",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Provides deterministic O(1) exact lookups across identifiers, symbols, routes, and paths.",
+    "file_path": "backend/app/retrieval/exact_matcher.py",
+    "id": "sym_exact_matcher_ExactMatcher_286bd45e",
+    "line_end": 169,
+    "line_start": 10,
+    "name": "ExactMatcher",
+    "signature": "class ExactMatcher()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "ffc60d6783b6840b0e8d3f4a13608bce13b645975b9650e0a175f840e45e9273",
+    "decorators": [],
+    "dependencies": [
+      "defaultdict"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/exact_matcher.py",
+    "id": "sym_exact_matcher_ExactMatcher.__init___ffc60d67",
+    "line_end": 22,
+    "line_start": 13,
+    "name": "ExactMatcher.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "e8160aaa154cf821ded387c3c94409a943f8131ea0b40766a2a165c5b2f1d3c7",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "Path"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/exact_matcher.py",
+    "id": "sym_exact_matcher_ExactMatcher._build_indices_e8160aaa",
+    "line_end": 86,
+    "line_start": 24,
+    "name": "ExactMatcher._build_indices",
+    "signature": "def _build_indices(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "ed691d6f260559dc9ff3160663913e8996a13873ed4b62ea1a554a5dbb5b9315",
+    "decorators": [],
+    "dependencies": [
+      "RetrievalScoreBreakdown",
+      "len",
+      "RetrievalResult",
+      "sorted"
+    ],
+    "docstring": "Performs multi-key exact matching against extracted query entities.",
+    "file_path": "backend/app/retrieval/exact_matcher.py",
+    "id": "sym_exact_matcher_ExactMatcher.match_ed691d6f",
+    "line_end": 169,
+    "line_start": 88,
+    "name": "ExactMatcher.match",
+    "signature": "def match(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "f79ea1b0f19bca8db9e4504a11669a569f53a17c0a17b27f6f7191f92b8a7e21",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Okapi BM25 Lexical Search with code-aware tokenization and multi-field boosting.",
+    "file_path": "backend/app/retrieval/lexical_matcher.py",
+    "id": "sym_lexical_matcher_LexicalBM25Matcher_f79ea1b0",
+    "line_end": 177,
+    "line_start": 11,
+    "name": "LexicalBM25Matcher",
+    "signature": "class LexicalBM25Matcher()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "9ede778958bccb36f3c5eebb6dcc991e3bba6951fbc55254292216d60bd9ed73",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "defaultdict"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/lexical_matcher.py",
+    "id": "sym_lexical_matcher_LexicalBM25Matcher.__init___9ede7789",
+    "line_end": 43,
+    "line_start": 29,
+    "name": "LexicalBM25Matcher.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "95eef76dd14aae1edf3f59db4973c8667778efb3ff52eb5b7339cec13e2404ca",
+    "decorators": [],
+    "dependencies": [
+      "len"
+    ],
+    "docstring": "Performs symbol-aware tokenization, preserving identifiers and sub-tokens.",
+    "file_path": "backend/app/retrieval/lexical_matcher.py",
+    "id": "sym_lexical_matcher_LexicalBM25Matcher.tokenize_95eef76d",
+    "line_end": 70,
+    "line_start": 45,
+    "name": "LexicalBM25Matcher.tokenize",
+    "signature": "def tokenize(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "73a064b54178522be63b5f6f46708d011ea6358fa6bf552302adcc58949346ad",
+    "decorators": [],
+    "dependencies": [
+      "Counter",
+      "len",
+      "max"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/lexical_matcher.py",
+    "id": "sym_lexical_matcher_LexicalBM25Matcher._build_index_73a064b5",
+    "line_end": 109,
+    "line_start": 72,
+    "name": "LexicalBM25Matcher._build_index",
+    "signature": "def _build_index(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "d16d44264932aec9c63f898b56e878be2c9fdacc810c2c82429ab0af50f48ae6",
+    "decorators": [],
+    "dependencies": [
+      "max",
+      "min",
+      "RetrievalResult",
+      "RetrievalScoreBreakdown",
+      "range"
+    ],
+    "docstring": "Executes BM25 search over the indexed knowledge units.",
+    "file_path": "backend/app/retrieval/lexical_matcher.py",
+    "id": "sym_lexical_matcher_LexicalBM25Matcher.search_d16d4426",
+    "line_end": 177,
+    "line_start": 111,
+    "name": "LexicalBM25Matcher.search",
+    "signature": "def search(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "4de2438e4451647de707bf349eab06a9de6691d760867abaacc08dfdf7bcead2",
+    "decorators": [],
+    "dependencies": [
+      "str",
+      "Enum"
+    ],
+    "docstring": "Retrieval Query Intent Classification.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_QueryCategory_4de2438e",
+    "line_end": 26,
+    "line_start": 16,
+    "name": "QueryCategory",
+    "signature": "class QueryCategory(str, Enum)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "846e760f14286c7093ecae8830f607680c3bc1dc05a108efee0a5605f0c500a6",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Action requirement for dynamic runtime state queries.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_DynamicLiveAction_846e760f",
+    "line_end": 38,
+    "line_start": 29,
+    "name": "DynamicLiveAction",
+    "signature": "class DynamicLiveAction(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "18274ecbe98905f39b895ab424c67fe149ede1834ac1b61129623af9d86fdbc5",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Lightweight retrieval-oriented query classification.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_QueryClassification_18274ecb",
+    "line_end": 57,
+    "line_start": 41,
+    "name": "QueryClassification",
+    "signature": "class QueryClassification(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "f0e7f9e96aa1a5e3a85d4209470221866555934380b9e395ee87b60123ee541f",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Detailed score breakdown for explainability.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_RetrievalScoreBreakdown_f0e7f9e9",
+    "line_end": 72,
+    "line_start": 60,
+    "name": "RetrievalScoreBreakdown",
+    "signature": "class RetrievalScoreBreakdown(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "cbdca0dce3140d99dc086b8335c9d1e71501c8f258f1159c71ee59c636b8582c",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Unified retrieval result contract preserving complete provenance.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_RetrievalResult_cbdca0dc",
+    "line_end": 101,
+    "line_start": 75,
+    "name": "RetrievalResult",
+    "signature": "class RetrievalResult(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "50541d1538667ad576207a7962a3327cd9d9b737d486f8c1d2c38f7e5814f2a1",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Minimal sufficient multi-source evidence set for a query.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_EvidenceSet_50541d15",
+    "line_end": 119,
+    "line_start": 104,
+    "name": "EvidenceSet",
+    "signature": "class EvidenceSet(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "40af562d9a1ec7e821ef5b99a9ba626fe5047e64e3f178c12e707695034b7a14",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Deterministic reranking weights configuration.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_ScoringWeights_40af562d",
+    "line_end": 132,
+    "line_start": 122,
+    "name": "ScoringWeights",
+    "signature": "class ScoringWeights(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "32aed95c4a43ad9456b49abe82f0367318ecf10f968bec0b0f9a316ea1d7e7f3",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Metrics for a specific evaluation category.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_CategoryEvaluationMetric_32aed95c",
+    "line_end": 157,
+    "line_start": 135,
+    "name": "CategoryEvaluationMetric",
+    "signature": "class CategoryEvaluationMetric(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "92c6337d13c2166e346eb6333af8f974094f49c21b146158a2c468f8ef53ab83",
+    "decorators": [
+      "property"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_CategoryEvaluationMetric.top1_accuracy_92c6337d",
+    "line_end": 149,
+    "line_start": 148,
+    "name": "CategoryEvaluationMetric.top1_accuracy",
+    "signature": "def top1_accuracy(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "c09fe0333182e981a8b898d6edca64086ea9502dfaa031099e70a195315fa378",
+    "decorators": [
+      "property"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_CategoryEvaluationMetric.top3_accuracy_c09fe033",
+    "line_end": 153,
+    "line_start": 152,
+    "name": "CategoryEvaluationMetric.top3_accuracy",
+    "signature": "def top3_accuracy(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "0cbd712dd9d922549066bebdefd6ff0c40687fdb632fbbeba21cf46c21d40ad8",
+    "decorators": [
+      "property"
+    ],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_CategoryEvaluationMetric.top5_accuracy_0cbd712d",
+    "line_end": 157,
+    "line_start": 156,
+    "name": "CategoryEvaluationMetric.top5_accuracy",
+    "signature": "def top5_accuracy(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "401e8f1ae18e4e968cc20558e21425a860b77b5040ac340de61d37462b259088",
+    "decorators": [],
+    "dependencies": [
+      "BaseModel"
+    ],
+    "docstring": "Overall benchmark evaluation metrics.",
+    "file_path": "backend/app/retrieval/models.py",
+    "id": "sym_models_EvaluationSummary_401e8f1a",
+    "line_end": 179,
+    "line_start": 160,
+    "name": "EvaluationSummary",
+    "signature": "class EvaluationSummary(BaseModel)",
+    "symbol_type": "pydantic_model"
+  },
+  {
+    "content_sha256": "e7f50f5c40d33f46880409dafb599fe3d1cb3590e9b6e0a2274512653b939b79",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Reranks candidate results combining exact, lexical, semantic, domain, and authority tiers.\n\nEnforces constrained authority precedence:\nLIVE_TOOL (1.0) > SOURCE_CODE (0.95) > API_SCHEMA (0.90) > TESTS (0.85) > SPEC_DOCS (0.75) > HISTORICAL (0.50).\nPrevents semantic similarity from overriding higher-authority executable code evidence.",
+    "file_path": "backend/app/retrieval/reranker.py",
+    "id": "sym_reranker_AuthorityReranker_e7f50f5c",
+    "line_end": 198,
+    "line_start": 13,
+    "name": "AuthorityReranker",
+    "signature": "class AuthorityReranker()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "6cfa4ae83540aea81c030464025f95fa91ad05bd5d2707ce5883790c6db6e27c",
+    "decorators": [],
+    "dependencies": [
+      "ScoringWeights"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/reranker.py",
+    "id": "sym_reranker_AuthorityReranker.__init___6cfa4ae8",
+    "line_end": 47,
+    "line_start": 39,
+    "name": "AuthorityReranker.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "6579a6ce11b8657a2d561bb465205b07ea71ffe264bc13a59b42702e8511acea",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "any",
+      "round",
+      "max"
+    ],
+    "docstring": "Performs multi-signal deterministic scoring with authority constraints.",
+    "file_path": "backend/app/retrieval/reranker.py",
+    "id": "sym_reranker_AuthorityReranker.rerank_6579a6ce",
+    "line_end": 198,
+    "line_start": 49,
+    "name": "AuthorityReranker.rerank",
+    "signature": "def rerank(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "4fccdc8a6df257edb468aad65479e138fd20c2b6ed67702e0fe037a9c3c5437f",
+    "decorators": [],
+    "dependencies": [
+      "ABC"
+    ],
+    "docstring": "Abstract interface for embedding generation.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_BaseEmbeddingProvider_4fccdc8a",
+    "line_end": 25,
+    "line_start": 14,
+    "name": "BaseEmbeddingProvider",
+    "signature": "class BaseEmbeddingProvider(ABC)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "b52f5576a8b266c12d4396d581c1f0d69d477342b5ee1769cd94e68352c952fb",
+    "decorators": [
+      "abstractmethod"
+    ],
+    "dependencies": [],
+    "docstring": "Embeds a single query string.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_BaseEmbeddingProvider.embed_text_b52f5576",
+    "line_end": 20,
+    "line_start": 18,
+    "name": "BaseEmbeddingProvider.embed_text",
+    "signature": "def embed_text(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "251795f063a4e1cd75c7067fa32086cc32c568487b91decbbdb7d4a4ef78abad",
+    "decorators": [
+      "abstractmethod"
+    ],
+    "dependencies": [],
+    "docstring": "Embeds a batch of document strings.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_BaseEmbeddingProvider.embed_documents_251795f0",
+    "line_end": 25,
+    "line_start": 23,
+    "name": "BaseEmbeddingProvider.embed_documents",
+    "signature": "def embed_documents(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "bb45ba75ff7977ddbaef8c634b731b0f2bd306a8a1208ac53dec452aaba44ce2",
+    "decorators": [],
+    "dependencies": [
+      "BaseEmbeddingProvider"
+    ],
+    "docstring": "High-dimensional, subword & character n-gram TF-IDF embedding provider.\n\nGuarantees 100% offline, deterministic, zero-dependency, reproducible vector representation.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider_bb45ba75",
+    "line_end": 101,
+    "line_start": 28,
+    "name": "LocalTFIDFEmbeddingProvider",
+    "signature": "class LocalTFIDFEmbeddingProvider(BaseEmbeddingProvider)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "786798e3188bf3492ee9ffdc96e72168759c8af503d3da798837eb5846e5d0bd",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider.__init___786798e3",
+    "line_end": 38,
+    "line_start": 34,
+    "name": "LocalTFIDFEmbeddingProvider.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "86115aeda43d00a0c048e9d2ee5cd8ac9aec5aba985e3637dfd3d56bd1ba7cb6",
+    "decorators": [],
+    "dependencies": [
+      "list",
+      "len",
+      "range"
+    ],
+    "docstring": "Extracts word tokens, character 3-grams and 4-grams for subword semantic capture.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider._extract_features_86115aed",
+    "line_end": 55,
+    "line_start": 40,
+    "name": "LocalTFIDFEmbeddingProvider._extract_features",
+    "signature": "def _extract_features(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "6e5db617138ce81ef4532d8b95afcf4200014ae7638530602ce427ebe0bd4cd8",
+    "decorators": [],
+    "dependencies": [
+      "len",
+      "sorted",
+      "defaultdict",
+      "set",
+      "enumerate"
+    ],
+    "docstring": "Builds the vocabulary and IDF tables from the knowledge corpus.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider.fit_6e5db617",
+    "line_end": 75,
+    "line_start": 57,
+    "name": "LocalTFIDFEmbeddingProvider.fit",
+    "signature": "def fit(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "b2e06c156171cdd16061fd70d6f8c16faa7680d3e683f32cd47a2181db88fda8",
+    "decorators": [],
+    "dependencies": [
+      "Counter",
+      "len",
+      "sum"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider._vectorize_b2e06c15",
+    "line_end": 95,
+    "line_start": 77,
+    "name": "LocalTFIDFEmbeddingProvider._vectorize",
+    "signature": "def _vectorize(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "1c55fdb7d1e4fe342d5bda11933f24b5975985d59490d7373782dd208e9efeb5",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider.embed_text_1c55fdb7",
+    "line_end": 98,
+    "line_start": 97,
+    "name": "LocalTFIDFEmbeddingProvider.embed_text",
+    "signature": "def embed_text(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "f4784f229404ccacc50e4fdade158cb9d6264e693fa46967c48dd7a2e4dc804f",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_LocalTFIDFEmbeddingProvider.embed_documents_f4784f22",
+    "line_end": 101,
+    "line_start": 100,
+    "name": "LocalTFIDFEmbeddingProvider.embed_documents",
+    "signature": "def embed_documents(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "5d22a539e5b9e40c86ed659f1994d15b50ffbe9bcf3f182752c3a66776ec1370",
+    "decorators": [],
+    "dependencies": [
+      "BaseEmbeddingProvider"
+    ],
+    "docstring": "Optional external Gemini embedding provider adapter.\n\nFalls back cleanly to LocalTFIDFEmbeddingProvider if offline, unconfigured, or on error.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_OptionalGeminiEmbeddingProvider_5d22a539",
+    "line_end": 119,
+    "line_start": 104,
+    "name": "OptionalGeminiEmbeddingProvider",
+    "signature": "class OptionalGeminiEmbeddingProvider(BaseEmbeddingProvider)",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "3416d6e2cf6a6fcdfc91ca7fda5327545b6ea8b520ced1b434f2b5578719c3d5",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_OptionalGeminiEmbeddingProvider.__init___3416d6e2",
+    "line_end": 112,
+    "line_start": 110,
+    "name": "OptionalGeminiEmbeddingProvider.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "917415d107d8ef307ef692fc0f1a83e8a0c62b393bd53ee3a335912e56a33d0c",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_OptionalGeminiEmbeddingProvider.embed_text_917415d1",
+    "line_end": 116,
+    "line_start": 114,
+    "name": "OptionalGeminiEmbeddingProvider.embed_text",
+    "signature": "def embed_text(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "28f385007c59f8b848da782d425082028fbc5fb07e89aee1528d88dd385e9627",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_OptionalGeminiEmbeddingProvider.embed_documents_28f38500",
+    "line_end": 119,
+    "line_start": 118,
+    "name": "OptionalGeminiEmbeddingProvider.embed_documents",
+    "signature": "def embed_documents(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "39f4cf0178434ffcd855adeb84a9ce51f5bc4dfbc1f09a9fab7be6914067bb50",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "In-memory dense vector matcher utilizing local deterministic embedding representation.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_SemanticMatcher_39f4cf01",
+    "line_end": 199,
+    "line_start": 122,
+    "name": "SemanticMatcher",
+    "signature": "class SemanticMatcher()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "a2e96477a9958bf6d72b75a7e89d88e7282643022d4f90cd685c191b3eccf63f",
+    "decorators": [],
+    "dependencies": [
+      "LocalTFIDFEmbeddingProvider"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_SemanticMatcher.__init___a2e96477",
+    "line_end": 140,
+    "line_start": 125,
+    "name": "SemanticMatcher.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "ecf1fb18302899211ef9c7c9d6986910caf89ba4383e58c2c1f365c51a23928a",
+    "decorators": [
+      "staticmethod"
+    ],
+    "dependencies": [
+      "sum",
+      "zip"
+    ],
+    "docstring": "Computes dot product of normalized vectors.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_SemanticMatcher._cosine_similarity_ecf1fb18",
+    "line_end": 145,
+    "line_start": 143,
+    "name": "SemanticMatcher._cosine_similarity",
+    "signature": "def _cosine_similarity(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "1f5b2ebd509f189288bc0c7690248d8c071e45561834d4e02e06aeef0f8c143b",
+    "decorators": [],
+    "dependencies": [
+      "RetrievalScoreBreakdown",
+      "max",
+      "any",
+      "min",
+      "RetrievalResult",
+      "enumerate"
+    ],
+    "docstring": "Performs cosine vector search across all indexed units.",
+    "file_path": "backend/app/retrieval/semantic_matcher.py",
+    "id": "sym_semantic_matcher_SemanticMatcher.search_1f5b2ebd",
+    "line_end": 199,
+    "line_start": 147,
+    "name": "SemanticMatcher.search",
+    "signature": "def search(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "21e9769a579aa3375be7b9ff205014b499c8e9e43f116d3b376c47486808d445",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Computes deterministic SHA256 hex string for a payload dictionary.",
+    "file_path": "backend/app/services/audit_log.py",
+    "id": "sym_audit_log_compute_payload_hash_21e9769a",
+    "line_end": 17,
+    "line_start": 14,
+    "name": "compute_payload_hash",
+    "signature": "def compute_payload_hash(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "d7de944af9128cc0ef18f5d55c72046953d97e5408ebac4eb0283b75fa8c8587",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Computes deterministic SHA256 chain hash for an audit event link.",
+    "file_path": "backend/app/services/audit_log.py",
+    "id": "sym_audit_log_compute_event_hash_d7de944a",
+    "line_end": 31,
+    "line_start": 20,
+    "name": "compute_event_hash",
+    "signature": "def compute_event_hash(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "946a9f20261080e2280f1b2ae255e003fa0501244d7859f6c418f9203307b5a5",
+    "decorators": [],
+    "dependencies": [
+      "compute_event_hash",
+      "str",
+      "AuditEvent",
+      "AuditChainState",
+      "compute_payload_hash"
+    ],
+    "docstring": "Appends a new tamper-evident audit event to the server-side hash chain under row lock.",
+    "file_path": "backend/app/services/audit_log.py",
+    "id": "sym_audit_log_log_audit_event_946a9f20",
+    "line_end": 72,
+    "line_start": 34,
+    "name": "log_audit_event",
+    "signature": "def log_audit_event(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "051c01e3557973811ea2212f4cdd5ebb922fdd82374a8a25155b4c6ebde05a24",
+    "decorators": [],
+    "dependencies": [
+      "enumerate"
+    ],
+    "docstring": "Verifies the integrity of the audit hash chain from genesis to state head.\n\nReturns (is_valid: bool, error_message: str | None).",
+    "file_path": "backend/app/services/audit_log.py",
+    "id": "sym_audit_log_verify_audit_chain_051c01e3",
+    "line_end": 106,
+    "line_start": 75,
+    "name": "verify_audit_chain",
+    "signature": "def verify_audit_chain(...)",
+    "symbol_type": "function"
+  },
+  {
+    "content_sha256": "f5332197264b15b869617aa9ddc9a903860d7f2578f0d5ed64a88a576a94d58b",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Payment Gateway Service delegating to RazorpayClient for Agentic Commerce Firewall.",
+    "file_path": "backend/app/services/payment_gateway.py",
+    "id": "sym_payment_gateway_PaymentGatewayService_f5332197",
+    "line_end": 30,
+    "line_start": 6,
+    "name": "PaymentGatewayService",
+    "signature": "class PaymentGatewayService()",
+    "symbol_type": "class"
+  },
+  {
+    "content_sha256": "237f3923c737495e9c284966b9dcf6d2504d777387bc56b18c8db7ff35353126",
+    "decorators": [],
+    "dependencies": [
+      "RazorpayClient"
+    ],
+    "docstring": null,
+    "file_path": "backend/app/services/payment_gateway.py",
+    "id": "sym_payment_gateway_PaymentGatewayService.__init___237f3923",
+    "line_end": 15,
+    "line_start": 9,
+    "name": "PaymentGatewayService.__init__",
+    "signature": "def __init__(...)",
+    "symbol_type": "method"
+  },
+  {
+    "content_sha256": "e9dd3cbeefc85be795fa0d66311045e33d512cf14dfc0ac91b9c40c000fd1ede",
+    "decorators": [],
+    "dependencies": [],
+    "docstring": "Process payment via Razorpay test-mode integration.\n\nReturns (success: bool, razorpay_payment_id: str | None).",
+    "file_path": "backend/app/services/payment_gateway.py",
+    "id": "sym_payment_gateway_PaymentGatewayService.process_payment_e9dd3cbe",
+    "line_end": 30,
+    "line_start": 17,
+    "name": "PaymentGatewayService.process_payment",
+    "signature": "def process_payment(...)",
+    "symbol_type": "method"
+  }
+]

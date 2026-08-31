@@ -1,0 +1,22 @@
+{
+  "built_at": "2026-08-31T09:24:36.551400+00:00",
+  "commit_sha": "frozen_recovery_point_phase5.5a",
+  "content_sha256": "",
+  "dataset_files": {},
+  "metrics": {
+    "api_routes": 11,
+    "canonical_facts": 30,
+    "conflicts_detected": 0,
+    "docs_chunks": 93,
+    "domains_covered": 31,
+    "domains_gap": 0,
+    "python_symbols": 208,
+    "stale_records": 0,
+    "test_cases": 214,
+    "total_units": 648,
+    "tsx_components": 32,
+    "unresolved_references": 0
+  },
+  "status": "VALID",
+  "version": "5.5B-1.0.0"
+}

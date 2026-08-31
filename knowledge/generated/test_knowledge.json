@@ -1,0 +1,2334 @@
+[
+  {
+    "content_sha256": "637f586dbaa0e4b3991cc31223a4afbb41c575733e7453c443e1854ddc0c48e1",
+    "docstring": "I1: Propose ALLOW -> Execute SUCCESS -> Verify budget, DB, idempotency & audit chain.",
+    "id": "test_test_phase2_integrated_test_i1_happy_path_end_to_end_637f586d",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i1_happy_path_end_to_end"
+  },
+  {
+    "content_sha256": "8f619f68b45cec93db08d16178b73be177f5ebb84d0762c4bc651e0a0cdb23b1",
+    "docstring": "I2: Over-budget proposal ESCALATES -> Human APPROVES -> Executes successfully.",
+    "id": "test_test_phase2_integrated_test_i2_over_budget_escalation_approval_execution_8f619f68",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i2_over_budget_escalation_approval_execution"
+  },
+  {
+    "content_sha256": "4cc6e16a6be6b288d4ddc4fb1302311f02d9a985c65326f07f22e08d75386658",
+    "docstring": "I3: Escalated proposal REJECTED by human -> Execution permanently blocked.",
+    "id": "test_test_phase2_integrated_test_i3_over_budget_human_rejection_4cc6e16a",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i3_over_budget_human_rejection"
+  },
+  {
+    "content_sha256": "a9bc07c0117638acb99bd02794db8b04e0b978fc033523d72ffe1b4a61012a30",
+    "docstring": "I4: Client claims 1999.00 for 3499.00 product -> DENY PRICE_MISMATCH -> Cannot execute or alter gateway price.",
+    "id": "test_test_phase2_integrated_test_i4_price_tampering_attack_a9bc07c0",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i4_price_tampering_attack"
+  },
+  {
+    "content_sha256": "6b820ca14433aa69e81065ee8e41d4b2796c7d4c7d202aae33df7d6b49cf8cce",
+    "docstring": "I5: Proposing product from unauthorized merchant -> DENY MERCHANT_MISMATCH -> Cannot execute.",
+    "id": "test_test_phase2_integrated_test_i5_merchant_substitution_attack_6b820ca1",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i5_merchant_substitution_attack"
+  },
+  {
+    "content_sha256": "c11b9d88806776716bfdad1b163488dcd935d5e01b0c14ee4132a060425e3916",
+    "docstring": "I6: Revoked or expired mandate proposals return DENY, cannot be approved or executed.",
+    "id": "test_test_phase2_integrated_test_i6_revoked_and_expired_mandate_terminal_denials_c11b9d88",
+    "invariants_proven": [
+      "MANDATE_REVOKED (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i6_revoked_and_expired_mandate_terminal_denials"
+  },
+  {
+    "content_sha256": "6d06a11c08ba986faf80266142605f852ce76b4ca326477fc8fbc8d7af121b48",
+    "docstring": "I7: Invalid quantities rejected by schema; quantity exceeding stock denied by policy.",
+    "id": "test_test_phase2_integrated_test_i7_quantity_validation_and_stock_attacks_6d06a11c",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i7_quantity_validation_and_stock_attacks"
+  },
+  {
+    "content_sha256": "13c5350baea25245605f91460c2dc09204d12be9fa8e82ac720eaafedf235b84",
+    "docstring": "I8: Gateway decline sets FAILED and releases budget; retry with NEW key succeeds.",
+    "id": "test_test_phase2_integrated_test_i8_payment_decline_and_retry_with_new_key_13c5350b",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i8_payment_decline_and_retry_with_new_key"
+  },
+  {
+    "content_sha256": "12a07d643feedffdfa3da619f654a721a447006e3a93ceedfc1be26161a55d1c",
+    "docstring": "I9: Replaying exact same idempotency_key returns stored snapshot without double deduction or gateway call.",
+    "id": "test_test_phase2_integrated_test_i9_exact_idempotency_replay_12a07d64",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i9_exact_idempotency_replay"
+  },
+  {
+    "content_sha256": "fd07c05fa3f85fb7b5ca94ef630823483aef183f2fcff7a8d1224f377974a268",
+    "docstring": "I10: Reusing an idempotency key across different transactions returns HTTP 400 IDEMPOTENCY_KEY_REUSED.",
+    "id": "test_test_phase2_integrated_test_i10_cross_transaction_idempotency_key_reuse_fd07c05f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i10_cross_transaction_idempotency_key_reuse"
+  },
+  {
+    "content_sha256": "9ee57a3de25f13b0d692ed2ff7ccba22785ee9910c403fae578f2f32b617bb9b",
+    "docstring": "I11: Re-executing a completed SUCCESS transaction with a NEW key returns 409 REPLAY_DETECTED.",
+    "id": "test_test_phase2_integrated_test_i11_success_transaction_replay_with_new_key_9ee57a3d",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i11_success_transaction_replay_with_new_key"
+  },
+  {
+    "content_sha256": "aa56a256a22975bb826a2a7f7381483a7da484e5f635f6d12a0adf51d2de8b7b",
+    "docstring": "I12: Force transaction expiry -> execute returns HTTP 403 TRANSACTION_EXPIRED -> deducts 0 budget.",
+    "id": "test_test_phase2_integrated_test_i12_transaction_expiry_aa56a256",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i12_transaction_expiry"
+  },
+  {
+    "content_sha256": "f5c814ac545a6a30ba05a0d2daddff926d46be1ac22f15825b927f504f13187e",
+    "docstring": "I13: Run complete lifecycle -> verify valid audit chain -> tamper database fields -> verify tamper detected.",
+    "id": "test_test_phase2_integrated_test_i13_audit_chain_integrity_and_tamper_detection_f5c814ac",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)",
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i13_audit_chain_integrity_and_tamper_detection"
+  },
+  {
+    "content_sha256": "797c8f082493cc2efb5e84f852dd9e7fa25735bde7754da1579deebe3419625b",
+    "docstring": "I14: Simulated DB commit error triggers rollback and leaves 0 partial records in DB.",
+    "id": "test_test_phase2_integrated_test_i14_database_rollback_and_atomicity_797c8f08",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_i14_database_rollback_and_atomicity"
+  },
+  {
+    "content_sha256": "4e4b9f1d179e0a5452639739f0dd16bb4f8ffb0d879e1edf30749bebd00c67d4",
+    "docstring": "Clients cannot inject server-authoritative fields (status, reason_code, authoritative_total, etc).",
+    "id": "test_test_phase2_integrated_test_security_trust_boundary_field_injection_4e4b9f1d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_security_trust_boundary_field_injection"
+  },
+  {
+    "content_sha256": "33f9338e43491af1ba610d197fd496c0907d1577221368b90cf6375c1b59436e",
+    "docstring": "Invalid state transitions return proper HTTP status and error codes.",
+    "id": "test_test_phase2_integrated_test_state_machine_invalid_transitions_33f9338e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase2_integrated.py",
+    "test_function": "test_state_machine_invalid_transitions"
+  },
+  {
+    "content_sha256": "557e106c04eece517a39dd4dcf0661175c5c559ec19857e94c9363195c20ce2a",
+    "docstring": "Phase 3 Happy Path E2E: propose -> execute via Razorpay test-mode integration -> SUCCESS.",
+    "id": "test_test_phase3_razorpay_e2e_test_phase3_happy_path_e2e_557e106c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase3_razorpay_e2e.py",
+    "test_function": "test_phase3_happy_path_e2e"
+  },
+  {
+    "content_sha256": "8ead31e42ab9f3143dce33602e37924a5777afc39f7c4f6aa6d9369e0cc13467",
+    "docstring": "Phase 3 Corrected Payment Failure + Safe Retry E2E:\n\n1. Execute transaction using idempotency_key_A.\n2. Razorpay/test gateway fails -> status FAILED / PAYMENT_DECLINED.\n3. Reserved budget is released.\n4. Execute same FAILED transaction using NEW idempotency_key_B.\n5. Payment succeeds -> status SUCCESS.\n6. Verify budget deducted exactly once.\n7. Verify audit events correctly represent failure and subsequent success.",
+    "id": "test_test_phase3_razorpay_e2e_test_phase3_payment_failure_and_safe_retry_e2e_8ead31e4",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase3_razorpay_e2e.py",
+    "test_function": "test_phase3_payment_failure_and_safe_retry_e2e"
+  },
+  {
+    "content_sha256": "bdc6a2d6dff8d9fd7f8db679cdd25c4594019368df0db95fa5b8717efdd52637",
+    "docstring": "Verify reusing same idempotency key across different transactions returns 400 IDEMPOTENCY_KEY_REUSED.",
+    "id": "test_test_phase3_razorpay_e2e_test_phase3_idempotency_key_reuse_across_transactions_bdc6a2d6",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase3_razorpay_e2e.py",
+    "test_function": "test_phase3_idempotency_key_reuse_across_transactions"
+  },
+  {
+    "content_sha256": "2056dfc8bb92b28b818bf292dc934386c048839fd34f54df9f59c322771a12e5",
+    "docstring": "Verify execute endpoint when RazorpayClient is configured with test credentials.",
+    "id": "test_test_phase3_razorpay_e2e_test_phase3_razorpay_configured_live_mock_simulation_2056dfc8",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase3_razorpay_e2e.py",
+    "test_function": "test_phase3_razorpay_configured_live_mock_simulation"
+  },
+  {
+    "content_sha256": "58ee77eb9eabd0166ed18d97d627d0c7ac841930364178936c06dda89225c9d9",
+    "docstring": "Regression test BUG-3M-001:\n\nVerify that retrying a FAILED transaction (with status PAYMENT_DECLINED)\nusing a NEW idempotency key clears the stale PAYMENT_DECLINED reason_code\nand updates both the persisted transaction and the response snapshot to ALLOW.",
+    "id": "test_test_phase3_razorpay_e2e_test_bug_3m_001_successful_retry_clears_stale_payment_declined_reason_code_58ee77eb",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase3_razorpay_e2e.py",
+    "test_function": "test_bug_3m_001_successful_retry_clears_stale_payment_declined_reason_code"
+  },
+  {
+    "content_sha256": "e520dc8ec44452a64007e122001be97fc0fef757e2f429395981a594e8899324",
+    "docstring": "Verify /products returns active catalog.",
+    "id": "test_test_phase4_frontend_api_test_list_products_endpoint_e520dc8e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase4_frontend_api.py",
+    "test_function": "test_list_products_endpoint"
+  },
+  {
+    "content_sha256": "008e4abadb4e78a590868d8acadde262fa0985c4b4a6126cf2534749ea9aab50",
+    "docstring": "Verify /mandate/{id} returns mandate details.",
+    "id": "test_test_phase4_frontend_api_test_get_mandate_endpoint_008e4aba",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase4_frontend_api.py",
+    "test_function": "test_get_mandate_endpoint"
+  },
+  {
+    "content_sha256": "06af30ef4e71b96aa9e4e8e2595f408ba54aca3c0f26b931c120f7220f9f3feb",
+    "docstring": "Verify /mandate/{id}/revoke updates status to revoked.",
+    "id": "test_test_phase4_frontend_api_test_revoke_mandate_endpoint_06af30ef",
+    "invariants_proven": [
+      "MANDATE_REVOKED (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase4_frontend_api.py",
+    "test_function": "test_revoke_mandate_endpoint"
+  },
+  {
+    "content_sha256": "00f9299fb67afc3b5fb3e77a7b3088cc063487b4e836d2eb2220b086e556f5f8",
+    "docstring": "Verify /agent/chat interprets user request and returns firewall decision.",
+    "id": "test_test_phase4_frontend_api_test_agent_chat_endpoint_happy_path_00f9299f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase4_frontend_api.py",
+    "test_function": "test_agent_chat_endpoint_happy_path"
+  },
+  {
+    "content_sha256": "f17b168b5cd36eab130f74d7ade3aed38b0c818d34c9aeaa21a44e3e339ce70c",
+    "docstring": "Verify Gemini client fallback handles price tampering requests.",
+    "id": "test_test_phase4_frontend_api_test_gemini_client_fallback_tampering_detection_f17b168b",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_phase4_frontend_api.py",
+    "test_function": "test_gemini_client_fallback_tampering_detection"
+  },
+  {
+    "content_sha256": "1ebbe799b6c2fa97f9acd0a8dc2f6c76f0041a5fadccd72275bc5df7fa44d390",
+    "docstring": "Happy Path: Escalated transaction is approved by human.",
+    "id": "test_test_approval_endpoints_test_approval_happy_path_1ebbe799",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_approval_happy_path"
+  },
+  {
+    "content_sha256": "f08332dc5a054a431f5a46a869349e0a88469412143c6ace0ccccee4549a6d1f",
+    "docstring": "Happy Path: Escalated transaction is rejected by human.",
+    "id": "test_test_approval_endpoints_test_rejection_happy_path_f08332dc",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_rejection_happy_path"
+  },
+  {
+    "content_sha256": "c4cb1b9c175cd86315c0af73021f5336f0eb2d9c8fd463e1fd700131befa2074",
+    "docstring": "Terminal denials and ALLOWED transactions cannot be approved (returns HTTP 400).",
+    "id": "test_test_approval_endpoints_test_approval_rejected_on_invalid_initial_state_c4cb1b9c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_approval_rejected_on_invalid_initial_state"
+  },
+  {
+    "content_sha256": "2cc856195818f04a537cb8353a6d261c2c54f996262f0894dd719b974d8bdb6f",
+    "docstring": "Re-approving an already approved transaction fails with 400.",
+    "id": "test_test_approval_endpoints_test_double_approval_fails_2cc85619",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_double_approval_fails"
+  },
+  {
+    "content_sha256": "b5744e60c9ff39ac3640b31efe66e85b9c3855c5e88c0397ea48eb89a1a1a61b",
+    "docstring": "Rejecting an approved transaction fails with 400.",
+    "id": "test_test_approval_endpoints_test_reject_after_approve_fails_b5744e60",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_reject_after_approve_fails"
+  },
+  {
+    "content_sha256": "79e61e86786f4524e068ad5c8d489153203dbd4b04baa762654d1a9ce318107e",
+    "docstring": "Re-rejecting an already rejected transaction fails with 400.",
+    "id": "test_test_approval_endpoints_test_double_rejection_fails_79e61e86",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_double_rejection_fails"
+  },
+  {
+    "content_sha256": "32625e38235009fb1db8386f9ce272b1b9edc89904b743ccf608126da31c8d56",
+    "docstring": "Approving a rejected transaction fails with 400.",
+    "id": "test_test_approval_endpoints_test_approve_after_reject_fails_32625e38",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_approve_after_reject_fails"
+  },
+  {
+    "content_sha256": "81b9117922b0b2737cc0354b180c8da801bc0d155e149357da3eb5484e18d5f4",
+    "docstring": null,
+    "id": "test_test_approval_endpoints_test_approve_nonexistent_transaction_81b91179",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_approve_nonexistent_transaction"
+  },
+  {
+    "content_sha256": "70f89f0bde809922cda743093400342866599f64253933b3c8f4e757b3afc5d0",
+    "docstring": null,
+    "id": "test_test_approval_endpoints_test_reject_nonexistent_transaction_70f89f0b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_reject_nonexistent_transaction"
+  },
+  {
+    "content_sha256": "d6ff1550c3ffe0f7db3453f11e9e6a403d819131a92534ff6fd7be29c9503c14",
+    "docstring": "Expired escalated transaction cannot be approved (returns 400 TRANSACTION_EXPIRED).",
+    "id": "test_test_approval_endpoints_test_expired_transaction_cannot_be_approved_d6ff1550",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_expired_transaction_cannot_be_approved"
+  },
+  {
+    "content_sha256": "e8d58f0eb529c6f110f504af41c5d06b9756bae9fc0b2f7a94fb882ed5b1ef48",
+    "docstring": "Injected approver_id in request body or params is ignored by server.",
+    "id": "test_test_approval_endpoints_test_client_cannot_inject_approver_id_e8d58f0e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_client_cannot_inject_approver_id"
+  },
+  {
+    "content_sha256": "ed792a5843594a6c54eb9ac08463cb6bac06f4835513d4e751635a3cb1d67fb4",
+    "docstring": "If db.commit fails during approval, transaction remains ESCALATED and 500 error is returned.",
+    "id": "test_test_approval_endpoints_test_approval_db_commit_failure_rollbacks_ed792a58",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_approval_endpoints.py",
+    "test_function": "test_approval_db_commit_failure_rollbacks"
+  },
+  {
+    "content_sha256": "a4d46b4638f2e9fd553d24d917dee8f5a67b227b6778fbe16609cee6013cd7fc",
+    "docstring": "Verify that an existing transaction's full lifecycle audit events can be retrieved.",
+    "id": "test_test_audit_endpoints_test_get_transaction_audit_lifecycle_success_a4d46b46",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_get_transaction_audit_lifecycle_success"
+  },
+  {
+    "content_sha256": "f02a3d3aa9decf0318d5895901ba77220c65d4552317e1f97132d8de13e72693",
+    "docstring": "Verify that audit events returned belong solely to the requested transaction ID.",
+    "id": "test_test_audit_endpoints_test_audit_events_belong_strictly_to_requested_transaction_f02a3d3a",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_audit_events_belong_strictly_to_requested_transaction"
+  },
+  {
+    "content_sha256": "407aa9aac0296fc60906d7aadb04758b4995bb59139108b1bff3a79b3a9b4bdc",
+    "docstring": "Verify that events are returned strictly ordered by seq_id in ascending sequence.",
+    "id": "test_test_audit_endpoints_test_audit_events_deterministic_chronological_order_407aa9aa",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_audit_events_deterministic_chronological_order"
+  },
+  {
+    "content_sha256": "ac7de21c17b7bd13c415b933e3fd1eccb9eb9af02b480d12d0e21f644c2834a4",
+    "docstring": "Verify that requesting audit history for a non-existent transaction returns 404.",
+    "id": "test_test_audit_endpoints_test_nonexistent_transaction_returns_404_ac7de21c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_nonexistent_transaction_returns_404"
+  },
+  {
+    "content_sha256": "e1ecf1e6084912cd9d5e12a0c37e926ca87ddb2ee63023588f1db31cea5374fa",
+    "docstring": "Verify standard response envelope {success, data, error} across 200 and 404 responses.",
+    "id": "test_test_audit_endpoints_test_standard_response_envelope_e1ecf1e6",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_standard_response_envelope"
+  },
+  {
+    "content_sha256": "85004d87045fbb8db09de1d5f31143e05568b02fadb7fc4b198c45ff2f87e647",
+    "docstring": "Verify that no sensitive configuration or secrets are leaked in audit responses.",
+    "id": "test_test_audit_endpoints_test_no_secret_credentials_leaked_in_audit_response_85004d87",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_no_secret_credentials_leaked_in_audit_response"
+  },
+  {
+    "content_sha256": "23d0da411139a3d8af726d0adb0742817755d15cdc7a91b4fbb7323765d9e263",
+    "docstring": "Verify that calling audit endpoints does not modify database state or audit chain.",
+    "id": "test_test_audit_endpoints_test_audit_endpoint_is_strictly_read_only_23d0da41",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_audit_endpoint_is_strictly_read_only"
+  },
+  {
+    "content_sha256": "d6e53a5b0fc896a9ec21e152d7bf9a4c77d6d1e055b588e83a82b446b37838d4",
+    "docstring": "Verify chain_verified is True on untampered log, and False if tampering occurs.",
+    "id": "test_test_audit_endpoints_test_chain_verification_reflects_backend_tamper_detection_d6e53a5b",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)",
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_chain_verification_reflects_backend_tamper_detection"
+  },
+  {
+    "content_sha256": "fb4fe8322f261996fc0c98990f91eefc812805a0b012c8e018659c22e5eca53d",
+    "docstring": "Verify GET /transactions returns transactions ordered descending by created_at.",
+    "id": "test_test_audit_endpoints_test_list_transactions_endpoint_fb4fe832",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_endpoints.py",
+    "test_function": "test_list_transactions_endpoint"
+  },
+  {
+    "content_sha256": "9aa5c2cb5a828842f4c826c89d53437a344fe70b897889bd409a3993de797b4f",
+    "docstring": "First logged audit event uses genesis prev_hash (64 zeros).",
+    "id": "test_test_audit_log_test_first_event_genesis_prev_hash_9aa5c2cb",
+    "invariants_proven": [
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_first_event_genesis_prev_hash"
+  },
+  {
+    "content_sha256": "d5a2273e23e179c4537de4253df6a69d2b426c16e0f528a677ac99c40cd58090",
+    "docstring": "Second logged audit event links to the first event's calculated chain hash.",
+    "id": "test_test_audit_log_test_second_event_links_to_first_d5a2273e",
+    "invariants_proven": [],
+    "target_symbols": [
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_second_event_links_to_first"
+  },
+  {
+    "content_sha256": "c71352be43cb8fe0cb30ae4d489c9a298e974929668b2a88a970b69ecf43647c",
+    "docstring": "compute_payload_hash is deterministic regardless of key ordering.",
+    "id": "test_test_audit_log_test_deterministic_payload_hashing_c71352be",
+    "invariants_proven": [
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_deterministic_payload_hashing"
+  },
+  {
+    "content_sha256": "a0c5f720a6b15778233d4e4013b5f3ba4e9b81b1933e13f948ec10bd7776bae4",
+    "docstring": "Logging multiple sequential events creates an unbroken valid chain verified by verify_audit_chain.",
+    "id": "test_test_audit_log_test_multiple_sequential_events_and_verification_a0c5f720",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain",
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_multiple_sequential_events_and_verification"
+  },
+  {
+    "content_sha256": "09307494c79c0333d18802fbb9b4b9251092bd1befa90a606985cae0365b83ea",
+    "docstring": "Modifying an event payload_hash causes verify_audit_chain to report tamper evidence.",
+    "id": "test_test_audit_log_test_verify_audit_chain_detects_payload_tampering_09307494",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)",
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [
+      "verify_audit_chain",
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_verify_audit_chain_detects_payload_tampering"
+  },
+  {
+    "content_sha256": "f3b992d720f3c62a2f0a2d7488a5fcce2683d0986af2949e2fea12669372089f",
+    "docstring": "Modifying an event prev_hash causes verify_audit_chain to report tamper evidence.",
+    "id": "test_test_audit_log_test_verify_audit_chain_detects_prev_hash_tampering_f3b992d7",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)",
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [
+      "verify_audit_chain",
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_verify_audit_chain_detects_prev_hash_tampering"
+  },
+  {
+    "content_sha256": "a817463ac8e6a7742f6185afe73c7402a5418757621a2aa983fdf0d887109c92",
+    "docstring": "Modifying an event actor field causes verify_audit_chain to report tamper evidence.",
+    "id": "test_test_audit_log_test_verify_audit_chain_detects_actor_tampering_a817463a",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)",
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [
+      "verify_audit_chain",
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_verify_audit_chain_detects_actor_tampering"
+  },
+  {
+    "content_sha256": "f962d0b245abe476f7144f0682691d8f190b5bbc0f5bd6723b15313961ac6e57",
+    "docstring": "Modifying an event transaction_id field causes verify_audit_chain to report tamper evidence.",
+    "id": "test_test_audit_log_test_verify_audit_chain_detects_transaction_id_tampering_f962d0b2",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)",
+      "SHA-256 Chain Verification"
+    ],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_verify_audit_chain_detects_transaction_id_tampering"
+  },
+  {
+    "content_sha256": "0bb2852249edf5925421aa2aa24bb4faae681cba5fc315133b7ce79c91d9579a",
+    "docstring": "Transaction rollback cleanly removes pending audit events and leaves chain state unchanged.",
+    "id": "test_test_audit_log_test_audit_event_rollback_on_db_failure_0bb28522",
+    "invariants_proven": [],
+    "target_symbols": [
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_event_rollback_on_db_failure"
+  },
+  {
+    "content_sha256": "8584ff93ef62f6a25fc546efc3e65bc8f3a50ce5b2571c033e273691adbedb0b",
+    "docstring": "POST /transaction/propose automatically logs PROPOSED and POLICY_DECISION audit events.",
+    "id": "test_test_audit_log_test_audit_integration_propose_endpoint_8584ff93",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_integration_propose_endpoint"
+  },
+  {
+    "content_sha256": "783b766968408e45df03ee0f8a7df9aa9cbd60553478908b684bb60a6de79390",
+    "docstring": "Full proposal -> approve -> execute flow generates valid audit chain.",
+    "id": "test_test_audit_log_test_audit_integration_approve_and_execute_783b7669",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_integration_approve_and_execute"
+  },
+  {
+    "content_sha256": "687f7a1b3568e53d244fc02125f9ca656f0679e7021184456a86fe09e9c958ac",
+    "docstring": "Proposal -> reject flow logs PROPOSED, POLICY_DECISION, and REJECTED audit events.",
+    "id": "test_test_audit_log_test_audit_integration_rejection_flow_687f7a1b",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_integration_rejection_flow"
+  },
+  {
+    "content_sha256": "edc76d25a2f02cef20a0abfdd18df6ba51b36bc34b2ec4fa8b360163dbad3bfb",
+    "docstring": "Injecting audit fields in request payload has 0 effect on audit actor, prev_hash, or event hash.",
+    "id": "test_test_audit_log_test_audit_client_injection_protection_edc76d25",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_client_injection_protection"
+  },
+  {
+    "content_sha256": "3541dfd3474b018a75add5ff079bb49d5a28a5ab463b785503b89bde20e4fe19",
+    "docstring": "SEC-02 Regression: seq_id exists, is unique, and monotonically increases sequentially.",
+    "id": "test_test_audit_log_test_audit_seq_id_deterministic_ordering_3541dfd3",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain",
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_seq_id_deterministic_ordering"
+  },
+  {
+    "content_sha256": "9b1affe6f9ed1bf2f37f925f3265c5ccaef52027ccc28e82f396a840ff1ce6cf",
+    "docstring": "SEC-02 Regression: Multiple audit events logged with identical created_at timestamps verify successfully using seq_id ordering.",
+    "id": "test_test_audit_log_test_audit_same_timestamp_events_verify_successfully_9b1affe6",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain",
+      "log_audit_event"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_audit_log.py",
+    "test_function": "test_audit_same_timestamp_events_verify_successfully"
+  },
+  {
+    "content_sha256": "546966b96074177713930de104747af9eb7bdbbabd9e2998ab58f7bf70cb0595",
+    "docstring": "Verify database connection and SELECT 1 query.",
+    "id": "test_test_db_foundation_test_database_connectivity_546966b9",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_database_connectivity"
+  },
+  {
+    "content_sha256": "d34062f82359bfa44624e47afc2deec69d783cb470d97d6189cc1bd4162884ba",
+    "docstring": "Verify SessionLocal and get_db generator lifecycle.",
+    "id": "test_test_db_foundation_test_session_lifecycle_d34062f8",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_session_lifecycle"
+  },
+  {
+    "content_sha256": "c1ac0369d6e0d1eed66b84193e12a06d0e7ca3935ac3c13142d298bd17231c7d",
+    "docstring": "Verify all 9 required Stage 2A tables exist in PostgreSQL catalog.",
+    "id": "test_test_db_foundation_test_nine_tables_exist_in_postgres_c1ac0369",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_nine_tables_exist_in_postgres"
+  },
+  {
+    "content_sha256": "3b9cdd9d04a5b14c22d8e6a2eb6a39f55d73302ff4b453b8720164e3501a4fde",
+    "docstring": "Verify monetary columns in PostgreSQL are NUMERIC(10,2) and not float.",
+    "id": "test_test_db_foundation_test_monetary_column_types_numeric_3b9cdd9d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_monetary_column_types_numeric"
+  },
+  {
+    "content_sha256": "d7cc52b13dc6124874030040b79a14a68cfe15f06958b35f67b8b51eeddb578c",
+    "docstring": "Verify foreign keys exist in PostgreSQL catalog.",
+    "id": "test_test_db_foundation_test_foreign_key_constraints_d7cc52b1",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_foreign_key_constraints"
+  },
+  {
+    "content_sha256": "53a3ef9ac464d757a3f2f90c6068fb800208ec779c2bd4d6da9e93486f62b150",
+    "docstring": "Critical Security Verification:\n- idempotency_records.idempotency_key MUST be Primary Key / Unique.\n- transactions.idempotency_key MUST NOT be Unique.",
+    "id": "test_test_db_foundation_test_idempotency_key_uniqueness_semantics_53a3ef9a",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_idempotency_key_uniqueness_semantics"
+  },
+  {
+    "content_sha256": "9d917253a930472e9d7f3622264d2fafa6b0504d803904c522433f953b6c3c2f",
+    "docstring": "Verify ORM model classes map cleanly and instantiate without errors.",
+    "id": "test_test_db_foundation_test_orm_models_instantiation_9d917253",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_orm_models_instantiation"
+  },
+  {
+    "content_sha256": "031ad44bd8312e05b3c09f405dd4dfae8095988093b13272b3c0001b0838a198",
+    "docstring": "Verify secrets are not hardcoded or tracked in git.",
+    "id": "test_test_db_foundation_test_secret_hygiene_031ad44b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_db_foundation.py",
+    "test_function": "test_secret_hygiene"
+  },
+  {
+    "content_sha256": "0c69402473f62fb2f45092b33a218a7c20abc9c3b9f21d4a885486f92b84a3e4",
+    "docstring": "Happy Path: Execute allowed transaction successfully.",
+    "id": "test_test_execute_endpoint_test_execute_happy_path_0c694024",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_happy_path"
+  },
+  {
+    "content_sha256": "b5da4fc011338cd8c1a432d0dd9e9f0cc0675d7ffe8dd1b15433a1db051851bc",
+    "docstring": "Execution of an escalated transaction after human approval.",
+    "id": "test_test_execute_endpoint_test_execute_approved_by_human_transaction_b5da4fc0",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_approved_by_human_transaction"
+  },
+  {
+    "content_sha256": "a534f0ea14484778a43e027240c9be9a53397b375282c58d3cdf8a55e84cfcce",
+    "docstring": "Attempting to execute an escalated transaction without human approval returns HTTP 202 ESCALATION_REQUIRED.",
+    "id": "test_test_execute_endpoint_test_execute_escalated_without_approval_returns_202_a534f0ea",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_escalated_without_approval_returns_202"
+  },
+  {
+    "content_sha256": "9e76b019ea2712e09afa4803d84087951212aa148e9f8d6c5aa20408a0d6b0a2",
+    "docstring": "Terminal denials return HTTP 403 and cannot be executed.",
+    "id": "test_test_execute_endpoint_test_execute_terminal_denied_returns_403_9e76b019",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_terminal_denied_returns_403"
+  },
+  {
+    "content_sha256": "4dc4f2e4820bbf1e591c41569bff9731067ca673c5d7acb94bf72a883bdba091",
+    "docstring": "Executing an expired transaction returns 403 TRANSACTION_EXPIRED and budget is not deducted.",
+    "id": "test_test_execute_endpoint_test_execute_expired_transaction_returns_403_4dc4f2e4",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_expired_transaction_returns_403"
+  },
+  {
+    "content_sha256": "8455013672cd4ea2d62831bc1c5fe4b3ed972b419f0fc2d6787c81708925cfb9",
+    "docstring": "MockPaymentGateway receives authoritative price (2799.00), not any client-claimed price.",
+    "id": "test_test_execute_endpoint_test_execute_authoritative_money_enforcement_84550136",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_authoritative_money_enforcement"
+  },
+  {
+    "content_sha256": "ccb76442e31159e225209d2159cdc896576304e840c490f1041fea549cb41b06",
+    "docstring": "When MockPaymentGateway declines payment, transaction status becomes FAILED and budget is released.",
+    "id": "test_test_execute_endpoint_test_execute_payment_decline_releases_budget_ccb76442",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_payment_decline_releases_budget"
+  },
+  {
+    "content_sha256": "1bce5d351b6f761648fd4ab3c2baec5e02cdd7608a7f825899c19201f6f76a76",
+    "docstring": "Exact idempotency_key repeated returns stored snapshot without re-deducting budget.",
+    "id": "test_test_execute_endpoint_test_execute_exact_idempotency_key_replay_1bce5d35",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_exact_idempotency_key_replay"
+  },
+  {
+    "content_sha256": "a0ac6659e94714825f6e4651e3194399cb435929b4117aeb6b1d8716424ff9a9",
+    "docstring": "Reusing an idempotency key across different transactions returns HTTP 400 IDEMPOTENCY_KEY_REUSED.",
+    "id": "test_test_execute_endpoint_test_execute_idempotency_key_reused_across_different_transactions_fails_a0ac6659",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_idempotency_key_reused_across_different_transactions_fails"
+  },
+  {
+    "content_sha256": "868190051717d05c07afe58207480dae787c6de60162ceb37369a65f36d0521c",
+    "docstring": "Calling execute with a NEW idempotency key on a SUCCESS transaction returns 409 REPLAY_DETECTED.",
+    "id": "test_test_execute_endpoint_test_execute_new_key_on_success_triggers_409_replay_86819005",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_new_key_on_success_triggers_409_replay"
+  },
+  {
+    "content_sha256": "9945101032b066b4ba246d8af3dc766e063e34cc12a799144a535626af767fe2",
+    "docstring": "A failed payment attempt can be legitimately retried with a NEW idempotency key.",
+    "id": "test_test_execute_endpoint_test_execute_retry_after_payment_decline_succeeds_99451010",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_retry_after_payment_decline_succeeds"
+  },
+  {
+    "content_sha256": "29d37a58cdffc5cc213ab4e4fc4629aa3430df2d3b56606d4788e810e1264c6e",
+    "docstring": null,
+    "id": "test_test_execute_endpoint_test_execute_nonexistent_transaction_29d37a58",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_nonexistent_transaction"
+  },
+  {
+    "content_sha256": "7f448ab15e6b73b806058ecd538ad47f139b05c327eb130032b2c22e4f9e3462",
+    "docstring": "If db.commit fails during execution, rollback occurs and 500 error is returned.",
+    "id": "test_test_execute_endpoint_test_execute_db_commit_failure_rollbacks_7f448ab1",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_db_commit_failure_rollbacks"
+  },
+  {
+    "content_sha256": "884130096e98b05b793e5b056b6221566e39f390964d18da4a16053d07f5ab42",
+    "docstring": "SEC-01 Regression: Attempting execution on an EXECUTING transaction returns 409 TRANSACTION_EXECUTING.",
+    "id": "test_test_execute_endpoint_test_execute_executing_status_returns_409_conflict_88413009",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_execute_endpoint.py",
+    "test_function": "test_execute_executing_status_returns_409_conflict"
+  },
+  {
+    "content_sha256": "541a3dcd115137fb7c340de8197b712f1a32ae0d08073b328001b9110217288d",
+    "docstring": "Verify FastAPI app is instantiated cleanly with correct title.",
+    "id": "test_test_fastapi_foundation_test_app_instantiation_541a3dcd",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_app_instantiation"
+  },
+  {
+    "content_sha256": "215c83b57d681ba377c32a9b41f82b297ecf59885c44e68d9efcce9c57b40aef",
+    "docstring": "Verify ApiResponse helper constructors and canonical envelope shapes.",
+    "id": "test_test_fastapi_foundation_test_api_response_envelope_constructors_215c83b5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_api_response_envelope_constructors"
+  },
+  {
+    "content_sha256": "3aacf8544691d0006c4c5fd41b3bc80a7c26eadc77c484146b085da950286a3c",
+    "docstring": "Verify GET /health returns 200 OK with standard success envelope.",
+    "id": "test_test_fastapi_foundation_test_health_endpoint_3aacf854",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_health_endpoint"
+  },
+  {
+    "content_sha256": "4bf514ca5849813aba06dbc018be86c5a7dd0380232bef589064aa58e9ddf32c",
+    "docstring": "Verify injected merchant_id and total fields are ignored/stripped by schema construction.",
+    "id": "test_test_fastapi_foundation_test_agent_claim_strips_extra_fields_4bf514ca",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_agent_claim_strips_extra_fields"
+  },
+  {
+    "content_sha256": "860acd0f0e1111500390f112d808c736e7347c035a5b50610193bd8a9db26e3d",
+    "docstring": "Verify integer quantity bounds (1 <= q <= 10) and strict non-boolean, non-float typing.",
+    "id": "test_test_fastapi_foundation_test_quantity_validation_boundaries_860acd0f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_quantity_validation_boundaries"
+  },
+  {
+    "content_sha256": "a8d641b5319ca3c837202eca34ac1b8bbd01d112c427e17eedf406694b096202",
+    "docstring": "Verify claimed_price must be a positive decimal.",
+    "id": "test_test_fastapi_foundation_test_monetary_validation_boundaries_a8d641b5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_monetary_validation_boundaries"
+  },
+  {
+    "content_sha256": "6815c9fcbe86453771216f7dc6899a272cae65c5932298d83b5ddaac5b3d77a9",
+    "docstring": "Verify malformed requests return 400 Bad Request with MALFORMED_REQUEST error envelope.",
+    "id": "test_test_fastapi_foundation_test_validation_error_formatting_6815c9fc",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_validation_error_formatting"
+  },
+  {
+    "content_sha256": "4f4c7a8b7bc0ab4a6dea08b1102573023a4eadb3368af046083ed0da3b4ca919",
+    "docstring": "Verify HTTPExceptions return exact status code and standard failure envelope.",
+    "id": "test_test_fastapi_foundation_test_custom_http_exception_formatting_4f4c7a8b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_custom_http_exception_formatting"
+  },
+  {
+    "content_sha256": "dad790b830578fde1eaa5860114a10b235521796ab4330efe16868244862a0fc",
+    "docstring": "Verify unhandled exceptions return 500 Internal Server Error with sanitized failure envelope.",
+    "id": "test_test_fastapi_foundation_test_unhandled_exception_formatting_dad790b8",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_fastapi_foundation.py",
+    "test_function": "test_unhandled_exception_formatting"
+  },
+  {
+    "content_sha256": "2973b58c22f011d001f35cccbda30dc2972e9413d25060e605d2d575ad466cab",
+    "docstring": "Verify that SKILLS.md, .env, node_modules, and internal docs are strictly excluded.",
+    "id": "test_test_knowledge_pipeline_test_secret_scanner_exclusion_guard_2973b58c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_secret_scanner_exclusion_guard"
+  },
+  {
+    "content_sha256": "001b35e63ca230d18ee1af7ec62a780eb08377035204230d234c68c5763279f3",
+    "docstring": "Verify that confidential API keys and private keys are detected, redacted, and emitted as errors.",
+    "id": "test_test_knowledge_pipeline_test_secret_scanner_redacts_credentials_001b35e6",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_secret_scanner_redacts_credentials"
+  },
+  {
+    "content_sha256": "702009d021ceaae419399ca9b136b6f8600dad63947c686038d1b4f2c3b14210",
+    "docstring": "Verify that safe documentation placeholders do not trigger false positive errors.",
+    "id": "test_test_knowledge_pipeline_test_secret_scanner_safe_placeholders_702009d0",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_secret_scanner_safe_placeholders"
+  },
+  {
+    "content_sha256": "7a9a97a4f7b64f8f8e7c96e08a1d26ae2503c166222ab84e93d574aaa63badb0",
+    "docstring": "Verify that markdown specifications are chunked by headings with line numbers and stable IDs.",
+    "id": "test_test_knowledge_pipeline_test_doc_ingestor_deterministic_chunking_7a9a97a4",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_doc_ingestor_deterministic_chunking"
+  },
+  {
+    "content_sha256": "34e5c7c2d05bf1b0e0a1027af2d801baac8bd0eb01d0858f5c7c60b78f20c874",
+    "docstring": "Verify Python AST extraction of modules, functions, classes, and relationship calls.",
+    "id": "test_test_knowledge_pipeline_test_ast_extractor_python_symbols_34e5c7c2",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_ast_extractor_python_symbols"
+  },
+  {
+    "content_sha256": "c3f491b1618d9ea6afe8a2ec229c33b15b8583bdbee04e6907a6c6e6cf1d9e8c",
+    "docstring": "Verify TypeScript / TSX extraction of components, views, and action triggers.",
+    "id": "test_test_knowledge_pipeline_test_frontend_extractor_tsx_components_c3f491b1",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_frontend_extractor_tsx_components"
+  },
+  {
+    "content_sha256": "607d0143a6324de577700fbacb1e10e8e9ae361228916f960ca734e8cc3fbbc4",
+    "docstring": "Verify that all 11 FastAPI application routes are authoritatively extracted.",
+    "id": "test_test_knowledge_pipeline_test_api_extractor_all_routes_607d0143",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_api_extractor_all_routes"
+  },
+  {
+    "content_sha256": "e8c9f4c566ec210b40e94e23ae1bcf72e6512e7efae32005c50f4f515250b882",
+    "docstring": "Verify that Pytest test cases are extracted and mapped to proven invariants.",
+    "id": "test_test_knowledge_pipeline_test_test_extractor_pytest_cases_e8c9f4c5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_test_extractor_pytest_cases"
+  },
+  {
+    "content_sha256": "06195207eb28ad2c01453c193643b84f00801e991f9b19b50e09714932595611",
+    "docstring": "Verify that static facts are AUTHORITATIVE and dynamic state is DYNAMIC_LIVE_REQUIRED.",
+    "id": "test_test_knowledge_pipeline_test_canonical_facts_dynamic_vs_static_06195207",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_canonical_facts_dynamic_vs_static"
+  },
+  {
+    "content_sha256": "26c82bb8e54be262e521b17f3c58968eacb2b8d93e87c57fc3cdbfb316e1a9c4",
+    "docstring": "Verify that a valid knowledge base produces zero critical errors.",
+    "id": "test_test_knowledge_pipeline_test_conflict_detector_clean_26c82bb8",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_conflict_detector_clean"
+  },
+  {
+    "content_sha256": "f66b4c7df79f7a470b9f0c6c91582c750c7253361fcca1fafd16dd502b832504",
+    "docstring": "Verify that nonexistent source files trigger QA ERROR and mark status INVALID.",
+    "id": "test_test_knowledge_pipeline_test_conflict_detector_flags_broken_references_f66b4c7d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_conflict_detector_flags_broken_references"
+  },
+  {
+    "content_sha256": "8174c750b1b1c599b1462cb52290fb164b64370be8b35229e10c2b2fa50c004c",
+    "docstring": "Verify that domain coverage correctly identifies gaps for unsupported domains.",
+    "id": "test_test_knowledge_pipeline_test_anti_hallucination_unanswerable_queries_8174c750",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_anti_hallucination_unanswerable_queries"
+  },
+  {
+    "content_sha256": "71c3873ba12d6075de5fbc5756b024723184d94ee9db1494fc9246899be1779b",
+    "docstring": "Verify that consecutive builds produce identical unit counts and IDs.",
+    "id": "test_test_knowledge_pipeline_test_knowledge_builder_determinism_71c3873b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_knowledge_builder_determinism"
+  },
+  {
+    "content_sha256": "880fa282c18e39021f327ddda5d7c57f5d4cd296233a8c178950fc033ede6785",
+    "docstring": "Verify that KnowledgeValidator returns is_valid=True for active generated knowledge assets.",
+    "id": "test_test_knowledge_pipeline_test_standalone_validator_pass_880fa282",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_knowledge_pipeline.py",
+    "test_function": "test_standalone_validator_pass"
+  },
+  {
+    "content_sha256": "ed8c33ac9857caa4d09319f4635fafcc232b707355e96edd30e2b3de4ebf5cbd",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u1_happy_path_ed8c33ac",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u1_happy_path"
+  },
+  {
+    "content_sha256": "c4b71baa9a19562227e7db27bf12c0deda3a68c4e56c04a636828380b2fbecc1",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u2_over_budget_c4b71baa",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u2_over_budget"
+  },
+  {
+    "content_sha256": "050cdb35e21d22d905584cbb3dd41dee13b26083b1a4dc5ac0248b4eb1144698",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u3_price_mismatch_050cdb35",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u3_price_mismatch"
+  },
+  {
+    "content_sha256": "609745fdd702fa26a78f49f44dc03e1318c48de9ac3f802d80f87c548f548a2b",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u4_merchant_out_of_scope_609745fd",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u4_merchant_out_of_scope"
+  },
+  {
+    "content_sha256": "5b2473b577587eb0911f7476dda738cda965b1d2b292364bca9790704b75cf1b",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u5_expired_mandate_5b2473b5",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u5_expired_mandate"
+  },
+  {
+    "content_sha256": "3ee039bd5bfe99cc0f3e25d1fe491d3e04fd188adb086f13702162c63d81180d",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u6_revoked_mandate_3ee039bd",
+    "invariants_proven": [
+      "MANDATE_REVOKED (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u6_revoked_mandate"
+  },
+  {
+    "content_sha256": "bdeadd46004e1ef7e2d4f650fd73f642d3f1539d01988506042ae60d71489931",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u7_quantity_invalid_bdeadd46",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u7_quantity_invalid"
+  },
+  {
+    "content_sha256": "8fadeb9e258584c1f3561d18e768358ec3cb9effcc28e362041faae484c66936",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u8_exact_budget_boundary_8fadeb9e",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u8_exact_budget_boundary"
+  },
+  {
+    "content_sha256": "d5f8860bd08c1c4a352e2447d993725fcb9e1dd511635eedd5deeac61f5625d2",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_u9_price_tolerance_boundary_d5f8860b",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_u9_price_tolerance_boundary"
+  },
+  {
+    "content_sha256": "769df7f0676ba901aa30d782df9ec52d90ece1e1a3143f4e48e7cc9e592187e9",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_mandate_status_expired_769df7f0",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_mandate_status_expired"
+  },
+  {
+    "content_sha256": "aa86aa47ef776cee72aac0fde10395cbafb276c6dd1e66bcd6938073da09f0d6",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_expiry_exact_boundary_aa86aa47",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_expiry_exact_boundary"
+  },
+  {
+    "content_sha256": "740cb3a61334b328ea7afd47e851653f62f1e185fff25fd029d2e5806c89984e",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_expiry_omitted_current_time_740cb3a6",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_expiry_omitted_current_time"
+  },
+  {
+    "content_sha256": "74438454c80d13f5d0da3b2a1e4ecfd0f5af4e4827cf4d0df660fe7a3bdab386",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_quantity_boolean_true_74438454",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_quantity_boolean_true"
+  },
+  {
+    "content_sha256": "c45bf04821d3a1162ceada883de1e6affeee81e53ee09f0fbff4900e60ef92a3",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_quantity_boolean_false_c45bf048",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_quantity_boolean_false"
+  },
+  {
+    "content_sha256": "c73053809f6f57a57b04340b13e0513988ed3608d910fe57f47f6c9268fd2154",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_merchant_scope_none_c7305380",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_merchant_scope_none"
+  },
+  {
+    "content_sha256": "e90e4d7bbad8dcad989494345f7ca3837b786a02a91f503c1b33d928741bab92",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_one_unit_above_budget_e90e4d7b",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_one_unit_above_budget"
+  },
+  {
+    "content_sha256": "059ddcb633d4c80bd97232eb645b3849d03ba6dbebf7992cc6987ae35b86a790",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_one_unit_above_max_transaction_059ddcb6",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_one_unit_above_max_transaction"
+  },
+  {
+    "content_sha256": "ac661e76bbd344497d2d593b375042695ffe41317dc3ad673b6e2e95ecb3e876",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_price_tolerance_just_beyond_ac661e76",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_price_tolerance_just_beyond"
+  },
+  {
+    "content_sha256": "04642c7559dc35ec459d126de0d2800cbd19cb927338815cfd1511db9dc36120",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_security_llm_lies_price_tampering_04642c75",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_security_llm_lies_price_tampering"
+  },
+  {
+    "content_sha256": "650ba6272b41317b48ecb4236e54e82e34cd4500883bb18133976a46357dbb17",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_revoked_mandate_terminal_even_if_valid_650ba627",
+    "invariants_proven": [
+      "MANDATE_REVOKED (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_revoked_mandate_terminal_even_if_valid"
+  },
+  {
+    "content_sha256": "b747a7dbdf0eb6768283dbb69621557ec032e4da507721546a200832b9815a54",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_naive_expires_at_with_aware_current_time_b747a7db",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_naive_expires_at_with_aware_current_time"
+  },
+  {
+    "content_sha256": "fb7a023d2fd4b0f03eb1626308c6137e3e7c0a72d109097e34af477edbe902e5",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_aware_expires_at_with_naive_current_time_fb7a023d",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_aware_expires_at_with_naive_current_time"
+  },
+  {
+    "content_sha256": "44bfa079adc2e22acc254d0f7df467517185a095ca05471ffc6288dbf5231e79",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_non_integer_quantity_float_44bfa079",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_non_integer_quantity_float"
+  },
+  {
+    "content_sha256": "06d8adacf981f18e32646525ada2e16b216d77beb7ecba4018b0f5b6e4f5c7b9",
+    "docstring": null,
+    "id": "test_test_policy_engine_test_both_budget_and_max_transaction_exceeded_06d8adac",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_policy_engine.py",
+    "test_function": "test_both_budget_and_max_transaction_exceeded"
+  },
+  {
+    "content_sha256": "6652c6eda8bb1a7c848ac826e7fb213b951df22e432dcaf760d10a8928ded0bb",
+    "docstring": "Scenario 1: Happy path proposal - Bluetooth Speaker (2799.00) against mandate (3000.00).",
+    "id": "test_test_propose_endpoint_test_propose_happy_path_6652c6ed",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_happy_path"
+  },
+  {
+    "content_sha256": "58c54b866266c3ff22819b966e46c6d390f09d9c23d394683710a2d833b48447",
+    "docstring": "Scenario 2: Over-budget proposal - Earbuds (3499.00) > mandate budget (3000.00).",
+    "id": "test_test_propose_endpoint_test_propose_over_budget_escalates_58c54b86",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_over_budget_escalates"
+  },
+  {
+    "content_sha256": "227a5f7ba24d4828627b513c730cb88318e625c884c6ea4c89af0fc40ab831f0",
+    "docstring": "Scenario 3: Price tampering - agent claims 1999.00 for 3499.00 Earbuds.",
+    "id": "test_test_propose_endpoint_test_propose_price_tampering_denied_227a5f7b",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_price_tampering_denied"
+  },
+  {
+    "content_sha256": "36b1ebd8e07f745e42b7901abd4996998c2b9a778c1aba9c3632eb8f375ff362",
+    "docstring": "Scenario 4: Merchant substitution - prod-003 belongs to merchant-002, mandate scope is merchant-001.",
+    "id": "test_test_propose_endpoint_test_propose_merchant_substitution_denied_36b1ebd8",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_merchant_substitution_denied"
+  },
+  {
+    "content_sha256": "d64e076d8f8f72434d4016fb00df7ca4d0c54af03d540c8a5572fe95af38eb3e",
+    "docstring": "Scenario 6: Revoked mandate proposal is DENIED.",
+    "id": "test_test_propose_endpoint_test_propose_revoked_mandate_denied_d64e076d",
+    "invariants_proven": [
+      "MANDATE_REVOKED (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_revoked_mandate_denied"
+  },
+  {
+    "content_sha256": "83a46194015e5045ccc39b12edfd615ff3a5adcc1de5e21b419c03143670364a",
+    "docstring": "Expired mandate proposal is DENIED.",
+    "id": "test_test_propose_endpoint_test_propose_expired_mandate_denied_83a46194",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_expired_mandate_denied"
+  },
+  {
+    "content_sha256": "b0926fba09a08dd64f0af9302e96d52a8c161bd3f72502a9f5e7f155b9cec072",
+    "docstring": "Quantity > stock evaluates to DENY / QUANTITY_INVALID.",
+    "id": "test_test_propose_endpoint_test_propose_quantity_exceeds_stock_denied_b0926fba",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_quantity_exceeds_stock_denied"
+  },
+  {
+    "content_sha256": "170023b73ff53dee15676560b3d2b13f268552c9a2fc4bf53600c5e858627a8c",
+    "docstring": "Exact budget boundary (3000.00) is ALLOWED.",
+    "id": "test_test_propose_endpoint_test_propose_exact_budget_boundary_170023b7",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_exact_budget_boundary"
+  },
+  {
+    "content_sha256": "f4d6605e14f8a83d00fb853f61dda8426e886a1dab31256866f4ad2207ab3698",
+    "docstring": "Claim within 0.01 tolerance is ALLOWED.",
+    "id": "test_test_propose_endpoint_test_propose_price_tolerance_boundary_f4d6605e",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_price_tolerance_boundary"
+  },
+  {
+    "content_sha256": "bb0f14adfd692c1e8bcc04da120bf5fd56ef5e80b7d6e1898edfa1feff4e3f23",
+    "docstring": null,
+    "id": "test_test_propose_endpoint_test_propose_nonexistent_user_bb0f14ad",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_nonexistent_user"
+  },
+  {
+    "content_sha256": "8956cb9f2d2b067e13ee300871911102f877168d40a3a1da2e30f3fd1a7de843",
+    "docstring": null,
+    "id": "test_test_propose_endpoint_test_propose_nonexistent_mandate_8956cb9f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_nonexistent_mandate"
+  },
+  {
+    "content_sha256": "32d9e04f372154a05b7a1cb07d89b8334bbe1a42ddc69cea7264758dac517857",
+    "docstring": null,
+    "id": "test_test_propose_endpoint_test_propose_nonexistent_product_32d9e04f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_nonexistent_product"
+  },
+  {
+    "content_sha256": "1e77ff6e8c27864333168f597631eefaa1721305e77ae606a1a99f0743d562c0",
+    "docstring": "Injected merchant_id and total fields are ignored and do not alter authoritative calculations.",
+    "id": "test_test_propose_endpoint_test_propose_extra_fields_ignored_1e77ff6e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_extra_fields_ignored"
+  },
+  {
+    "content_sha256": "ea670abee05800bfcf486f9321b61319d3e5d52ff9c10aabe53d1e1d653ce31c",
+    "docstring": "Proposal is NOT execution - mandate budget_remaining must remain untouched.",
+    "id": "test_test_propose_endpoint_test_propose_does_not_mutate_mandate_budget_ea670abe",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_does_not_mutate_mandate_budget"
+  },
+  {
+    "content_sha256": "0c37738cff3c745dce2f8796c3e2761015728bb1a84d558069bf7f0952d1c17f",
+    "docstring": "If db.commit fails during proposal persistence, rollback occurs and 500 error is returned.",
+    "id": "test_test_propose_endpoint_test_propose_db_commit_failure_rollbacks_0c37738c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_propose_endpoint.py",
+    "test_function": "test_propose_db_commit_failure_rollbacks"
+  },
+  {
+    "content_sha256": "ef6a2ba3e23bd77de660d63d3a97cf9674c05cd1413d96af2d9ca8b683be911f",
+    "docstring": "Verify standard currency amount conversion to paise integer.",
+    "id": "test_test_razorpay_client_test_amount_to_paise_ef6a2ba3",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_amount_to_paise"
+  },
+  {
+    "content_sha256": "b43ecc0e6af2bdd9c44cdd1b80ebc78fed5c293c32d89182569c46ce70ab80ce",
+    "docstring": "Verify client defaults to mock execution when API keys are absent.",
+    "id": "test_test_razorpay_client_test_client_unconfigured_uses_mock_b43ecc0e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_client_unconfigured_uses_mock"
+  },
+  {
+    "content_sha256": "4b58315d141ca74e93edace408f94366662c56e71a6f028e9dc0a7dc1ffa443d",
+    "docstring": "Verify force_decline toggle produces (False, None).",
+    "id": "test_test_razorpay_client_test_client_force_decline_4b58315d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_client_force_decline"
+  },
+  {
+    "content_sha256": "ed0faac52d7ca55170d7f097ad4d82e51a3a239bebf39117989cfbb66c06a914",
+    "docstring": "Verify create_order makes HTTP POST request with Basic Auth when configured.",
+    "id": "test_test_razorpay_client_test_create_order_configured_httpx_success_ed0faac5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_create_order_configured_httpx_success"
+  },
+  {
+    "content_sha256": "68189157fe18e12c22c70bff24ca8fc784dea585c4f897e038f458722d599a35",
+    "docstring": "Verify HTTP status errors raise RuntimeError during order creation.",
+    "id": "test_test_razorpay_client_test_create_order_configured_httpx_error_68189157",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_create_order_configured_httpx_error"
+  },
+  {
+    "content_sha256": "055ed48cfb30076964ce393729ece30a9d581ce0d2e5c5efd075948281e5886d",
+    "docstring": "Verify configured process_payment creates order and returns (True, pay_rzp_...).",
+    "id": "test_test_razorpay_client_test_process_payment_configured_success_055ed48c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_process_payment_configured_success"
+  },
+  {
+    "content_sha256": "b31a72de61875ab5d20953207ccf5b0205205b51961b88429080223ead37d66d",
+    "docstring": "Verify process_payment catches exception gracefully and returns (False, None).",
+    "id": "test_test_razorpay_client_test_process_payment_configured_failure_handling_b31a72de",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_process_payment_configured_failure_handling"
+  },
+  {
+    "content_sha256": "d4390167d9c9a2029094d521e8826c86c5b553fa31e755f7b9a9b1230baea3d6",
+    "docstring": "Verify API keys/secrets are never leaked in order payloads or payment returns.",
+    "id": "test_test_razorpay_client_test_razorpay_client_credential_leakage_protection_d4390167",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_razorpay_client_credential_leakage_protection"
+  },
+  {
+    "content_sha256": "c777c2f3a72a318de431b4b3ac7a9df978b9005687aeb4f1e0da2c943819033d",
+    "docstring": "Verify Decimal multiplication by 100 avoids floating-point binary representation errors.",
+    "id": "test_test_razorpay_client_test_razorpay_client_decimal_precision_paise_conversion_c777c2f3",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_razorpay_client.py",
+    "test_function": "test_razorpay_client_decimal_precision_paise_conversion"
+  },
+  {
+    "content_sha256": "fcd004ee3386083c91f7013b65f587bb7ac0059ecdaa83d219ea5cc18f807c76",
+    "docstring": null,
+    "id": "test_test_retrieval_adversarial_test_adversarial_old_docs_budget_fcd004ee",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_adversarial.py",
+    "test_function": "test_adversarial_old_docs_budget"
+  },
+  {
+    "content_sha256": "b84dab1a1e23e691253d4ad3803b2d4fd58399403862bc7c944ec25ecd5f6c58",
+    "docstring": null,
+    "id": "test_test_retrieval_adversarial_test_adversarial_direct_razorpay_bypass_b84dab1a",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_adversarial.py",
+    "test_function": "test_adversarial_direct_razorpay_bypass"
+  },
+  {
+    "content_sha256": "38f3b1e0c554cd5e5442ebc2f81ad9d0bf999589268ec85e9c5240ecb8f7b780",
+    "docstring": null,
+    "id": "test_test_retrieval_adversarial_test_adversarial_tampered_frontend_claim_38f3b1e0",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_adversarial.py",
+    "test_function": "test_adversarial_tampered_frontend_claim"
+  },
+  {
+    "content_sha256": "b7961a59b47465f98f827499a431d0019ca68c3fb42915674f28133961e57f56",
+    "docstring": null,
+    "id": "test_test_retrieval_ast_test_ast_find_symbol_evidence_b7961a59",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_ast.py",
+    "test_function": "test_ast_find_symbol_evidence"
+  },
+  {
+    "content_sha256": "ae2683db71e1478f66d203dd73ae6dae2681e285fc4a6fecfb8983068f157edb",
+    "docstring": null,
+    "id": "test_test_retrieval_ast_test_ast_find_code_trace_ae2683db",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_ast.py",
+    "test_function": "test_ast_find_code_trace"
+  },
+  {
+    "content_sha256": "3c4735a3f6c1ecb0f85df4456fdc98e9728eaa1cae86e2644f3fb6c906824fda",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_conceptual_query_3c4735a3",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_conceptual_query"
+  },
+  {
+    "content_sha256": "73f5d2f32a0f131adc35d8d06e367f914c839bcfe0f90df9fa338cdd523a0998",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_code_symbol_query_73f5d2f3",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_code_symbol_query"
+  },
+  {
+    "content_sha256": "5dd1512ad454c6fcbadfe55ef45d0c7c22396aa4130eea143b47f816d624f8e8",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_api_route_query_5dd1512a",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_api_route_query"
+  },
+  {
+    "content_sha256": "2782bdf57d87364db9443e2396f1f3a16b17613d3deb48d57898fd11514c09d7",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_frontend_action_query_2782bdf5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_frontend_action_query"
+  },
+  {
+    "content_sha256": "08fe98abb3c8913a90a2cc90d257719d959d65cfa411cdf5a50fc1d306caea06",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_security_scenario_query_08fe98ab",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_security_scenario_query"
+  },
+  {
+    "content_sha256": "9c9b854c5a3f2dcee120f4548f2d83c12e8ecb15ee35c89ebd23b75228c8e0b8",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_dynamic_budget_query_9c9b854c",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_dynamic_budget_query"
+  },
+  {
+    "content_sha256": "2796a6fe716838d4def16e17c23a63f9081c1794bc5372bbabcf098a73823ac1",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_dynamic_transaction_status_query_2796a6fe",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_dynamic_transaction_status_query"
+  },
+  {
+    "content_sha256": "4111e61832e439354960ea5f49d1bb6dda10e96ff044b22a748a1317c0eda3b5",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_test_suite_query_4111e618",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_test_suite_query"
+  },
+  {
+    "content_sha256": "7926f0d2971dc3ee33af7cf8edb392724aaea3cb9dccf24195e934bae16306b1",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_natural_dynamic_budget_variations_7926f0d2",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_natural_dynamic_budget_variations"
+  },
+  {
+    "content_sha256": "f7805cd4ed64ae737e4bb9146181142a747ea7c61e3ed55ee6f5b4c6eb7b8e51",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_natural_dynamic_other_resources_f7805cd4",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_natural_dynamic_other_resources"
+  },
+  {
+    "content_sha256": "f7a5ae3b9a9db088ad00ac537366e5cecdc0a728c2b3c23900e8e5ee76799e98",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_hypothetical_policy_exclusion_f7a5ae3b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_hypothetical_policy_exclusion"
+  },
+  {
+    "content_sha256": "eb1e79e26a880a04979de01774ef4b28096f35468d568c02ba03b8f67d5fb532",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_policy_vs_retrieval_engine_disambiguation_eb1e79e2",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_policy_vs_retrieval_engine_disambiguation"
+  },
+  {
+    "content_sha256": "ccf98067a35d7ad679ad762d3dcfcc7510ac627ae493a9eb3185b0f4addd1912",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_claim_diff_physical_components_ccf98067",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_claim_diff_physical_components"
+  },
+  {
+    "content_sha256": "7bb8aa0552297816147868a380edee1e72b95c4d568737775efb52bdd86fd9c9",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_frontend_views_and_navigation_7bb8aa05",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_frontend_views_and_navigation"
+  },
+  {
+    "content_sha256": "52a075cb06338c9d8ac469016e4bac9b62374ecb4f56afdfd08a53030e80343e",
+    "docstring": null,
+    "id": "test_test_retrieval_classifier_test_classify_adversarial_override_precedence_52a075cb",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_classifier.py",
+    "test_function": "test_classify_adversarial_override_precedence"
+  },
+  {
+    "content_sha256": "4ee4ff37818f674bd5167dc284ba44311ae16993da5103c5261f90dca43aed9a",
+    "docstring": null,
+    "id": "test_test_retrieval_determinism_test_retrieval_determinism_identical_runs_4ee4ff37",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_determinism.py",
+    "test_function": "test_retrieval_determinism_identical_runs"
+  },
+  {
+    "content_sha256": "3b6ea7de957580f8a4e8e44cc82c891731decbb0f6b367bd177f510b44180726",
+    "docstring": null,
+    "id": "test_test_retrieval_determinism_test_secret_exclusion_invariant_3b6ea7de",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_determinism.py",
+    "test_function": "test_secret_exclusion_invariant"
+  },
+  {
+    "content_sha256": "349e00fef9b3cb82b050d3080047ac7b3786ab137219025d5ae4bafbb2746f21",
+    "docstring": null,
+    "id": "test_test_retrieval_dynamic_safeguards_test_dynamic_safeguard_emits_sentinel_for_budget_349e00fe",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_dynamic_safeguards.py",
+    "test_function": "test_dynamic_safeguard_emits_sentinel_for_budget"
+  },
+  {
+    "content_sha256": "3859241b1607a4e584e1ec29c71239d7804b9e32aec328fdf2dc03fc70922bea",
+    "docstring": null,
+    "id": "test_test_retrieval_dynamic_safeguards_test_dynamic_safeguard_sanitizes_static_results_3859241b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_dynamic_safeguards.py",
+    "test_function": "test_dynamic_safeguard_sanitizes_static_results"
+  },
+  {
+    "content_sha256": "294cf791aebf4d9e3fde6e4823803087eb22bcdeb8fed20cf2f89bef920e3aa9",
+    "docstring": null,
+    "id": "test_test_retrieval_engine_test_retrieval_engine_initialization_294cf791",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_engine.py",
+    "test_function": "test_retrieval_engine_initialization"
+  },
+  {
+    "content_sha256": "5aa6f1292b71c35ab65ecc8619069220a74fb8eb0d74a007f61c01eec2868ecd",
+    "docstring": null,
+    "id": "test_test_retrieval_engine_test_retrieve_code_symbol_provenance_5aa6f129",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_engine.py",
+    "test_function": "test_retrieve_code_symbol_provenance"
+  },
+  {
+    "content_sha256": "ad5b62d97813293cce93f2d13d7834a26bc307303109d50cd4ef7da5a82bbf41",
+    "docstring": null,
+    "id": "test_test_retrieval_engine_test_retrieve_with_evidence_set_ad5b62d9",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_engine.py",
+    "test_function": "test_retrieve_with_evidence_set"
+  },
+  {
+    "content_sha256": "5ef3691e421e2fc6090a123249ad33f2d4d483e5e2f9eba65fab0ae6c78d689a",
+    "docstring": null,
+    "id": "test_test_retrieval_engine_test_explain_interface_5ef3691e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_engine.py",
+    "test_function": "test_explain_interface"
+  },
+  {
+    "content_sha256": "007dee014f31a080fb46e0231b4fdc87af0feec31782cd2b731cf0544dc60308",
+    "docstring": null,
+    "id": "test_test_retrieval_evidence_test_evidence_aggregator_code_query_007dee01",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_evidence.py",
+    "test_function": "test_evidence_aggregator_code_query"
+  },
+  {
+    "content_sha256": "86da2d2bb9e6f6f34ffdaa896410079c29cc50e4e3a737a157429c426b9933b6",
+    "docstring": null,
+    "id": "test_test_retrieval_exact_test_exact_matcher_symbol_lookup_86da2d2b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_exact.py",
+    "test_function": "test_exact_matcher_symbol_lookup"
+  },
+  {
+    "content_sha256": "e60a9ea7cf5ecb9fa3a4abed4a3658d5bbb5a7eedc7c763735c558b1c10f9ce1",
+    "docstring": null,
+    "id": "test_test_retrieval_exact_test_exact_matcher_route_lookup_e60a9ea7",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_exact.py",
+    "test_function": "test_exact_matcher_route_lookup"
+  },
+  {
+    "content_sha256": "ebffacb5ea7bad8d4d688861234f2a55f54a9ef635e9b1cfc48eb24622fc7449",
+    "docstring": null,
+    "id": "test_test_retrieval_lexical_test_lexical_bm25_search_price_tampering_ebffacb5",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_lexical.py",
+    "test_function": "test_lexical_bm25_search_price_tampering"
+  },
+  {
+    "content_sha256": "922a1e5b022511c8ee4fc8b51bf566cca3ab6ba41a92273a88e9106191c876b4",
+    "docstring": null,
+    "id": "test_test_retrieval_lexical_test_lexical_bm25_search_sha256_922a1e5b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_lexical.py",
+    "test_function": "test_lexical_bm25_search_sha256"
+  },
+  {
+    "content_sha256": "a9e53854183d1969943d697628d5be4b779c762f3b1074b80195e6f5d946b76a",
+    "docstring": null,
+    "id": "test_test_retrieval_lexical_test_lexical_bm25_empty_query_a9e53854",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_lexical.py",
+    "test_function": "test_lexical_bm25_empty_query"
+  },
+  {
+    "content_sha256": "bca2d1519290d509736484781eb184d96716c7f1d71a4125b16ceeaa7b52d2f1",
+    "docstring": null,
+    "id": "test_test_retrieval_models_test_query_classification_model_bca2d151",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_models.py",
+    "test_function": "test_query_classification_model"
+  },
+  {
+    "content_sha256": "3ebffcd90c53e15f5dc73b3b7ff533f0c3141e08fbb08820e637a462bc7dea49",
+    "docstring": null,
+    "id": "test_test_retrieval_models_test_retrieval_result_contract_3ebffcd9",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_models.py",
+    "test_function": "test_retrieval_result_contract"
+  },
+  {
+    "content_sha256": "90183228bda435fade2ad8ddcd8083b448bac1c0ee980ffe04de3a6f1ed3b6be",
+    "docstring": null,
+    "id": "test_test_retrieval_models_test_evidence_set_contract_90183228",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_models.py",
+    "test_function": "test_evidence_set_contract"
+  },
+  {
+    "content_sha256": "0cd11dc240ea32a422a9eab36de45eb93f24231bbd80a995a7ae4ac712078118",
+    "docstring": null,
+    "id": "test_test_retrieval_models_test_category_evaluation_metric_properties_0cd11dc2",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_models.py",
+    "test_function": "test_category_evaluation_metric_properties"
+  },
+  {
+    "content_sha256": "fb6582ee3f35242b09c4e6e072fae99d94063183961c9c30e1fc70a409893c5e",
+    "docstring": "Invariant: Every source_path in knowledge base must resolve to a real file.",
+    "id": "test_test_retrieval_provenance_test_all_source_paths_exist_on_disk_fb6582ee",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_provenance.py",
+    "test_function": "test_all_source_paths_exist_on_disk"
+  },
+  {
+    "content_sha256": "27cdb8ae914e6d1a68c5543839ec98e0ee187101a95e8c299bbdaaf7bb6cc63e",
+    "docstring": "Invariant: Every line range must satisfy 1 <= line_start <= line_end <= physical_file_lines.",
+    "id": "test_test_retrieval_provenance_test_all_line_ranges_within_physical_file_bounds_27cdb8ae",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_provenance.py",
+    "test_function": "test_all_line_ranges_within_physical_file_bounds"
+  },
+  {
+    "content_sha256": "2c33dbcbdcc11731f8dd1c8b7065c40a60338d78c1787ff229b1349c3d479a77",
+    "docstring": "Specific test for GET /health endpoint line range in backend/app/main.py.",
+    "id": "test_test_retrieval_provenance_test_health_endpoint_line_range_accurate_2c33dbcb",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_provenance.py",
+    "test_function": "test_health_endpoint_line_range_accurate"
+  },
+  {
+    "content_sha256": "491a79b281746a35095de47690f5dabdf7efcb9daef82b0a5e173beb00562660",
+    "docstring": "Invariant: ClaimDiffViewer must never appear in any knowledge unit symbol or title.",
+    "id": "test_test_retrieval_provenance_test_no_phantom_claim_diff_viewer_491a79b2",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_provenance.py",
+    "test_function": "test_no_phantom_claim_diff_viewer"
+  },
+  {
+    "content_sha256": "b0a6eb813eafaf3dda0255baedc0ae8b1066343cee5120e270b6fe4bc571d451",
+    "docstring": "Invariant: Markdown-derived canonical facts must have TIER_5_SPEC_DOCS.",
+    "id": "test_test_retrieval_provenance_test_canonical_fact_tiers_accurate_b0a6eb81",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_provenance.py",
+    "test_function": "test_canonical_fact_tiers_accurate"
+  },
+  {
+    "content_sha256": "3df40f248c3a990caebd20be6f1c0a71359122f8e306c09ce5cce8bd64b4df9e",
+    "docstring": null,
+    "id": "test_test_retrieval_reranker_test_authority_precedence_source_code_over_historical_docs_3df40f24",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_reranker.py",
+    "test_function": "test_authority_precedence_source_code_over_historical_docs"
+  },
+  {
+    "content_sha256": "fcf22f38fc28b9e91920a5538dc84d542919d3a99ea31493253717671dd93c8f",
+    "docstring": null,
+    "id": "test_test_retrieval_reranker_test_reranker_policy_engine_vs_retrieval_engine_collision_fcf22f38",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_reranker.py",
+    "test_function": "test_reranker_policy_engine_vs_retrieval_engine_collision"
+  },
+  {
+    "content_sha256": "63fcf5d2cd04f910ac97806500f575c6c71d116dc2f9d543786b7bee02b279cb",
+    "docstring": null,
+    "id": "test_test_retrieval_reranker_test_reranker_frontend_views_prefer_physical_components_63fcf5d2",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_reranker.py",
+    "test_function": "test_reranker_frontend_views_prefer_physical_components"
+  },
+  {
+    "content_sha256": "c2f076e66d55dbc3faa3c02f3eebf3959cc2560e29665fd4a1b03d4ed5e09b5e",
+    "docstring": null,
+    "id": "test_test_retrieval_semantic_test_local_tfidf_embedding_provider_c2f076e6",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_semantic.py",
+    "test_function": "test_local_tfidf_embedding_provider"
+  },
+  {
+    "content_sha256": "367473233babd8a329e59856edd4886c6296e1e35aba888e99ab10e4166d7e2e",
+    "docstring": null,
+    "id": "test_test_retrieval_semantic_test_semantic_matcher_search_36747323",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_semantic.py",
+    "test_function": "test_semantic_matcher_search"
+  },
+  {
+    "content_sha256": "62595a3bce6bcc9cee7ea5592cfa5b4807c863c29a9274fdf1b25c37fa683bc1",
+    "docstring": null,
+    "id": "test_test_retrieval_semantic_test_semantic_matcher_determinism_62595a3b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_retrieval_semantic.py",
+    "test_function": "test_semantic_matcher_determinism"
+  },
+  {
+    "content_sha256": "cf08912da7995e04a8278188a9daa0c4578a86f7ba64ad2ae14b8abfba3faa25",
+    "docstring": "B1: Fresh seed creates all core entities starting from empty tables.",
+    "id": "test_test_seed_db_test_b1_fresh_seed_cf08912d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b1_fresh_seed"
+  },
+  {
+    "content_sha256": "b53c5bb9943b1980841cb140d6cb45a2dfb88ed9b48bcca0cce18f6eaed26c2b",
+    "docstring": "B2: Verify exact merchant IDs and attributes.",
+    "id": "test_test_seed_db_test_b2_exact_merchant_data_b53c5bb9",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b2_exact_merchant_data"
+  },
+  {
+    "content_sha256": "28df0fdd7f12c31abad196064c9fa25e9a1f71afd7113650d6f6233d6ee5e657",
+    "docstring": "B3: Verify exact product IDs, prices, merchant associations, stock, and active status.",
+    "id": "test_test_seed_db_test_b3_exact_product_data_28df0fdd",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b3_exact_product_data"
+  },
+  {
+    "content_sha256": "9ac77a7be691b263d41fe579be8c67a168faaaa330cc96475e41c78ef263017f",
+    "docstring": "B4: Verify user-001 data.",
+    "id": "test_test_seed_db_test_b4_exact_user_data_9ac77a7b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b4_exact_user_data"
+  },
+  {
+    "content_sha256": "567da5e93935212a1fa4931211e71691a3095da48a85977f0da9ac7a339e43a4",
+    "docstring": "B5: Verify mandate-001 budget, cap, scope, status, and fresh 24h expiry.",
+    "id": "test_test_seed_db_test_b5_exact_mandate_data_567da5e9",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b5_exact_mandate_data"
+  },
+  {
+    "content_sha256": "ca98bccb8f8e85784ad582131c5c30ddf43af04dc8eb920ab846989d56b6812a",
+    "docstring": "B6: Running seed multiple times does not duplicate records.",
+    "id": "test_test_seed_db_test_b6_idempotent_rerun_ca98bccb",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b6_idempotent_rerun"
+  },
+  {
+    "content_sha256": "50084c4345dd4196c927ac7709e8e87b60c334271e7aeb10d7f605df3f7e465b",
+    "docstring": "B7: Seed with reset=True restores baseline state after mutations.",
+    "id": "test_test_seed_db_test_b7_reset_and_reseed_50084c43",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b7_reset_and_reseed"
+  },
+  {
+    "content_sha256": "ff198f9293a49b7cf55802ac18ddc24f91d90dd707447412ff97c9f02092f904",
+    "docstring": "B8: Seed script does NOT create operational records.",
+    "id": "test_test_seed_db_test_b8_no_fake_operational_data_ff198f92",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b8_no_fake_operational_data"
+  },
+  {
+    "content_sha256": "398cd6c56eeea0a77ef751ced516ee89c9be7e096f9ad97febbce4bb3b268371",
+    "docstring": "B9: Verify seeded data mathematically supports all demo scenarios.",
+    "id": "test_test_seed_db_test_b9_scenario_compatibility_398cd6c5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b9_scenario_compatibility"
+  },
+  {
+    "content_sha256": "d754c1d4b83e95a55fef225ace202ac4c600d540909e558d1fb7ceb4406a1a94",
+    "docstring": "B10: Verify seed rollback safety - forced failure leaves no partial state.",
+    "id": "test_test_seed_db_test_b10_transaction_rollback_safety_d754c1d4",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b10_transaction_rollback_safety"
+  }
+]

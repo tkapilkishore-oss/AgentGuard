@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentGuardKnowledgeUnit",
+  "type": "object",
+  "required": [
+    "id",
+    "domain",
+    "title",
+    "summary",
+    "content",
+    "source_type",
+    "source_path",
+    "source_tier",
+    "content_sha256",
+    "authority",
+    "freshness"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Deterministic SHA-256 derived identifier."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain category A through AE."
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["DOC", "PYTHON_AST", "TSX_COMPONENT", "API_ROUTE", "PYTEST", "CANONICAL_FACT"]
+    },
+    "source_path": {
+      "type": "string"
+    },
+    "source_tier": {
+      "type": "string",
+      "enum": [
+        "TIER_1_LIVE_TOOL",
+        "TIER_2_SOURCE_CODE",
+        "TIER_3_API_SCHEMA",
+        "TIER_4_AUTOMATED_TESTS",
+        "TIER_5_SPEC_DOCS",
+        "TIER_6_HISTORICAL"
+      ]
+    },
+    "line_start": {
+      "type": ["integer", "null"]
+    },
+    "line_end": {
+      "type": ["integer", "null"]
+    },
+    "symbol": {
+      "type": ["string", "null"]
+    },
+    "route": {
+      "type": ["string", "null"]
+    },
+    "content_sha256": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "string",
+      "enum": [
+        "AUTHORITATIVE",
+        "SOURCE_DERIVED",
+        "HISTORICAL",
+        "DYNAMIC_LIVE_REQUIRED",
+        "CONFLICTING",
+        "UNKNOWN"
+      ]
+    },
+    "freshness": {
+      "type": "string",
+      "enum": ["VERIFIED", "CURRENT", "STALE", "HISTORICAL", "CONFLICTING"]
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_symbol": { "type": "string" },
+          "target_symbol": { "type": "string" },
+          "relationship_type": { "type": "string" },
+          "target_path": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dynamic_tool_fallback": {
+      "type": ["string", "null"]
+    }
+  }
+}
