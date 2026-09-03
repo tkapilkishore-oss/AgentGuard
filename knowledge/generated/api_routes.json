@@ -169,6 +169,19 @@
     "source_line": 52
   },
   {
+    "handler_name": "synthesize_speech",
+    "id": "api_post_tts_synthesize",
+    "is_mutation": true,
+    "method": "POST",
+    "path": "/tts/synthesize",
+    "request_model": "TTSRequest",
+    "response_model": null,
+    "safety_level": "PROPOSE_ONLY",
+    "security_significance": "Standard API endpoint.",
+    "source_file": "backend/app/api/routes_tts.py",
+    "source_line": 22
+  },
+  {
     "handler_name": "health_check",
     "id": "api_get_health",
     "is_mutation": false,
@@ -179,7 +192,7 @@
     "safety_level": "READ_ONLY",
     "security_significance": "Service liveness and health probe.",
     "source_file": "backend/app/main.py",
-    "source_line": 95
+    "source_line": 97
   },
   {
     "handler_name": "_endpoint",

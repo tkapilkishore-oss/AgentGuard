@@ -61,7 +61,7 @@ def test_conversational_session_inspection_and_reset(client: TestClient, db: Ses
     # Reset session
     del_resp = client.delete(f"/conversational/session/{sess_id}")
     assert del_resp.status_code == 200
-    assert del_resp.json()["data"]["status"] == "RESET_SUCCESSFUL"
+    assert del_resp.json()["data"]["status"] == "reset"
 
     # Inspect again - history should be empty
     resp_after = client.get(f"/conversational/session/{sess_id}")

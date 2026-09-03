@@ -1,16 +1,159 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Mic,
+  MicOff,
+  StopCircle,
   X,
   Bot,
   User,
   Zap,
   Send,
-  Play,
-  History,
-  Cpu,
+  RotateCcw,
+  ShieldAlert,
+  Database,
+  FileCode2,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  CheckCircle2,
+  Terminal,
+  Activity,
+  AlertCircle,
 } from 'lucide-react';
-import { useAgentGuard } from '../../context/AgentGuardContext';
+import { useVoiceIO } from './useVoiceIO';
+import { useAgentGuard, ChatMessageItem } from '../../context/AgentGuardContext';
+import { VoiceWaveformVisualizer } from './VoiceWaveformVisualizer';
+import { FollowUpSuggestion } from '../../lib/api';
+import { useAutonomousDemo } from '../demo/AutonomousDemoContext';
+
+/**
+ * Safe Markdown text formatter that parses paragraphs, bold text, inline code,
+ * bullet lists, and code blocks into native React elements without dangerous HTML injection.
+ */
+const SafeFormattedText: React.FC<{ text: string }> = ({ text }) => {
+  if (!text) return null;
+
+  // Split text by lines
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let currentList: React.ReactNode[] = [];
+  let inCodeBlock = false;
+  let codeBlockLines: string[] = [];
+
+  const flushList = () => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`list-${elements.length}`} className="list-disc pl-4 my-1.5 space-y-1 text-on-surface">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+    }
+  };
+
+  const formatInline = (str: string): React.ReactNode[] => {
+    // Parse inline code `code` and bold **bold**
+    const tokens: React.ReactNode[] = [];
+    let remaining = str;
+    let keyIdx = 0;
+
+    while (remaining.length > 0) {
+      // Check for inline code
+      const codeMatch = remaining.match(/^(.*?)`([^`]+)`(.*)$/);
+      // Check for bold
+      const boldMatch = remaining.match(/^(.*?)\*\*([^*]+)\*\*(.*)$/);
+
+      if (codeMatch && (!boldMatch || (codeMatch.index ?? 0) <= (boldMatch.index ?? 0))) {
+        if (codeMatch[1]) tokens.push(codeMatch[1]);
+        tokens.push(
+          <code
+            key={`code-${keyIdx++}`}
+            className="px-1.5 py-0.5 bg-lavender-tint text-primary font-mono text-[11px] rounded border border-primary-fixed font-semibold"
+          >
+            {codeMatch[2]}
+          </code>
+        );
+        remaining = codeMatch[3];
+      } else if (boldMatch) {
+        if (boldMatch[1]) tokens.push(boldMatch[1]);
+        tokens.push(
+          <strong key={`bold-${keyIdx++}`} className="font-semibold text-primary">
+            {boldMatch[2]}
+          </strong>
+        );
+        remaining = boldMatch[3];
+      } else {
+        tokens.push(remaining);
+        break;
+      }
+    }
+    return tokens;
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('```')) {
+      if (inCodeBlock) {
+        // End of code block
+        elements.push(
+          <pre
+            key={`codeblock-${idx}`}
+            className="bg-[#1e1e1e] text-[#d4d4d4] p-3 rounded-lg font-mono text-[11px] overflow-x-auto my-2 shadow-inner"
+          >
+            <code>{codeBlockLines.join('\n')}</code>
+          </pre>
+        );
+        codeBlockLines = [];
+        inCodeBlock = false;
+      } else {
+        flushList();
+        inCodeBlock = true;
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeBlockLines.push(line);
+      return;
+    }
+
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || /^\d+\.\s/.test(trimmed)) {
+      const content = trimmed.replace(/^[-*]\s+|\d+\.\s+/, '');
+      currentList.push(
+        <li key={`li-${idx}`} className="text-xs leading-relaxed text-on-surface">
+          {formatInline(content)}
+        </li>
+      );
+      return;
+    }
+
+    flushList();
+
+    if (trimmed.length > 0) {
+      elements.push(
+        <p key={`p-${idx}`} className="text-xs leading-relaxed text-on-surface my-1">
+          {formatInline(trimmed)}
+        </p>
+      );
+    }
+  });
+
+  flushList();
+
+  if (inCodeBlock && codeBlockLines.length > 0) {
+    elements.push(
+      <pre
+        key={`codeblock-end`}
+        className="bg-[#1e1e1e] text-[#d4d4d4] p-3 rounded-lg font-mono text-[11px] overflow-x-auto my-2"
+      >
+        <code>{codeBlockLines.join('\n')}</code>
+      </pre>
+    );
+  }
+
+  return <div className="space-y-1">{elements}</div>;
+};
 
 export const ConversationalVoiceDrawer: React.FC = () => {
   const {
@@ -18,282 +161,468 @@ export const ConversationalVoiceDrawer: React.FC = () => {
     setIsConversationalOpen,
     agentVoiceState,
     setAgentVoiceState,
-    triggerScenario,
-    setActiveSurfaceTab,
-    sendAgentChatMessage,
-    loadingAction,
+    conversationalSessionId,
+    conversationalMessages,
+    isConversationalQuerying,
+    sendConversationalQuery,
+    resetConversationalSession,
+    setWireDrawerOpen,
   } = useAgentGuard();
 
-  const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState<
-    { sender: 'user' | 'agent'; text: string; actionTriggered?: string }[]
-  >([
-    {
-      sender: 'agent',
-      text: "Hello! I am the AgentGuard Conversational Assistant. I can guide you through the firewall architecture, trigger live threat scenarios, or inspect the cryptographic evidence ledger.",
-    },
-  ]);
+  const [inputQuery, setInputQuery] = useState('');
+  const [expandedCitationMsgId, setExpandedCitationMsgId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  if (!isConversationalOpen) return null;
+  // ── Voice I/O — Phase 5.5C ────────────────────────────────────────────────
+  // Routes all transcripts through the EXISTING sendConversationalQuery pipeline.
+  // Never calls financial or mutation APIs directly.
+  const {
+    voiceState,
+    voiceError,
+    isSTTSupported,
+    startListening,
+    stopListening,
+    stopSpeaking,
+    dismissError,
+  } = useVoiceIO({ sendConversationalQuery, setAgentVoiceState });
 
-  const handleSendQuery = async (queryText: string) => {
-    if (!queryText.trim() || loadingAction) return;
-
-    const userText = queryText;
-    setChatInput('');
-    setMessages((prev) => [...prev, { sender: 'user', text: userText }]);
-    setAgentVoiceState('THINKING');
-
-    const lower = userText.toLowerCase();
-
-    if (lower.includes('tamper') || lower.includes('price') || lower.includes('fake') || lower.includes('simulation')) {
-      setTimeout(async () => {
-        setAgentVoiceState('EXECUTING');
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: 'agent',
-            text: "Triggering Price Tampering Attack scenario (Claimed ₹1,999 vs Catalog ₹3,499). The firewall evaluates the claim against PostgreSQL and issues a DENY verdict.",
-            actionTriggered: 'SCENARIO_3_PRICE_TAMPERING',
-          },
-        ]);
-        setActiveSurfaceTab('DEFENSE');
-        await triggerScenario(3);
-        setAgentVoiceState('DENIED');
-      }, 500);
-    } else if (lower.includes('replay') || lower.includes('double')) {
-      setTimeout(async () => {
-        setAgentVoiceState('EXECUTING');
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: 'agent',
-            text: "Triggering Replay Attack scenario: Submitting a duplicate execution attempt on an already settled transaction. The firewall halts it with HTTP 409 REPLAY_DETECTED.",
-            actionTriggered: 'SCENARIO_4_REPLAY_ATTACK',
-          },
-        ]);
-        setActiveSurfaceTab('DEFENSE');
-        await triggerScenario(4);
-        setAgentVoiceState('DENIED');
-      }, 500);
-    } else if (lower.includes('over budget') || lower.includes('budget') || lower.includes('escalate')) {
-      setTimeout(async () => {
-        setAgentVoiceState('EXECUTING');
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: 'agent',
-            text: "Triggering Over-Budget scenario. The purchase exceeds mandate limits and escalates to human approver for explicit authorization.",
-            actionTriggered: 'SCENARIO_2_OVER_BUDGET',
-          },
-        ]);
-        setActiveSurfaceTab('DEFENSE');
-        await triggerScenario(2);
-        setAgentVoiceState('WAITING_FOR_APPROVAL');
-      }, 500);
-    } else if (lower.includes('audit') || lower.includes('ledger') || lower.includes('hash')) {
-      setTimeout(() => {
-        setAgentVoiceState('SPEAKING');
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: 'agent',
-            text: "Opening the Cryptographic Evidence Ledger. Every state transition is recorded in an immutable forward SHA-256 hash chain.",
-            actionTriggered: 'VIEW_FORENSIC_LEDGER',
-          },
-        ]);
-        setActiveSurfaceTab('FORENSICS');
-        setTimeout(() => setAgentVoiceState('IDLE'), 1500);
-      }, 400);
-    } else {
-      const res = await sendAgentChatMessage(userText);
-      if (res) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: 'agent',
-            text: `Agent formulated proposal for Product '${res.claim.product_id}' @ claimed ₹${res.claim.claimed_price}. Firewall verdict: ${res.result?.decision || 'DENIED'}`,
-          },
-        ]);
-        setActiveSurfaceTab('DEFENSE');
-        setAgentVoiceState(res.result?.decision === 'ALLOW' ? 'SUCCESS' : 'DENIED');
-      } else {
-        setAgentVoiceState('IDLE');
-      }
+  // Auto-scroll on new messages
+  useEffect(() => {
+    if (isConversationalOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
+  }, [conversationalMessages, isConversationalOpen, isConversationalQuerying]);
+
+  // Focus input on drawer open
+  useEffect(() => {
+    if (isConversationalOpen) {
+      setTimeout(() => inputRef.current?.focus(), 150);
+    }
+  }, [isConversationalOpen]);
+
+  const { demoState } = useAutonomousDemo();
+
+  // Drawer is mounted if opened or during any active demo state
+  const isDemoActive = demoState !== 'IDLE';
+  if (!isConversationalOpen && !isDemoActive) return null;
+
+  // Drawer slides completely offscreen when demo is RUNNING, and returns on PAUSE / STOP / COMPLETED
+  const isDrawerHidden = !isConversationalOpen || demoState === 'RUNNING';
+
+  const handleSubmit = async (queryText: string) => {
+    const trimmed = queryText.trim();
+    if (!trimmed || isConversationalQuerying) return;
+    setInputQuery('');
+    await sendConversationalQuery(trimmed);
   };
 
+  const handleSuggestionClick = async (suggestion: FollowUpSuggestion | string) => {
+    if (isConversationalQuerying) return;
+    const query = typeof suggestion === 'string' ? suggestion : (suggestion.query || suggestion.label);
+    await sendConversationalQuery(query);
+  };
+
+  const latestAgentMessage = [...conversationalMessages]
+    .reverse()
+    .find((m) => m.sender === 'agent');
+
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white/95 border-l border-surface-container shadow-2xl backdrop-blur-2xl flex flex-col transition-all duration-300">
+    <div
+      className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[500px] max-w-full bg-white border-l border-surface-container shadow-2xl backdrop-blur-2xl flex flex-col transition-transform duration-500 ease-in-out font-inter ${
+        isDrawerHidden ? 'translate-x-full pointer-events-none' : 'translate-x-0'
+      }`}
+    >
       {/* Drawer Header */}
-      <div className="p-5 bg-surface border-b border-surface-container flex items-center justify-between">
+      <div className="p-4 sm:p-5 bg-surface border-b border-surface-container flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-lavender-tint shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-lavender-tint shadow-sm flex-shrink-0">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-primary font-outfit">The Voice of Trust</h3>
-              <span className="text-xs font-inter font-semibold px-2.5 py-0.5 bg-lavender-tint text-[#4C1D95] rounded-full border border-primary-fixed">
-                Client Shell
+              <span className="text-[10px] font-inter font-semibold px-2 py-0.5 bg-lavender-tint text-[#4C1D95] rounded-full border border-primary-fixed flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5 text-primary" />
+                <span>B-3 Brain Active</span>
               </span>
             </div>
             <p className="text-xs text-on-surface-variant font-inter">
-              AgentGuard Conversational Interface
+              Grounded Conversational Intelligence & Diagnostics
             </p>
           </div>
         </div>
 
-        <button
-          onClick={() => setIsConversationalOpen(false)}
-          className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
-          title="Close Drawer"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Central Orb / Presence Visualizer matching Stitch */}
-      <div className="p-6 bg-gradient-to-b from-surface to-white flex flex-col items-center justify-center border-b border-surface-container relative overflow-hidden">
-        <div className="relative w-28 h-28 flex items-center justify-center my-2">
-          <div className="absolute inset-0 border-2 border-secondary-fixed rounded-full animate-ping opacity-30"></div>
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-lavender-tint shadow-lg">
-            <Mic className="w-8 h-8 text-white" />
-          </div>
-          <div className="absolute -bottom-2 bg-lavender-tint text-[#4C1D95] text-xs font-inter font-semibold px-3 py-0.5 rounded-full border border-primary-fixed shadow-sm">
-            {agentVoiceState}
-          </div>
-        </div>
-
-        <p className="text-xs text-on-surface-variant font-inter text-center max-w-xs mt-2">
-          Ask questions about the architecture or trigger live attacks across the trust boundary.
-        </p>
-      </div>
-
-      {/* Suggested Actions matching Stitch */}
-      <div className="p-4 bg-surface border-b border-surface-container space-y-2">
-        <div className="flex items-center gap-1.5 text-xs font-inter uppercase tracking-wider text-outline font-semibold">
-          <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
-          <span>Suggested Actions</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 text-xs font-inter">
+        <div className="flex items-center gap-1.5">
+          {/* Reset / New Chat Button */}
           <button
-            onClick={() => handleSendQuery('Run threat simulation on price tampering')}
-            className="p-3 bg-white rounded-xl border border-surface-container hover:border-primary transition-all text-left shadow-sm flex items-center gap-2 group"
+            onClick={() => resetConversationalSession()}
+            disabled={isConversationalQuerying}
+            className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+            title="Start New Conversation Session"
           >
-            <Play className="w-4 h-4 text-secondary group-hover:scale-110 transition-transform" />
-            <div>
-              <div className="font-bold text-primary font-outfit">Run Simulation</div>
-              <div className="text-[11px] text-on-surface-variant">Test attack defenses</div>
-            </div>
+            <RotateCcw className="w-4 h-4" />
           </button>
 
+          {/* Close Drawer Button */}
           <button
-            onClick={() => handleSendQuery('Show me the cryptographic audit ledger')}
-            className="p-3 bg-white rounded-xl border border-surface-container hover:border-primary transition-all text-left shadow-sm flex items-center gap-2 group"
+            onClick={() => setIsConversationalOpen(false)}
+            className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
+            title="Close Assistant"
           >
-            <History className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-            <div>
-              <div className="font-bold text-primary font-outfit">Audit Ledger</div>
-              <div className="text-[11px] text-on-surface-variant">Review SHA-256 chain</div>
-            </div>
+            <X className="w-5 h-5" />
           </button>
         </div>
+      </div>
+
+      {/* Voice Waveform Visualizer & Presence Section */}
+      <div className="p-3.5 bg-gradient-to-b from-surface to-white border-b border-surface-container flex-shrink-0">
+        <VoiceWaveformVisualizer state={agentVoiceState} />
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs bg-[#FAFBFD]">
-        {messages.map((m, idx) => (
-          <div
-            key={idx}
-            className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            {m.sender === 'agent' && (
-              <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center mr-2 flex-shrink-0 mt-0.5">
-                <Bot className="w-3.5 h-3.5" />
-              </div>
-            )}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs bg-[#FAFBFD]">
+        {conversationalMessages.map((m: ChatMessageItem) => {
+          const isUser = m.sender === 'user';
+          const isLatestAgent = !isUser && m.id === latestAgentMessage?.id;
 
-            <div
-              className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed ${
-                m.sender === 'user'
-                  ? 'bg-primary text-white rounded-tr-none shadow-sm'
-                  : 'bg-white text-on-surface border border-surface-container rounded-tl-none space-y-2 shadow-sm font-inter'
-              }`}
-            >
-              <div>{m.text}</div>
-              {m.actionTriggered && (
-                <div className="text-[11px] font-inter text-secondary bg-surface-container px-2.5 py-1 rounded-md flex items-center gap-1 font-semibold">
-                  <Zap className="w-3 h-3 text-secondary" />
-                  <span>Action: {m.actionTriggered}</span>
+          return (
+            <div key={m.id} className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} space-y-1.5`}>
+              {/* Message Bubble Container */}
+              <div className={`flex items-start gap-2.5 max-w-[92%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                {/* Avatar */}
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 text-white ${
+                    isUser ? 'bg-secondary' : m.isError ? 'bg-error' : 'bg-primary ring-2 ring-lavender-tint'
+                  }`}
+                >
+                  {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                </div>
+
+                {/* Bubble Body */}
+                <div
+                  className={`rounded-2xl p-3.5 text-xs leading-relaxed shadow-sm font-inter ${
+                    isUser
+                      ? 'bg-primary text-white rounded-tr-none'
+                      : m.isError
+                      ? 'bg-error-container/30 border border-error-container text-on-surface rounded-tl-none space-y-2'
+                      : 'bg-white border border-surface-container text-on-surface rounded-tl-none space-y-2'
+                  }`}
+                >
+                  {/* Message Formatted Content */}
+                  {isUser ? (
+                    <div className="whitespace-pre-wrap">{m.text}</div>
+                  ) : (
+                    <SafeFormattedText text={m.text} />
+                  )}
+
+                  {/* Guardrail Refusal Banner (Zero Financial Authority) */}
+                  {m.isAdversarialRefusal && (
+                    <div className="mt-2 p-2.5 bg-[#FEF2F2] border border-[#FCA5A5] rounded-xl text-error flex items-start gap-2 text-[11px] font-inter">
+                      <ShieldAlert className="w-4 h-4 text-error flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-bold">Firewall Invariant Enforced</div>
+                        <div className="text-on-surface-variant text-[10px]">
+                          Conversational layer has zero financial authorization authority. Mutations must be executed via authenticated client flows.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Live System Data Card */}
+                  {m.liveDataUsed && (
+                    <div className="mt-2 p-2.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl text-[11px] space-y-1.5 font-inter">
+                      <div className="flex items-center gap-1.5 text-verified font-bold">
+                        <Database className="w-3.5 h-3.5 text-verified" />
+                        <span>Authoritative Live System Data</span>
+                      </div>
+                      {m.liveReadings && (
+                        <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-white/80 p-2 rounded-lg border border-[#DCFCE7]">
+                          {Object.entries(m.liveReadings).map(([k, v]) => (
+                            <div key={k} className="flex justify-between items-center pr-1">
+                              <span className="text-on-surface-variant font-mono">{k}:</span>
+                              <span className="font-bold text-primary font-mono">{String(v)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Executed Badge */}
+                  {m.actionStatus === 'EXECUTED' && m.actionDescription && (
+                    <div className="mt-2 px-2.5 py-1.5 bg-lavender-tint text-primary border border-primary-fixed rounded-lg text-[11px] flex items-center justify-between font-semibold">
+                      <div className="flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-primary" />
+                        <span>{m.actionDescription}</span>
+                      </div>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-verified" />
+                    </div>
+                  )}
+
+                  {/* Progressive Disclosure Offer Prompt */}
+                  {m.progressiveOffer && (
+                    <div className="mt-2 p-2 bg-surface-container-low border border-surface-container rounded-lg text-[11px] text-primary italic flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-secondary flex-shrink-0" />
+                      <span>{m.progressiveOffer}</span>
+                    </div>
+                  )}
+
+                  {/* Citations & Evidence Provenance Accordion */}
+                  {m.evidenceCitations && m.evidenceCitations.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-surface-container">
+                      <button
+                        onClick={() =>
+                          setExpandedCitationMsgId(expandedCitationMsgId === m.id ? null : m.id)
+                        }
+                        className="text-[11px] font-semibold text-secondary hover:text-primary transition-colors flex items-center gap-1"
+                      >
+                        <FileCode2 className="w-3.5 h-3.5 text-secondary" />
+                        <span>Authoritative Sources & Citations ({m.evidenceCitations.length})</span>
+                        {expandedCitationMsgId === m.id ? (
+                          <ChevronUp className="w-3 h-3 ml-0.5" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3 ml-0.5" />
+                        )}
+                      </button>
+
+                      {expandedCitationMsgId === m.id && (
+                        <div className="mt-2 space-y-1.5">
+                          {m.evidenceCitations.map((c, cIdx) => (
+                            <div
+                              key={cIdx}
+                              className="p-2 bg-surface rounded-lg border border-surface-container text-[10px] space-y-1 font-mono"
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-bold text-primary truncate max-w-[240px]">
+                                  {c.unit_id || c.title || 'Evidence Unit'}
+                                </span>
+                                {c.authority && (
+                                  <span className="px-1.5 py-0.5 bg-lavender-tint text-primary rounded text-[9px] font-bold">
+                                    {c.authority}
+                                  </span>
+                                )}
+                              </div>
+                              {c.source_path && (
+                                <div className="text-on-surface-variant truncate">
+                                  File: <span className="text-secondary font-semibold">{c.source_path}</span>
+                                </div>
+                              )}
+                              {c.snippet && (
+                                <div className="text-on-surface-variant font-inter italic text-[10px] bg-white p-1 rounded border border-surface-container-high line-clamp-2">
+                                  "{c.snippet}"
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Message Meta & Latency Badge */}
+                  <div className="flex items-center justify-between text-[10px] text-on-surface-variant pt-1">
+                    <span>{m.timestamp}</span>
+                    {m.latencyMs !== undefined && (
+                      <span className="font-mono text-secondary font-semibold">
+                        Response: {m.latencyMs} ms
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Follow-up Suggestion Chips (Rendered on Latest Agent Message) */}
+              {isLatestAgent && m.suggestedFollowups && m.suggestedFollowups.length > 0 && (
+                <div className="pl-9 pr-2 pt-1.5 space-y-1.5 w-full">
+                  <div className="flex items-center gap-1.5 text-[10px] text-outline font-bold uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3 text-secondary" />
+                    <span>Suggested Next Questions</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {m.suggestedFollowups.map((s, sIdx) => {
+                      const label = typeof s === 'string' ? s : (s.label || s.query);
+                      return (
+                        <button
+                          key={sIdx}
+                          onClick={() => handleSuggestionClick(s)}
+                          disabled={isConversationalQuerying}
+                          className="px-3 py-1.5 bg-white hover:bg-lavender-tint text-primary hover:text-primary rounded-full border border-surface-container hover:border-primary-fixed text-[11px] font-medium transition-all shadow-sm flex items-center gap-1.5 active:scale-95 disabled:opacity-50 text-left"
+                        >
+                          <span>{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
+          );
+        })}
 
-            {m.sender === 'user' && (
-              <div className="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center ml-2 flex-shrink-0 mt-0.5">
-                <User className="w-3.5 h-3.5" />
+        {/* Loading Indicator while in-flight */}
+        {isConversationalQuerying && (
+          <div className="flex items-start gap-2.5 max-w-[85%]">
+            <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 ring-2 ring-lavender-tint">
+              <Bot className="w-3.5 h-3.5" />
+            </div>
+            <div className="bg-white border border-surface-container rounded-2xl rounded-tl-none p-3.5 shadow-sm space-y-1">
+              <div className="flex items-center gap-2 text-primary font-semibold text-xs">
+                <Activity className="w-3.5 h-3.5 animate-spin text-secondary" />
+                <span>B-3 Conversational Brain is evaluating query...</span>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* System Feedback Card matching Stitch */}
-      <div className="p-3.5 bg-surface border-t border-surface-container text-xs font-inter flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-          <Cpu className="w-4 h-4" />
-        </div>
-        <div className="flex-grow min-w-0">
-          <div className="flex justify-between items-center mb-0.5">
-            <span className="font-inter text-xs text-primary font-bold tracking-wider uppercase">System Feedback</span>
-            <div className="flex gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-verified"></span>
-              <span className="w-1.5 h-1.5 rounded-full bg-verified opacity-50"></span>
+              <p className="text-[11px] text-on-surface-variant font-inter">
+                Resolving context, AST evidence retrieval, and safety invariants.
+              </p>
             </div>
           </div>
-          <p className="text-xs text-on-surface-variant truncate font-inter">
-            Firewall state synchronized. Ready to execute instructions.
-          </p>
-        </div>
+        )}
+
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar */}
-      <div className="p-4 bg-white border-t border-surface-container flex items-center gap-2">
+      {/* System State & Telemetry Feedback Bar */}
+      <div className="p-2.5 px-4 bg-surface border-t border-surface-container text-xs font-inter flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2 truncate">
+          <span className="w-2 h-2 rounded-full bg-verified animate-pulse flex-shrink-0"></span>
+          <span className="text-[11px] text-on-surface-variant truncate">
+            {conversationalSessionId
+              ? `Session: ${conversationalSessionId.substring(0, 18)}...`
+              : 'New Dialogue Session Ready'}
+          </span>
+        </div>
+
         <button
-          onClick={() => {
-            const nextState = agentVoiceState === 'LISTENING' ? 'IDLE' : 'LISTENING';
-            setAgentVoiceState(nextState);
-            if (nextState === 'LISTENING') {
-              setTimeout(() => {
-                handleSendQuery('Show me a price tampering attack');
-              }, 2000);
+          onClick={() => setWireDrawerOpen(true)}
+          className="text-[11px] text-secondary hover:text-primary font-semibold flex items-center gap-1 flex-shrink-0 transition-colors"
+          title="Inspect Wire Telemetry"
+        >
+          <Terminal className="w-3 h-3 text-secondary" />
+          <span>Wire Telemetry</span>
+        </button>
+      </div>
+
+      {/* Voice Error Banner */}
+      {voiceError && (
+        <div className="px-4 py-2.5 bg-[#FEF2F2] border-t border-[#FCA5A5] flex items-start gap-2 flex-shrink-0">
+          <AlertCircle className="w-3.5 h-3.5 text-error flex-shrink-0 mt-0.5" />
+          <span className="text-[11px] text-error font-inter flex-1 leading-snug">{voiceError}</span>
+          <button
+            onClick={dismissError}
+            className="text-error hover:text-[#7f1d1d] transition-colors flex-shrink-0"
+            title="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Voice Status Label — shown while actively in a voice state */}
+      {(voiceState === 'LISTENING' || voiceState === 'PROCESSING' || voiceState === 'SPEAKING') && (
+        <div className="px-4 py-1.5 bg-lavender-tint border-t border-primary-fixed flex items-center justify-between flex-shrink-0">
+          <span className="text-[11px] font-semibold text-primary font-inter animate-pulse">
+            {voiceState === 'LISTENING' && '🎙 Listening…'}
+            {voiceState === 'PROCESSING' && '⚙️ Thinking…'}
+            {voiceState === 'SPEAKING' && '🔊 AgentGuard is speaking…'}
+          </span>
+          {voiceState === 'SPEAKING' && (
+            <button
+              onClick={stopSpeaking}
+              className="text-[11px] text-secondary hover:text-primary font-semibold flex items-center gap-1 transition-colors"
+              title="Stop speaking"
+            >
+              <StopCircle className="w-3.5 h-3.5" />
+              <span>Stop</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Input Bar */}
+      <div className="p-3.5 sm:p-4 bg-white border-t border-surface-container flex items-center gap-2 flex-shrink-0">
+        {/* Mic Button — Phase 5.5C real STT */}
+        {voiceState === 'IDLE' && (
+          isSTTSupported ? (
+            <button
+              onClick={startListening}
+              disabled={isConversationalQuerying}
+              className="p-2.5 text-secondary hover:bg-secondary-fixed/50 rounded-full transition-all flex-shrink-0 disabled:opacity-40"
+              title="Talk to AgentGuard (voice input)"
+            >
+              <Mic className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              disabled
+              className="p-2.5 text-on-surface-variant rounded-full flex-shrink-0 opacity-40 cursor-not-allowed"
+              title="Voice input is not supported in this browser. Use Chrome for voice."
+            >
+              <MicOff className="w-4 h-4" />
+            </button>
+          )
+        )}
+
+        {voiceState === 'LISTENING' && (
+          <button
+            onClick={stopListening}
+            className="p-2.5 text-error bg-[#FEF2F2] hover:bg-[#FEE2E2] rounded-full transition-all flex-shrink-0 animate-pulse"
+            title="Stop listening"
+          >
+            <MicOff className="w-4 h-4" />
+          </button>
+        )}
+
+        {(voiceState === 'PROCESSING' || voiceState === 'SPEAKING') && (
+          <button
+            disabled
+            className="p-2.5 text-primary rounded-full flex-shrink-0 opacity-60 cursor-not-allowed"
+            title={voiceState === 'SPEAKING' ? 'AgentGuard is speaking' : 'Processing…'}
+          >
+            <Activity className="w-4 h-4 animate-spin" />
+          </button>
+        )}
+
+        {voiceState === 'ERROR' && (
+          <button
+            onClick={dismissError}
+            className="p-2.5 text-error hover:bg-[#FEF2F2] rounded-full transition-all flex-shrink-0"
+            title="Voice error — click to dismiss"
+          >
+            <MicOff className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Text Input */}
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputQuery}
+          onChange={(e) => setInputQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(inputQuery);
             }
           }}
-          className={`p-2.5 rounded-full transition-all ${
-            agentVoiceState === 'LISTENING'
-              ? 'bg-secondary text-white shadow-lg animate-pulse'
-              : 'text-secondary hover:bg-secondary-fixed/50'
-          }`}
-          title="Toggle Mic Input"
-        >
-          <Mic className="w-4 h-4" />
-        </button>
-
-        <input
-          type="text"
-          value={chatInput}
-          onChange={(e) => setChatInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendQuery(chatInput)}
-          placeholder="Type or speak instructions..."
-          className="flex-1 bg-surface-container-low text-on-surface text-xs px-4 py-2.5 rounded-full border border-surface-container focus:outline-none focus:border-secondary transition-colors font-inter"
+          disabled={isConversationalQuerying || voiceState === 'LISTENING' || voiceState === 'PROCESSING'}
+          placeholder={
+            voiceState === 'LISTENING'
+              ? 'Listening… speak your question'
+              : voiceState === 'PROCESSING'
+              ? 'Processing your question…'
+              : voiceState === 'SPEAKING'
+              ? 'AgentGuard is speaking…'
+              : 'Ask AgentGuard architecture, threats, or live state…'
+          }
+          className="flex-1 bg-surface-container-low text-on-surface text-xs px-4 py-2.5 rounded-full border border-surface-container focus:outline-none focus:border-secondary transition-colors font-inter disabled:opacity-60"
         />
 
+        {/* Send Button */}
         <button
-          onClick={() => handleSendQuery(chatInput)}
-          disabled={loadingAction || !chatInput.trim()}
-          className="p-2.5 bg-primary hover:bg-secondary disabled:opacity-50 text-white rounded-full transition-all shadow-sm flex items-center justify-center"
+          onClick={() => handleSubmit(inputQuery)}
+          disabled={isConversationalQuerying || !inputQuery.trim() || voiceState === 'LISTENING' || voiceState === 'PROCESSING'}
+          className="p-2.5 bg-primary hover:bg-secondary disabled:opacity-40 text-white rounded-full transition-all shadow-sm flex items-center justify-center flex-shrink-0 active:scale-95"
+          title="Send query"
         >
           <Send className="w-4 h-4" />
         </button>

@@ -249,7 +249,10 @@ export const ForensicLedger: React.FC = () => {
           ) : (
             <>
               {/* Selected Transaction Summary Card */}
-              <div className="bg-surface rounded-2xl border border-surface-container p-5 shadow-sm space-y-3">
+              <div
+                data-agent-target="forensic-latest-transaction"
+                className="bg-surface rounded-2xl border border-surface-container p-5 shadow-sm space-y-3"
+              >
                 <div className="flex flex-wrap items-start justify-between pb-3 border-b border-surface-container gap-2">
                   <div>
                     <div className="flex items-center gap-2 mb-1">

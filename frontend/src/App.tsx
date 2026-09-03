@@ -8,12 +8,16 @@ import { ThreatLabView } from './views/ThreatLabView';
 import { ForensicLedgerView } from './views/ForensicLedgerView';
 import { ConversationalVoiceDrawer } from './features/conversational/ConversationalVoiceDrawer';
 import { DeveloperWireDrawer } from './features/telemetry/DeveloperWireDrawer';
+import { AutonomousDemoProvider } from './features/demo/AutonomousDemoContext';
+import { AgentCursor } from './features/demo/AgentCursor';
+import { DemoControlBar } from './features/demo/DemoControlBar';
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AgentGuardProvider>
-        <div className="min-h-screen flex flex-col font-inter selection:bg-lavender-tint selection:text-primary relative overflow-x-hidden">
+        <AutonomousDemoProvider>
+          <div className="min-h-screen flex flex-col font-inter selection:bg-lavender-tint selection:text-primary relative overflow-x-hidden">
           {/* Global Floating Security Cockpit Navigation */}
           <SecurityCockpitHeader />
 
@@ -57,7 +61,12 @@ export const App: React.FC = () => {
 
           {/* Collapsible Wire Protocol Telemetry Drawer */}
           <DeveloperWireDrawer />
+
+          {/* Autonomous Demo Agent Overlay & Floating Controls */}
+          <AgentCursor />
+          <DemoControlBar />
         </div>
+        </AutonomousDemoProvider>
       </AgentGuardProvider>
     </BrowserRouter>
   );

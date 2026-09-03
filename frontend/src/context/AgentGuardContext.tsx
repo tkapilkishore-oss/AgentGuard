@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   api,
   Mandate,
@@ -7,6 +8,10 @@ import {
   ExecuteResponseData,
   TransactionSummary,
   TransactionAuditData,
+  AssistantResponse,
+  ConversationAction,
+  FollowUpSuggestion,
+  BrainTrace,
 } from '../lib/api';
 
 export interface WireLogEntry {
@@ -32,6 +37,69 @@ export type AgentVoiceState =
   | 'DENIED'
   | 'ERROR'
   | 'INTERRUPTED';
+
+export interface ChatMessageItem {
+  id: string;
+  sender: 'user' | 'agent';
+  text: string;
+  timestamp: string;
+  intent?: string;
+  dialogueAct?: string;
+  liveDataUsed?: boolean;
+  liveReadings?: Record<string, any> | null;
+  evidenceCitations?: Array<Record<string, any>>;
+  suggestedFollowups?: Array<FollowUpSuggestion | string>;
+  progressiveOffer?: string | null;
+  action?: ConversationAction | null;
+  actionStatus?: 'PENDING' | 'EXECUTED' | 'BLOCKED' | 'FAILED';
+  actionDescription?: string;
+  latencyMs?: number;
+  isError?: boolean;
+  isAdversarialRefusal?: boolean;
+  trace?: BrainTrace | null;
+}
+
+const INITIAL_CONVERSATIONAL_MESSAGES: ChatMessageItem[] = [
+  {
+    id: 'msg-welcome-001',
+    sender: 'agent',
+    text: "Hello! I am the AgentGuard Conversational Assistant. Grounded directly in the authoritative B-3 security brain, cryptographic audit ledger, and live database state. How can I assist your security review today?",
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    intent: 'GREETING_OR_META',
+    dialogueAct: 'INFORM',
+    suggestedFollowups: [
+      {
+        label: 'What is AgentGuard?',
+        query: 'What is AgentGuard?',
+        intent_target: 'CONCEPT_EXPLANATION',
+        rationale: 'Learn core architecture and trust boundary.',
+      },
+      {
+        label: 'Check Mandate Budget',
+        query: 'How much budget is left right now?',
+        intent_target: 'LIVE_DATA_QUERY',
+        rationale: 'Inspect live authoritative mandate balance in PostgreSQL.',
+      },
+      {
+        label: 'Price Tampering Attack',
+        query: 'How does AgentGuard prevent price tampering?',
+        intent_target: 'SECURITY_SCENARIO',
+        rationale: 'Understand AST policy checks vs untrusted agent claims.',
+      },
+      {
+        label: 'Cryptographic Audit Ledger',
+        query: 'Show me the cryptographic audit ledger',
+        intent_target: 'FRONTEND_NAVIGATION',
+        rationale: 'Review SHA-256 forward-chained integrity verification.',
+      },
+    ],
+  },
+];
+
+export interface ConversationalInterceptor {
+  onQuery?: (query: string) => Promise<boolean>;
+  onResponse?: (response: AssistantResponse) => AssistantResponse;
+}
 
 interface AgentGuardContextType {
   // Authoritative server state
@@ -59,6 +127,12 @@ interface AgentGuardContextType {
   wireDrawerOpen: boolean;
   loadingAction: boolean;
 
+  // Conversational Assistant State (Phase 5.5B-4)
+  conversationalSessionId: string | null;
+  conversationalMessages: ChatMessageItem[];
+  isConversationalQuerying: boolean;
+  conversationalError: string | null;
+
   // Action Dispatchers
   setActiveSurfaceTab: (tab: SurfaceTab) => void;
   setIsConversationalOpen: (open: boolean) => void;
@@ -78,11 +152,18 @@ interface AgentGuardContextType {
   rejectActiveTransaction: () => Promise<boolean>;
   triggerScenario: (scenarioId: number) => Promise<void>;
   sendAgentChatMessage: (prompt: string) => Promise<{ thought: string; claim: any; result: any } | null>;
+  // Real B-3 Conversational Operations
+  sendConversationalQuery: (query: string) => Promise<AssistantResponse | null>;
+  resetConversationalSession: () => Promise<void>;
+  registerConversationalInterceptor?: (interceptor: ConversationalInterceptor) => () => void;
+  appendAgentMessage?: (text: string) => void;
 }
 
 const AgentGuardContext = createContext<AgentGuardContextType | undefined>(undefined);
 
 export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const navigate = useNavigate();
+
   const [mandate, setMandate] = useState<Mandate | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [transactions, setTransactions] = useState<TransactionSummary[]>([]);
@@ -104,6 +185,36 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
   const [agentVoiceState, setAgentVoiceState] = useState<AgentVoiceState>('IDLE');
   const [wireDrawerOpen, setWireDrawerOpen] = useState<boolean>(false);
   const [loadingAction, setLoadingAction] = useState<boolean>(false);
+
+  // Conversational State & Race Safety
+  const [conversationalSessionId, setConversationalSessionId] = useState<string | null>(null);
+  const [conversationalMessages, setConversationalMessages] = useState<ChatMessageItem[]>(INITIAL_CONVERSATIONAL_MESSAGES);
+  const [isConversationalQuerying, setIsConversationalQuerying] = useState<boolean>(false);
+  const [conversationalError, setConversationalError] = useState<string | null>(null);
+
+  const inFlightAbortControllerRef = useRef<AbortController | null>(null);
+  const latestRequestIdRef = useRef<number>(0);
+  const interceptorRef = useRef<ConversationalInterceptor | null>(null);
+
+  const registerConversationalInterceptor = useCallback((interceptor: ConversationalInterceptor) => {
+    interceptorRef.current = interceptor;
+    return () => {
+      if (interceptorRef.current === interceptor) {
+        interceptorRef.current = null;
+      }
+    };
+  }, []);
+
+  const appendAgentMessage = useCallback((text: string) => {
+    const msgId = `agt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const agentMsg: ChatMessageItem = {
+      id: msgId,
+      sender: 'agent',
+      text,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setConversationalMessages((prev) => [...prev, agentMsg]);
+  }, []);
 
   const logWire = (
     endpoint: string,
@@ -489,6 +600,280 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   };
 
+  const sendConversationalQuery = async (queryText: string): Promise<AssistantResponse | null> => {
+    const trimmed = queryText.trim();
+    if (!trimmed || isConversationalQuerying) return null;
+
+    // Interceptor check (e.g. stopped Q&A continuation flow)
+    if (interceptorRef.current?.onQuery) {
+      const handled = await interceptorRef.current.onQuery(trimmed);
+      if (handled) {
+        const userMsgId = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+        const userMsg: ChatMessageItem = {
+          id: userMsgId,
+          sender: 'user',
+          text: trimmed,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setConversationalMessages((prev) => [...prev, userMsg]);
+        return null;
+      }
+    }
+
+    // 1. Race Safety: Invalidate any existing in-flight request
+    if (inFlightAbortControllerRef.current) {
+      inFlightAbortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    inFlightAbortControllerRef.current = abortController;
+
+    const currentRequestId = ++latestRequestIdRef.current;
+    setIsConversationalQuerying(true);
+    setConversationalError(null);
+    setAgentVoiceState('THINKING');
+
+    const userMsgId = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const userMsg: ChatMessageItem = {
+      id: userMsgId,
+      sender: 'user',
+      text: trimmed,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setConversationalMessages((prev) => [...prev, userMsg]);
+    const startTime = performance.now();
+
+    try {
+      const { status, envelope } = await api.conversationalQuery(
+        {
+          query: trimmed,
+          session_id: conversationalSessionId || undefined,
+          user_id: 'user-001',
+        },
+        abortController.signal
+      );
+
+      // Invalidate if superseded by a newer request
+      if (latestRequestIdRef.current !== currentRequestId) {
+        return null;
+      }
+
+      const durationMs = Math.round(performance.now() - startTime);
+
+      logWire(
+        'POST /conversational/query',
+        'POST',
+        status,
+        envelope,
+        { query: trimmed, session_id: conversationalSessionId },
+        durationMs
+      );
+
+      if (envelope.success && envelope.data) {
+        let resp = envelope.data;
+        if (interceptorRef.current?.onResponse) {
+          resp = interceptorRef.current.onResponse(resp);
+        }
+        setConversationalSessionId(resp.session_id);
+
+        const isRefusal =
+          resp.intent === 'ADVERSARIAL_INJECTION' || resp.dialogue_act === 'REFUSE_ADVERSARIAL';
+
+        let actionStatus: 'PENDING' | 'EXECUTED' | 'BLOCKED' | 'FAILED' | undefined = undefined;
+        let actionDescription: string | undefined = undefined;
+
+        // 2. Action Safety Classification & Preparation
+        if (resp.action) {
+          const act = resp.action;
+          if (act.action_type === 'NAVIGATE_TAB') {
+            const target = (act.ui_tab_target || '').toUpperCase();
+            if (target === 'DEFENSE' || target === 'LIVE') {
+              actionStatus = 'EXECUTED';
+              actionDescription = 'Navigating to Live Protection';
+            } else if (target === 'THREAT' || target === 'THREAT_LAB') {
+              actionStatus = 'EXECUTED';
+              actionDescription = 'Navigating to Threat Lab';
+            } else if (target === 'FORENSICS' || target === 'AUDIT') {
+              actionStatus = 'EXECUTED';
+              actionDescription = 'Navigating to Forensic Ledger';
+            } else if (target === 'COCKPIT' || target === 'HOME') {
+              actionStatus = 'EXECUTED';
+              actionDescription = 'Navigating to Home Cockpit';
+            } else if (target === 'TELEMETRY') {
+              actionStatus = 'EXECUTED';
+              actionDescription = 'Opening Wire Telemetry';
+            } else {
+              actionStatus = 'BLOCKED';
+              actionDescription = 'Unknown navigation target safely blocked';
+            }
+          } else if (act.action_type === 'TRIGGER_SCENARIO') {
+            actionStatus = 'EXECUTED';
+            actionDescription = `Navigating to Threat Lab for ${act.payload?.scenario_name || 'Scenario'}`;
+          } else if (act.action_type === 'INSPECT_TRANSACTION') {
+            actionStatus = 'EXECUTED';
+            actionDescription = `Inspecting Transaction ${act.payload?.transaction_id || ''}`;
+          } else if (act.action_type === 'HIGHLIGHT_CODE') {
+            actionStatus = 'EXECUTED';
+            actionDescription = `Referenced ${act.payload?.file || 'source code'}`;
+          } else {
+            actionStatus = 'BLOCKED';
+            actionDescription = 'Action blocked by safety policy';
+          }
+        }
+
+        const agentMsgId = `agt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+        const agentMsg: ChatMessageItem = {
+          id: agentMsgId,
+          sender: 'agent',
+          text: resp.message,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          intent: resp.intent,
+          dialogueAct: resp.dialogue_act,
+          liveDataUsed: resp.live_data_used,
+          liveReadings: resp.live_readings,
+          evidenceCitations: resp.evidence_citations,
+          suggestedFollowups: resp.suggested_followups,
+          progressiveOffer: resp.progressive_disclosure_offer,
+          action: resp.action,
+          actionStatus,
+          actionDescription,
+          latencyMs: durationMs,
+          isAdversarialRefusal: isRefusal,
+          trace: resp.trace,
+        };
+
+        // 3. Render Assistant Response first (No UI jumping)
+        setConversationalMessages((prev) => [...prev, agentMsg]);
+
+        // 4. State Machine Transition
+        if (isRefusal) {
+          setAgentVoiceState('DENIED');
+        } else if (actionStatus === 'EXECUTED') {
+          setAgentVoiceState('SUCCESS');
+        } else {
+          setAgentVoiceState('SPEAKING');
+        }
+
+        setTimeout(() => {
+          setAgentVoiceState('IDLE');
+        }, 1500);
+
+        // 5. Intentional Visual Breathing Pause before UI Navigation (~700ms)
+        // Skip for PROJECT_WALKTHROUGH as AutonomousDemoContext coordinates navigation and demo steps
+        if (resp.action && actionStatus === 'EXECUTED' && resp.intent !== 'PROJECT_WALKTHROUGH') {
+          const act = resp.action;
+          setTimeout(() => {
+            // Ensure request has not been superseded by a newer query
+            if (latestRequestIdRef.current !== currentRequestId) return;
+
+            if (act.action_type === 'NAVIGATE_TAB') {
+              const target = (act.ui_tab_target || '').toUpperCase();
+              if (target === 'DEFENSE' || target === 'LIVE') {
+                navigate('/live');
+              } else if (target === 'THREAT' || target === 'THREAT_LAB') {
+                navigate('/threats');
+              } else if (target === 'FORENSICS' || target === 'AUDIT') {
+                navigate('/forensics');
+              } else if (target === 'COCKPIT' || target === 'HOME') {
+                navigate('/');
+              } else if (target === 'TELEMETRY') {
+                setWireDrawerOpen(true);
+              }
+            } else if (act.action_type === 'TRIGGER_SCENARIO') {
+              navigate('/threats');
+            } else if (act.action_type === 'INSPECT_TRANSACTION') {
+              const txnId = act.payload?.transaction_id;
+              if (txnId) {
+                setSelectedTxnId(txnId);
+                fetchAuditData(txnId);
+                navigate('/forensics');
+              }
+            }
+          }, 700);
+        }
+
+        if (resp.intent === 'PROJECT_WALKTHROUGH') {
+          return {
+            ...resp,
+            message: '', // Autonomous demo orchestrator coordinates spoken narration
+          };
+        }
+
+        return resp;
+      } else {
+        const errMsg = envelope.error?.message || 'Failed to process conversational query.';
+        setConversationalError(errMsg);
+        setAgentVoiceState('ERROR');
+
+        const errorMsg: ChatMessageItem = {
+          id: `err-${Date.now()}`,
+          sender: 'agent',
+          text: `Error: ${errMsg}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isError: true,
+        };
+        setConversationalMessages((prev) => [...prev, errorMsg]);
+
+        setTimeout(() => {
+          setAgentVoiceState('IDLE');
+        }, 2000);
+
+        return null;
+      }
+    } catch (err: any) {
+      if (err?.name === 'AbortError' || abortController.signal.aborted) {
+        return null;
+      }
+      const errText = err instanceof Error ? err.message : 'Network error communicating with backend';
+      setConversationalError(errText);
+      setAgentVoiceState('ERROR');
+
+      const errorMsg: ChatMessageItem = {
+        id: `err-${Date.now()}`,
+        sender: 'agent',
+        text: `Connection Error: ${errText}. Please ensure the AgentGuard backend server is running.`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isError: true,
+      };
+      setConversationalMessages((prev) => [...prev, errorMsg]);
+
+      setTimeout(() => {
+        setAgentVoiceState('IDLE');
+      }, 2000);
+
+      return null;
+    } finally {
+      if (latestRequestIdRef.current === currentRequestId) {
+        setIsConversationalQuerying(false);
+        inFlightAbortControllerRef.current = null;
+      }
+    }
+  };
+
+  const resetConversationalSession = async () => {
+    // Abort in-flight request
+    if (inFlightAbortControllerRef.current) {
+      inFlightAbortControllerRef.current.abort();
+      inFlightAbortControllerRef.current = null;
+    }
+    setIsConversationalQuerying(false);
+    setConversationalError(null);
+
+    const sessionIdToReset = conversationalSessionId;
+    setConversationalSessionId(null);
+    setConversationalMessages(INITIAL_CONVERSATIONAL_MESSAGES);
+    setAgentVoiceState('IDLE');
+
+    // Only send DELETE if an active backend session actually exists
+    if (sessionIdToReset) {
+      try {
+        await api.resetConversationalSession(sessionIdToReset);
+      } catch (err) {
+        console.warn('Session reset error on backend (silently recovered):', err);
+      }
+    }
+  };
+
   return (
     <AgentGuardContext.Provider
       value={{
@@ -507,6 +892,10 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
         agentVoiceState,
         wireDrawerOpen,
         loadingAction,
+        conversationalSessionId,
+        conversationalMessages,
+        isConversationalQuerying,
+        conversationalError,
         setActiveSurfaceTab,
         setIsConversationalOpen,
         setAgentVoiceState,
@@ -523,6 +912,10 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
         rejectActiveTransaction,
         triggerScenario,
         sendAgentChatMessage,
+        sendConversationalQuery,
+        resetConversationalSession,
+        registerConversationalInterceptor,
+        appendAgentMessage,
       }}
     >
       {children}

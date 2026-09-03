@@ -16,9 +16,13 @@ Verifies end-to-end Phase 5 Audit Trail & Transaction History capabilities:
 12. Zero secret credentials leaked.
 """
 
+import os
 import sys
 import uuid
 from decimal import Decimal
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from fastapi.testclient import TestClient
 
@@ -27,7 +31,7 @@ from backend.app.main import app
 from backend.app.models import AuditChainState, AuditEvent, Transaction
 from backend.app.services.audit_log import verify_audit_chain
 from backend.app.services.payment_gateway import payment_gateway
-from scripts.seed_db import seed_database
+from scripts.seed_db import seed_database, seed_demo_state
 
 
 def run_phase5_verification() -> bool:
@@ -221,6 +225,7 @@ def run_phase5_verification() -> bool:
         return True
 
     finally:
+        seed_demo_state(db, reset=True)
         db.close()
 
 

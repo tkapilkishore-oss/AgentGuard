@@ -128,6 +128,13 @@ export const ThreatSimulationLab: React.FC = () => {
                 return (
                   <button
                     key={sc.id}
+                    data-agent-target={
+                      sc.id === 3
+                        ? 'threat-price-tampering'
+                        : sc.id === 1
+                        ? 'threat-happy-path'
+                        : undefined
+                    }
                     onClick={() => handleRunScenario(sc.id)}
                     disabled={loadingAction}
                     className={`w-full text-left rounded-xl p-4 transition-all duration-300 flex items-center gap-3.5 border ${
@@ -262,7 +269,10 @@ export const ThreatSimulationLab: React.FC = () => {
             </div>
 
             {/* Verdict Callout Banner */}
-            <div className="glass-panel px-6 py-4 rounded-2xl border border-surface-container shadow-ambient-2 flex flex-col items-center gap-2 max-w-md w-full text-center">
+            <div
+              data-agent-target="decision-result"
+              className="glass-panel px-6 py-4 rounded-2xl border border-surface-container shadow-ambient-2 flex flex-col items-center gap-2 max-w-md w-full text-center"
+            >
               <div className="flex items-center gap-2">
                 {activeTransaction?.decision === 'ALLOW' ? (
                   <>

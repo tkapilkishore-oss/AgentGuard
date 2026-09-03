@@ -229,3 +229,36 @@ def test_b10_transaction_rollback_safety(db: Session):
     # Verify database remains completely clean after rollback
     assert db.query(User).count() == 0
     assert db.query(Mandate).count() == 0
+
+    # Restore standard clean seed baseline for operational environment
+    seed_database(db, reset=True)
+
+
+def test_b11_demo_state_seed(db: Session):
+    """B11: Verify seed_demo_state creates valid demo transactions and SHA-256 audit chain."""
+    from backend.app.services.audit_log import verify_audit_chain
+    from scripts.seed_db import seed_demo_state
+
+    seed_demo_state(db, reset=True)
+
+    # Core entities
+    assert db.query(User).count() == 1
+    assert db.query(Merchant).count() == 2
+    assert db.query(Product).count() == 3
+
+    # Mandate is active with ready ₹3,000 budget
+    mand = db.query(Mandate).filter_by(id="mandate-001").first()
+    assert mand is not None
+    assert mand.status == "active"
+    assert mand.budget_remaining == Decimal("3000.00")
+    assert mand.budget_total == Decimal("3000.00")
+
+    # Demo transactions & audit trail
+    assert db.query(Transaction).count() == 3
+    assert db.query(Approval).count() == 1
+    assert db.query(AuditEvent).count() == 11
+
+    # Cryptographic SHA-256 chain verification
+    is_valid, err = verify_audit_chain(db)
+    assert is_valid is True
+    assert err is None

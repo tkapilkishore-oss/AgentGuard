@@ -73,7 +73,10 @@ export const SecurityCockpitHeader: React.FC = () => {
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           {/* Authoritative Mandate Budget Status */}
           {mandate && (
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-surface-container-low rounded-full border border-surface-container text-xs font-inter flex-shrink-0">
+            <div
+              data-agent-target="cockpit-budget"
+              className="hidden sm:flex items-center gap-2 px-3 py-1 bg-surface-container-low rounded-full border border-surface-container text-xs font-inter flex-shrink-0"
+            >
               <span className="text-on-surface-variant text-[11px] font-medium">Budget:</span>
               <span className="font-bold text-verified font-mono">
                 ₹{budgetRemaining.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}

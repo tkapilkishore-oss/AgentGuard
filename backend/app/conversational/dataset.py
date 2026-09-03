@@ -350,7 +350,7 @@ BENCHMARK_CONVERSATIONS: list[EvaluationConversation] = [
             EvaluationTurn(
                 turn_id=1,
                 user_query="What is the weather in Mumbai?",
-                expected_intent=UserIntentCategory.CONCEPT_EXPLANATION,
+                expected_intent=UserIntentCategory.OUT_OF_SCOPE,
                 expected_is_live=False,
                 expected_response_keywords=["weather", "firewall", "specialized"],
             ),

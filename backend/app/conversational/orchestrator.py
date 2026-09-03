@@ -67,7 +67,7 @@ class ConversationalBrain:
         is_safe, violation_code = self.guardrails.validate_request(query)
         if not is_safe:
             refusal_response = self.guardrails.generate_adversarial_refusal(
-                current_session_id, turn_id, violation_code
+                current_session_id, turn_id, violation_code, query=query
             )
             self.dialogue_manager.record_turn(
                 session_id=current_session_id,
@@ -85,7 +85,7 @@ class ConversationalBrain:
         # Handle adversarial detected during intent resolution
         if plan.is_adversarial:
             refusal_response = self.guardrails.generate_adversarial_refusal(
-                current_session_id, turn_id, "DIRECT_AUTHORIZATION_ATTEMPT"
+                current_session_id, turn_id, "DIRECT_AUTHORIZATION_ATTEMPT", query=query
             )
             self.dialogue_manager.record_turn(
                 session_id=current_session_id,
@@ -104,9 +104,36 @@ class ConversationalBrain:
         if plan.needs_live_tool and plan.live_tool_request:
             t0 = time.perf_counter()
             live_res = self.live_bridge.execute_live_tool(plan.live_tool_request, db=db)
+            if plan.compound_query and live_res.success:
+                lower_q = plan.resolved_query.lower()
+                local_db = db or SessionLocal()
+                try:
+                    if "budget" in lower_q or "mandate" in lower_q:
+                        mand_data = self.live_bridge._query_mandate_budget(plan.live_tool_request.parameters, db=local_db)
+                        live_res.data.update(mand_data)
+                    if "price" in lower_q or "product" in lower_q or "catalog" in lower_q:
+                        cat_data = self.live_bridge._query_product_catalog(plan.live_tool_request.parameters, db=local_db)
+                        live_res.data.update(cat_data)
+                    if "merchant" in lower_q:
+                        merch_data = self.live_bridge._query_merchant_catalog(plan.live_tool_request.parameters, db=local_db)
+                        live_res.data.update(merch_data)
+                    if "transaction" in lower_q or "ledger" in lower_q:
+                        txn_data = self.live_bridge._query_transaction_status(plan.live_tool_request.parameters, db=local_db)
+                        live_res.data.update(txn_data)
+                finally:
+                    if db is None:
+                        local_db.close()
             t_live = (time.perf_counter() - t0) * 1000.0
             evidence = self.live_bridge.create_evidence_context(live_res)
             live_tool_type_used = plan.live_tool_request.tool_type
+            if plan.needs_static_retrieval:
+                t0_stat = time.perf_counter()
+                static_ev = self.retrieval_bridge.retrieve_evidence(plan.resolved_query)
+                t_retrieval = (time.perf_counter() - t0_stat) * 1000.0
+                if static_ev and static_ev.static_evidence:
+                    evidence.static_evidence = static_ev.static_evidence
+                    evidence.provenance_unit_ids.extend(static_ev.provenance_unit_ids)
+                    evidence.authorities.extend(static_ev.authorities)
         elif plan.needs_static_retrieval:
             t0 = time.perf_counter()
             evidence = self.retrieval_bridge.retrieve_evidence(plan.resolved_query)
@@ -137,6 +164,9 @@ class ConversationalBrain:
             raw_query=query,
             resolved_query=plan.resolved_query,
             intent=plan.intent,
+            purpose=plan.purpose.value if plan.purpose else None,
+            strategy=plan.strategy.value if plan.strategy else None,
+            canonical_topic=plan.canonical_topic.value if plan.canonical_topic else None,
             is_dynamic_live=evidence.is_live,
             live_tool_type=live_tool_type_used,
             retrieved_unit_ids=evidence.provenance_unit_ids,
@@ -158,6 +188,9 @@ class ConversationalBrain:
             assistant_response=response.message,
             intent=response.intent,
             dialogue_act=response.dialogue_act,
+            purpose=plan.purpose,
+            strategy=plan.strategy,
+            canonical_topic=plan.canonical_topic,
             resolved_entities={"mandate_id": "mandate-001"},
             retrieved_evidence_ids=evidence.provenance_unit_ids,
             live_tool_called=live_tool_type_used,

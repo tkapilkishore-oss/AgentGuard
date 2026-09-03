@@ -17,3 +17,5 @@ frontend/dist/
 
 # Private project skills file
 SKILLS.md
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json

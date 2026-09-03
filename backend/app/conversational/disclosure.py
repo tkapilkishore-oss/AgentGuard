@@ -3,37 +3,44 @@
 from backend.app.conversational.models import (
     ConversationAction,
     ConversationSession,
+    ConversationalPurpose,
     FollowUpSuggestion,
     ProgressiveDisclosureOffer,
     ResponsePlan,
+    ResponseStrategy,
     UserIntentCategory,
 )
 
 
 class ProgressiveDisclosureEngine:
-    """Generates contextual, non-formulaic progressive disclosure offers and follow-up suggestions."""
+    """Generates contextual, purpose-driven progressive disclosure offers and follow-up suggestions
+
+    without formulaic sentence repetition.
+    """
 
     def evaluate_disclosure(
         self, plan: ResponsePlan, session: ConversationSession | None
     ) -> tuple[ProgressiveDisclosureOffer | None, list[FollowUpSuggestion]]:
         """Evaluates whether a progressive disclosure offer is appropriate and crafts tailored follow-up suggestions."""
-        # Suppress offers for adversarial, greeting, out-of-scope, or direct follow-up acceptance
+        # 1. Suppress offers for adversarial, greeting, out-of-scope, or direct follow-up acceptance
         if plan.intent in (
             UserIntentCategory.ADVERSARIAL_INJECTION,
             UserIntentCategory.GREETING_OR_META,
             UserIntentCategory.OUT_OF_SCOPE,
+        ) or plan.purpose in (
+            ConversationalPurpose.ADVERSARIAL,
+            ConversationalPurpose.OUT_OF_SCOPE,
         ):
             return None, []
 
         if plan.progressive_stage == "FOLLOWUP_ACCEPTED":
-            # If the user just accepted a code or live follow-up, do not immediately chain another offer
             return None, self._generate_related_suggestions(plan)
 
         query_lower = plan.resolved_query.lower()
         offer: ProgressiveDisclosureOffer | None = None
         suggestions: list[FollowUpSuggestion] = []
 
-        # 1. Price Tampering Topic
+        # 2. Topic-Specific Code & Live State Offers
         if "price" in query_lower or "tamper" in query_lower:
             offer = ProgressiveDisclosureOffer(
                 offer_type="CODE_IMPLEMENTATION",
@@ -43,7 +50,7 @@ class ProgressiveDisclosureEngine:
                     action_type="HIGHLIGHT_CODE",
                     payload={"file": "backend/app/policy/engine.py", "symbol": "evaluate_policy"},
                 ),
-                prompt_text="I can also show you where price tampering validation is implemented in the codebase if you'd like.",
+                prompt_text="I can show you where price tampering validation is implemented in the codebase if desired.",
             )
             suggestions = [
                 FollowUpSuggestion(
@@ -66,7 +73,6 @@ class ProgressiveDisclosureEngine:
                 ),
             ]
 
-        # 2. Audit Chain Topic
         elif "audit" in query_lower or "ledger" in query_lower or "hash" in query_lower:
             offer = ProgressiveDisclosureOffer(
                 offer_type="CODE_IMPLEMENTATION",
@@ -76,7 +82,7 @@ class ProgressiveDisclosureEngine:
                     action_type="HIGHLIGHT_CODE",
                     payload={"file": "backend/app/services/audit_log.py", "symbol": "verify_audit_chain"},
                 ),
-                prompt_text="I can also show you how the SHA-256 hash chaining is cryptographically verified in the code if you'd like.",
+                prompt_text="I can show you how the SHA-256 hash chaining is cryptographically verified in the code if desired.",
             )
             suggestions = [
                 FollowUpSuggestion(
@@ -93,7 +99,6 @@ class ProgressiveDisclosureEngine:
                 ),
             ]
 
-        # 3. Replay Protection Topic
         elif "replay" in query_lower or "duplicate" in query_lower:
             offer = ProgressiveDisclosureOffer(
                 offer_type="CODE_IMPLEMENTATION",
@@ -103,7 +108,7 @@ class ProgressiveDisclosureEngine:
                     action_type="HIGHLIGHT_CODE",
                     payload={"file": "backend/app/api/execute.py", "symbol": "execute_transaction"},
                 ),
-                prompt_text="I can also show you where the idempotency lock is verified in the execution endpoint if you'd like.",
+                prompt_text="I can show you where the idempotency lock is verified in the execution endpoint if desired.",
             )
             suggestions = [
                 FollowUpSuggestion(
@@ -120,7 +125,6 @@ class ProgressiveDisclosureEngine:
                 ),
             ]
 
-        # 4. Mandate & Budget Topic
         elif "budget" in query_lower or "mandate" in query_lower:
             offer = ProgressiveDisclosureOffer(
                 offer_type="LIVE_STATE",
@@ -142,18 +146,24 @@ class ProgressiveDisclosureEngine:
                 ),
             ]
 
-        # 5. General Project Architecture
-        elif plan.intent == UserIntentCategory.CONCEPT_EXPLANATION:
+        # 3. Strategy-Tailored Conceptual & Structural Offers
+        elif plan.strategy == ResponseStrategy.INTRODUCE or plan.purpose == ConversationalPurpose.INFORMATION_REQUEST:
             offer = ProgressiveDisclosureOffer(
-                offer_type="DEEP_EXPLANATION",
-                prompt_text="I can also explain the dual-loop verification flow or show you the interactive surfaces if you'd like.",
+                offer_type="OPERATIONAL_FLOW",
+                prompt_text="Want to see what happens when an AI agent proposes a purchase?",
             )
             suggestions = [
                 FollowUpSuggestion(
-                    label="Untrusted LLM Boundary",
-                    query="Why can't Gemini directly spend the money?",
+                    label="Operational Flow",
+                    query="What does AgentGuard actually do in practice?",
                     intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
-                    rationale="Understand zero-trust client boundary.",
+                    rationale="Understand step-by-step transaction interception.",
+                ),
+                FollowUpSuggestion(
+                    label="Why AgentGuard?",
+                    query="Why would anyone actually need this architecture?",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Explore the autonomous AI security gap.",
                 ),
                 FollowUpSuggestion(
                     label="Threat Scenarios",
@@ -162,6 +172,127 @@ class ProgressiveDisclosureEngine:
                     rationale="Review the 4 core security invariants.",
                 ),
             ]
+
+        elif plan.strategy == ResponseStrategy.EXPLAIN_FUNCTION or plan.purpose == ConversationalPurpose.FUNCTIONAL_EXPLANATION:
+            offer = ProgressiveDisclosureOffer(
+                offer_type="CONCRETE_EXAMPLE",
+                prompt_text="Want to see a concrete example such as a price tampering attack?",
+            )
+            suggestions = [
+                FollowUpSuggestion(
+                    label="Real Example",
+                    query="Give me a real example.",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Walk through an adversarial price tampering scenario.",
+                ),
+                FollowUpSuggestion(
+                    label="Gateway Comparison",
+                    query="What's the real advantage over a normal payment gateway?",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Contrast standard gateways with AgentGuard.",
+                ),
+                FollowUpSuggestion(
+                    label="Dual-Loop Mechanism",
+                    query="How does the dual-loop verification flow work?",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Inspect the Loop 1 / Loop 2 boundary.",
+                ),
+            ]
+
+        elif plan.strategy == ResponseStrategy.EXPLAIN_WHY or plan.purpose == ConversationalPurpose.VALUE_PROPOSITION:
+            offer = ProgressiveDisclosureOffer(
+                offer_type="COMPARISON",
+                prompt_text="Want me to compare AgentGuard with a standard payment gateway such as Razorpay?",
+            )
+            suggestions = [
+                FollowUpSuggestion(
+                    label="Gateway Comparison",
+                    query="What's the real advantage over just using a normal payment gateway?",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Understand untrusted client vs standard gateway.",
+                ),
+                FollowUpSuggestion(
+                    label="Concrete Example",
+                    query="Give me a real example.",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="See how price tampering is caught in real-time.",
+                ),
+                FollowUpSuggestion(
+                    label="Threat Lab",
+                    query="Show me the Threat Lab",
+                    intent_target=UserIntentCategory.FRONTEND_NAVIGATION,
+                    rationale="Simulate live attack vectors.",
+                ),
+            ]
+
+        elif plan.strategy == ResponseStrategy.DIFFERENTIATE or plan.purpose == ConversationalPurpose.COMPARISON:
+            offer = ProgressiveDisclosureOffer(
+                offer_type="DUAL_LOOP_FLOW",
+                prompt_text="Want me to walk through the dual-loop verification mechanism?",
+            )
+            suggestions = [
+                FollowUpSuggestion(
+                    label="Dual-Loop Verification",
+                    query="How does the dual-loop verification flow work?",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Understand the two-stage authorization boundary.",
+                ),
+                FollowUpSuggestion(
+                    label="Price Tampering Example",
+                    query="Give me a concrete example of price tampering.",
+                    intent_target=UserIntentCategory.CONCEPT_EXPLANATION,
+                    rationale="Review a concrete attack walkthrough.",
+                ),
+                FollowUpSuggestion(
+                    label="Check Live Budget",
+                    query="How much budget is left right now?",
+                    intent_target=UserIntentCategory.LIVE_DATA_QUERY,
+                    rationale="Fetch active balance from PostgreSQL.",
+                ),
+            ]
+
+        elif plan.strategy == ResponseStrategy.GIVE_EXAMPLE or plan.purpose == ConversationalPurpose.EXAMPLE_REQUEST:
+            offer = ProgressiveDisclosureOffer(
+                offer_type="CODE_IMPLEMENTATION",
+                target_symbol="evaluate_policy",
+                target_file="backend/app/policy/engine.py",
+                target_action=ConversationAction(
+                    action_type="HIGHLIGHT_CODE",
+                    payload={"file": "backend/app/policy/engine.py", "symbol": "evaluate_policy"},
+                ),
+                prompt_text="Want to see where this policy check is implemented in the Python codebase?",
+            )
+            suggestions = [
+                FollowUpSuggestion(
+                    label="View Policy Code",
+                    query="Where is that protection implemented?",
+                    intent_target=UserIntentCategory.CODE_REFERENCE,
+                    rationale="Inspect evaluate_policy() in engine.py.",
+                ),
+                FollowUpSuggestion(
+                    label="Threat Lab Simulation",
+                    query="Show me the price tampering attack in Threat Lab",
+                    intent_target=UserIntentCategory.FRONTEND_NAVIGATION,
+                    rationale="Simulate price tampering in the interactive UI.",
+                ),
+                FollowUpSuggestion(
+                    label="Replay Protection",
+                    query="What about replay attacks?",
+                    intent_target=UserIntentCategory.SECURITY_SCENARIO,
+                    rationale="Explore duplicate execution prevention.",
+                ),
+            ]
+
+        else:
+            suggestions = self._generate_related_suggestions(plan)
+
+        # 4. Suppress duplicate offers already presented in this session
+        if offer and session:
+            if offer.prompt_text in session.offers_already_made:
+                # Do not repeat identical offer text
+                offer = None
+            else:
+                session.offers_already_made.append(offer.prompt_text)
 
         return offer, suggestions
 

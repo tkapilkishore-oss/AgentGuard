@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     TRANSACTION_EXPIRY_SECONDS: int = 300
     PRICE_MISMATCH_TOLERANCE: Decimal = Decimal("0.01")
     GEMINI_API_KEY: str = ""
+    CARTESIA_API_KEY: str = ""
     RAZORPAY_TEST_KEY_ID: str = ""
     RAZORPAY_TEST_KEY_SECRET: str = ""
     RAZORPAY_MOCK_FALLBACK: bool = True

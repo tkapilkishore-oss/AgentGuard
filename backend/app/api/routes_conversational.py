@@ -56,4 +56,10 @@ def reset_session(session_id: str) -> ApiResponse[dict[str, Any]]:
     success = brain.dialogue_manager.reset_session(session_id)
     if not success:
         raise HTTPException(status_code=404, detail="SESSION_NOT_FOUND")
-    return ApiResponse.ok({"session_id": session_id, "status": "RESET_SUCCESSFUL"})
+    session = brain.dialogue_manager.get_session(session_id)
+    return ApiResponse.ok({
+        "session_id": session_id,
+        "status": "reset",
+        "turn_count": session.turn_count if session else 0,
+        "turns": session.turns if session else [],
+    })

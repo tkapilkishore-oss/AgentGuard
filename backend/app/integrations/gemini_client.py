@@ -16,7 +16,7 @@ class GeminiShoppingAgentClient:
     """
 
     def __init__(self, api_key: str | None = None) -> None:
-        self.api_key = api_key or settings.GEMINI_API_KEY
+        self.api_key = api_key if api_key is not None else settings.GEMINI_API_KEY
         self._client = None
         if self.api_key:
             try:

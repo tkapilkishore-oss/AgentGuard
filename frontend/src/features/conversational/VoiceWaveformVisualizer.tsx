@@ -22,21 +22,21 @@ export const VoiceWaveformVisualizer: React.FC<VoiceWaveformVisualizerProps> = (
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-lavender-tint text-[#4C1D95] border border-primary-fixed flex items-center gap-1.5 shadow-sm">
             <Cpu className="w-3.5 h-3.5 text-primary-container animate-spin" />
-            <span>THINKING (INTENT PARSER)</span>
+            <span>THINKING (B-3 BRAIN)</span>
           </span>
         );
       case 'SPEAKING':
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-secondary-fixed text-[#00346e] border border-secondary-container flex items-center gap-1.5 shadow-sm">
             <Volume2 className="w-3.5 h-3.5 text-secondary" />
-            <span>SPEAKING (VOICE SYNTHESIS)</span>
+            <span>GROUNDED RESPONSE</span>
           </span>
         );
       case 'EXECUTING':
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-lavender-tint text-[#4C1D95] border border-primary-fixed flex items-center gap-1.5 shadow-sm">
             <RefreshCw className="w-3.5 h-3.5 text-primary animate-spin" />
-            <span>EXECUTING FIREWALL PROPOSAL</span>
+            <span>EXECUTING UI ACTION</span>
           </span>
         );
       case 'WAITING_FOR_APPROVAL':
@@ -50,29 +50,29 @@ export const VoiceWaveformVisualizer: React.FC<VoiceWaveformVisualizerProps> = (
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-[#F0FDF4] text-verified border border-[#BBF7D0] flex items-center gap-1.5 shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-verified" />
-            <span>ACTION SUCCESS</span>
+            <span>ACTION COMPLETED</span>
           </span>
         );
       case 'DENIED':
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-error-container/50 text-error border border-error-container flex items-center gap-1.5 shadow-sm">
             <ShieldAlert className="w-3.5 h-3.5 text-error" />
-            <span>FIREWALL DENIED</span>
+            <span>GUARDRAIL REFUSAL</span>
           </span>
         );
       case 'ERROR':
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-error-container/50 text-error border border-error-container flex items-center gap-1.5 shadow-sm">
             <AlertCircle className="w-3.5 h-3.5 text-error" />
-            <span>ERROR</span>
+            <span>SERVER ERROR</span>
           </span>
         );
       case 'IDLE':
       default:
         return (
           <span className="px-3 py-1 rounded-full text-[10px] font-label-mono font-bold bg-white text-on-surface-variant border border-surface-container flex items-center gap-1.5 shadow-sm">
-            <Mic className="w-3.5 h-3.5 text-outline" />
-            <span>IDLE (VOICE READY)</span>
+            <Cpu className="w-3.5 h-3.5 text-outline" />
+            <span>IDLE (B-3 READY)</span>
           </span>
         );
     }

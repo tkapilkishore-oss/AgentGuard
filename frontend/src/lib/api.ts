@@ -84,9 +84,113 @@ export interface TransactionAuditData {
   chain_verification_error: string | null;
 }
 
+export interface ConversationAction {
+  action_type: string;
+  payload?: Record<string, any>;
+  ui_tab_target?: string | null;
+  scenario_id?: number | null;
+}
+
+export interface FollowUpSuggestion {
+  label: string;
+  query: string;
+  intent_target: string;
+  rationale: string;
+}
+
+export interface ProgressiveDisclosureOffer {
+  offer_type: string;
+  target_symbol?: string | null;
+  target_file?: string | null;
+  target_action?: ConversationAction | null;
+  prompt_text: string;
+}
+
+export interface BrainTrace {
+  session_id: string;
+  turn_id: number;
+  raw_query: string;
+  resolved_query: string;
+  intent: string;
+  is_dynamic_live: boolean;
+  live_tool_type?: string | null;
+  retrieved_unit_ids: string[];
+  top_authority?: string | null;
+  safety_verdict: string;
+  progressive_action?: string | null;
+  llm_provider: string;
+  latency_total_ms: number;
+  latency_retrieval_ms: number;
+  latency_live_ms: number;
+  latency_llm_ms: number;
+}
+
+export interface AssistantResponse {
+  session_id: string;
+  turn_id: number;
+  message: string;
+  intent: string;
+  dialogue_act: string;
+  evidence_citations: Array<Record<string, any>>;
+  live_data_used: boolean;
+  live_readings: Record<string, any> | null;
+  progressive_disclosure_offer: string | null;
+  suggested_followups: Array<FollowUpSuggestion | string>;
+  structured_followups?: FollowUpSuggestion[];
+  action: ConversationAction | null;
+  trace: BrainTrace | null;
+}
+
+export interface ConversationTurn {
+  turn_id: number;
+  timestamp: string;
+  user_query: string;
+  assistant_response: string;
+  intent: string;
+  dialogue_act: string;
+  resolved_entities: Record<string, string>;
+  retrieved_evidence_ids: string[];
+  live_tool_called?: string | null;
+  action_triggered?: ConversationAction | null;
+  progressive_offer?: ProgressiveDisclosureOffer | null;
+  latency_ms: number;
+}
+
+export interface TopicContext {
+  topic_name: string;
+  parent_topic?: string | null;
+  depth: number;
+  started_at: string;
+  last_active_turn: number;
+  key_symbols: string[];
+  key_entities: Record<string, string>;
+}
+
+export interface ConversationSession {
+  session_id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  history: ConversationTurn[];
+  active_topic: TopicContext | null;
+  topic_history: TopicContext[];
+  active_entities: Record<string, string>;
+  pending_progressive_offer: ProgressiveDisclosureOffer | null;
+  metadata: Record<string, any>;
+}
+
+export interface ConversationalQueryRequest {
+  query: string;
+  session_id?: string | null;
+  user_id?: string;
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-async function fetchEnvelope<T>(url: string, options?: RequestInit): Promise<{ status: number; envelope: ApiResponse<T> }> {
+async function fetchEnvelope<T>(
+  url: string,
+  options?: RequestInit
+): Promise<{ status: number; envelope: ApiResponse<T> }> {
   try {
     const res = await fetch(`${API_BASE_URL}${url}`, {
       headers: {
@@ -98,7 +202,20 @@ async function fetchEnvelope<T>(url: string, options?: RequestInit): Promise<{ s
 
     const envelope: ApiResponse<T> = await res.json();
     return { status: res.status, envelope };
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.name === 'AbortError') {
+      return {
+        status: 499,
+        envelope: {
+          success: false,
+          data: null,
+          error: {
+            code: 'REQUEST_ABORTED',
+            message: 'Request was cancelled by user action.',
+          },
+        },
+      };
+    }
     return {
       status: 500,
       envelope: {
@@ -194,5 +311,83 @@ export const api = {
 
   async getTransactionAudit(transactionId: string): Promise<{ status: number; envelope: ApiResponse<TransactionAuditData> }> {
     return fetchEnvelope<TransactionAuditData>(`/transaction/${transactionId}/audit`);
+  },
+
+  // Phase 5.5B-3/B-4 Conversational Brain endpoints
+  async conversationalQuery(
+    payload: ConversationalQueryRequest,
+    signal?: AbortSignal
+  ): Promise<{ status: number; envelope: ApiResponse<AssistantResponse> }> {
+    return fetchEnvelope<AssistantResponse>('/conversational/query', {
+      method: 'POST',
+      body: JSON.stringify({
+        query: payload.query,
+        session_id: payload.session_id || null,
+        user_id: payload.user_id || 'user-001',
+      }),
+      signal,
+    });
+  },
+
+  async getConversationalSession(
+    sessionId: string,
+    signal?: AbortSignal
+  ): Promise<{ status: number; envelope: ApiResponse<ConversationSession> }> {
+    return fetchEnvelope<ConversationSession>(`/conversational/session/${encodeURIComponent(sessionId)}`, {
+      method: 'GET',
+      signal,
+    });
+  },
+
+  async resetConversationalSession(
+    sessionId: string,
+    signal?: AbortSignal
+  ): Promise<{ status: number; envelope: ApiResponse<{ session_id: string; status: string }> }> {
+    return fetchEnvelope<{ session_id: string; status: string }>(
+      `/conversational/session/${encodeURIComponent(sessionId)}`,
+      {
+        method: 'DELETE',
+        signal,
+      }
+    );
+  },
+
+  async synthesizeSpeech(
+    text: string,
+    signal?: AbortSignal
+  ): Promise<{ status: number; blob: Blob | null; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/tts/synthesize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+        signal,
+      });
+
+      if (!res.ok) {
+        let errMessage = 'Failed to synthesize speech';
+        try {
+          const errJson = await res.json();
+          errMessage = errJson?.error?.message || errJson?.detail?.message || errMessage;
+        } catch {
+          // fallback
+        }
+        return { status: res.status, blob: null, error: errMessage };
+      }
+
+      const blob = await res.blob();
+      return { status: res.status, blob };
+    } catch (err: any) {
+      if (err?.name === 'AbortError') {
+        return { status: 499, blob: null, error: 'Request was cancelled' };
+      }
+      return {
+        status: 500,
+        blob: null,
+        error: err instanceof Error ? err.message : 'Network error during speech synthesis',
+      };
+    }
   },
 };

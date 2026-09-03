@@ -1,5 +1,75 @@
 [
   {
+    "content_sha256": "371f2c2bc9c0663f3ad54b98cb1504bee252a096669d929b9967c26bd87a7220",
+    "docstring": "Tests basic informational query endpoint.",
+    "id": "test_test_conversational_integration_test_basic_conversational_query_371f2c2b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_basic_conversational_query"
+  },
+  {
+    "content_sha256": "4125e94e64a6d7cf04004122e3568ea147f3c4311a8eba916eabb7cdba9bea36",
+    "docstring": "Tests multi-turn conversation preserving session state across turns.",
+    "id": "test_test_conversational_integration_test_multi_turn_coreference_session_4125e94e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_multi_turn_coreference_session"
+  },
+  {
+    "content_sha256": "7c53962b9826e1719aadecd962e5adbdd455d0c53a9792b15abf0fbaab2ecfba",
+    "docstring": "Tests live authoritative database query for mandate budget and product catalog.",
+    "id": "test_test_conversational_integration_test_live_data_query_authoritative_readings_7c53962b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_live_data_query_authoritative_readings"
+  },
+  {
+    "content_sha256": "d1589e6f1b808b5e6600fb478c9f61a62cd1d2f86a8ee3f60e7b5b940505c345",
+    "docstring": "Tests that navigation inquiries return strongly-typed UI actions.",
+    "id": "test_test_conversational_integration_test_safe_navigation_actions_d1589e6f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_safe_navigation_actions"
+  },
+  {
+    "content_sha256": "3e00903cef14d8b2dbb3b9d7053eb6db4624403ae7aa3c5b4977a52fd7c77e4c",
+    "docstring": "Tests progressive disclosure offer and acceptance.",
+    "id": "test_test_conversational_integration_test_progressive_disclosure_flow_3e00903c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_progressive_disclosure_flow"
+  },
+  {
+    "content_sha256": "3f27aa839022454ebf845bf64d801b0a00cbd3f598638e02b8bb883b34c3a67d",
+    "docstring": "Verifies that all financial execution requests and injection attempts are strictly refused.",
+    "id": "test_test_conversational_integration_test_safety_guardrails_refusal_3f27aa83",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_safety_guardrails_refusal"
+  },
+  {
+    "content_sha256": "7ad1aa97a4e6db36f53c4b7f4107aa791d39f2891df1a730822c6919775b8100",
+    "docstring": "Tests GET /conversational/session/{id} and DELETE /conversational/session/{id} endpoints.",
+    "id": "test_test_conversational_integration_test_session_inspection_and_reset_7ad1aa97",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "integration_e2e",
+    "test_file": "backend/tests/integration/test_conversational_integration.py",
+    "test_function": "test_session_inspection_and_reset"
+  },
+  {
     "content_sha256": "637f586dbaa0e4b3991cc31223a4afbb41c575733e7453c443e1854ddc0c48e1",
     "docstring": "I1: Propose ALLOW -> Execute SUCCESS -> Verify budget, DB, idempotency & audit chain.",
     "id": "test_test_phase2_integrated_test_i1_happy_path_end_to_end_637f586d",
@@ -557,8 +627,8 @@
     "id": "test_test_audit_log_test_multiple_sequential_events_and_verification_a0c5f720",
     "invariants_proven": [],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -573,8 +643,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -589,8 +659,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -605,8 +675,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -693,8 +763,8 @@
     "id": "test_test_audit_log_test_audit_seq_id_deterministic_ordering_3541dfd3",
     "invariants_proven": [],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -706,8 +776,8 @@
     "id": "test_test_audit_log_test_audit_same_timestamp_events_verify_successfully_9b1affe6",
     "invariants_proven": [],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -724,9 +794,9 @@
     "test_function": "test_conversational_query_endpoint"
   },
   {
-    "content_sha256": "c20de632cb77481757d257a737ee0037a4686ff408cc99b5743a1207db0d15ae",
+    "content_sha256": "4b1c2e0ea304fbb4a3a6dd04ac2aee76b99bdcfd5e9803675d4b188be420dd97",
     "docstring": "Verify GET /conversational/session/{id} and DELETE /conversational/session/{id}.",
-    "id": "test_test_conversational_api_test_conversational_session_inspection_and_reset_c20de632",
+    "id": "test_test_conversational_api_test_conversational_session_inspection_and_reset_4b1c2e0e",
     "invariants_proven": [],
     "target_symbols": [],
     "test_category": "unit_policy",
@@ -772,6 +842,78 @@
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_conversational_contracts.py",
     "test_function": "test_assistant_response_contract_serialization"
+  },
+  {
+    "content_sha256": "5f2498a1817124b31cf0f94b93676224e9f024dcf97f2355a9b87dcf93eddeaa",
+    "docstring": "Verifies that audit chain inquiries return correct explanation and trigger\nthe Forensic Ledger navigation action without modifying backend semantics.",
+    "id": "test_test_conversational_intelligence_test_group_a_forensic_action_and_citations_5f2498a1",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_a_forensic_action_and_citations"
+  },
+  {
+    "content_sha256": "92fc6e41615bc2ad9767c63b24ab83b9948c011686544fee9a2792c24038f297",
+    "docstring": "Verifies that asking 'How does that protection work?' immediately after\nexplaining replay attacks resolves to the replay protection mechanism (idempotency keys)\nrather than a generic AgentGuard overview.",
+    "id": "test_test_conversational_intelligence_test_group_b_replay_contextual_followup_92fc6e41",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_b_replay_contextual_followup"
+  },
+  {
+    "content_sha256": "a7d5ad4813f38c683262fe9aaa7b7ce3cf29713ffcb426f06b42d33a9fbd53dc",
+    "docstring": "Verifies that 4 paraphrased/repeated definition queries across a continuous session:\n1. 'What is AgentGuard?'\n2. 'So basically, what exactly is this thing?'\n3. 'If you had to explain AgentGuard to someone who has never heard of it, what would you say?'\n4. 'Give me the one-minute explanation of what AgentGuard is.'\n\nSatisfy all Issue #8 criteria:\nA. Same semantic purpose (INFORMATION_REQUEST / INTRODUCE)\nB. No exact duplicate responses (0.0% exact duplicates)\nC. Varied explanatory angles (Identity -> Mental Model -> Layman Safety Layer -> Elevator Pitch)\nD. Grounding remains valid (authorized merchants, catalog prices, spending limits, zero-trust)\nE. No strategy drift (none convert to VALUE_PROPOSITION, COMPARISON, or FUNCTION)",
+    "id": "test_test_conversational_intelligence_test_group_c_definition_intent_stability_and_variation_a7d5ad48",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_c_definition_intent_stability_and_variation"
+  },
+  {
+    "content_sha256": "20341bc8e16d445827290a2b638801e5b58994b9aff97a4b955968ca328a060c",
+    "docstring": "Verifies that definition questions resolve to INTRODUCE and functional/role\nquestions resolve to EXPLAIN_FUNCTION with distinct, non-identical answers.",
+    "id": "test_test_conversational_intelligence_test_group_d_definition_vs_function_20341bc8",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_d_definition_vs_function"
+  },
+  {
+    "content_sha256": "3c7a4d6f25a15ccda3376090cc4911fcc3db8fe0b25c1ec1016d01e5066a48be",
+    "docstring": "Verifies that comparison and value proposition queries resolve to DIFFERENTIATE\nand EXPLAIN_WHY without collapsing into generic definitions.",
+    "id": "test_test_conversational_intelligence_test_group_e_comparison_preservation_3c7a4d6f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_e_comparison_preservation"
+  },
+  {
+    "content_sha256": "7dc037864e6ece899c83b5edbd57ff99c3b69ffc255282350e7e54603632e48d",
+    "docstring": "Verifies that astronomy, sports, weather, cooking, and jokes all receive\npolite, distinct OUT_OF_SCOPE refusals with AgentGuard redirection.",
+    "id": "test_test_conversational_intelligence_test_group_f_out_of_scope_refusal_and_variation_7dc03786",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_f_out_of_scope_refusal_and_variation"
+  },
+  {
+    "content_sha256": "31fafe549fb722f0d2255aa5e534ccae9943c1aa4ec5e1c947d4c410a170c562",
+    "docstring": "Verifies that safety refusals are specific to the attempted action:\n1. Transaction approval\n2. Budget modification\n3. Secret exfiltration\n4. Firewall bypass\n5. Prompt injection",
+    "id": "test_test_conversational_intelligence_test_group_g_intent_specific_safety_refusals_31fafe54",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_intelligence.py",
+    "test_function": "test_group_g_intent_specific_safety_refusals"
   },
   {
     "content_sha256": "470d69972831cf6e28959843573f7284230bd7a23fc1c4b6048e3b9dbf47f0ea",
@@ -1028,6 +1170,90 @@
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_conversational_progressive.py",
     "test_function": "test_progressive_disclosure_followup_accepted"
+  },
+  {
+    "content_sha256": "0775144681ca1547a6fb5aac081ca97124822b63ffa8b2c67727c596371db7d5",
+    "docstring": "Issue #1: Project walkthrough queries return structured 2-min breakdown with navigation.",
+    "id": "test_test_conversational_qa_repairs_test_issue_1_project_walkthrough_judge_demo_07751446",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_1_project_walkthrough_judge_demo"
+  },
+  {
+    "content_sha256": "fb570c6d1ed1ac79be88540eed857eb5689923c27562e2bee155220c396fdc02",
+    "docstring": "Issue #2: Live product queries query PostgreSQL catalog and return active items.",
+    "id": "test_test_conversational_qa_repairs_test_issue_2_live_product_catalog_query_fb570c6d",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_2_live_product_catalog_query"
+  },
+  {
+    "content_sha256": "92ed60ef700247b5bbbf9e34b6880230c1609a4c8308a4f60d746756e62e6f44",
+    "docstring": "Issue #3: Live merchant queries query PostgreSQL merchants and return active registered merchants.",
+    "id": "test_test_conversational_qa_repairs_test_issue_3_live_merchant_catalog_query_92ed60ef",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_3_live_merchant_catalog_query"
+  },
+  {
+    "content_sha256": "a7b084db3233e5f4bed120677c3721c77024397be862927d6e75535549ce8730",
+    "docstring": "Issue #4: Recent transaction history queries query PostgreSQL transaction ledger and approvals.",
+    "id": "test_test_conversational_qa_repairs_test_issue_4_recent_transactions_query_a7b084db",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_4_recent_transactions_query"
+  },
+  {
+    "content_sha256": "cd78bf0f311df95c23953fa4c35de06075336ffeadeb57b88a3b8284927a1082",
+    "docstring": "Issue #5: Compound queries answer all requested facets (price verification + merchant scope + replay protection).",
+    "id": "test_test_conversational_qa_repairs_test_issue_5_compound_multi_intent_completeness_cd78bf0f",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_5_compound_multi_intent_completeness"
+  },
+  {
+    "content_sha256": "504501f5bdba557bf0e4bd52f74c8232b98a95c0eb21167f4ee329e6b1c3eb79",
+    "docstring": "Issue #6: Manual approval context resolves and explains human-in-the-loop workflow.",
+    "id": "test_test_conversational_qa_repairs_test_issue_6_manual_approval_context_504501f5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_6_manual_approval_context"
+  },
+  {
+    "content_sha256": "c566791829f91930964a506b4edab83f542bf40120c2d81c496bf6f631ba7f70",
+    "docstring": "Issue #7: Destructive audit history deletion attempts are refused explaining SHA-256 immutability.",
+    "id": "test_test_conversational_qa_repairs_test_issue_7_destructive_audit_guardrail_refusal_c5667918",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_7_destructive_audit_guardrail_refusal"
+  },
+  {
+    "content_sha256": "c483886445bee86692e97f39976c1ff7b3797cbf39117270e9280d45c16e148d",
+    "docstring": "Issue #8: Repeat payment / duplicate transaction paraphrases map to replay attack prevention.",
+    "id": "test_test_conversational_qa_repairs_test_issue_8_repeat_payment_paraphrases_c4838864",
+    "invariants_proven": [
+      "REPLAY_DETECTED (HTTP 409)"
+    ],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_conversational_qa_repairs.py",
+    "test_function": "test_issue_8_repeat_payment_paraphrases"
   },
   {
     "content_sha256": "902ebde20b6b49e58bd94aec985e04437a1ab15f1ae1057fe7c72ab863f74e7c",
@@ -2698,13 +2924,45 @@
     "test_function": "test_b9_scenario_compatibility"
   },
   {
-    "content_sha256": "d754c1d4b83e95a55fef225ace202ac4c600d540909e558d1fb7ceb4406a1a94",
+    "content_sha256": "487299f69b5531bb350bc4db5b8f8cd7c4fadeee4376e975924f0f0b4e21247c",
     "docstring": "B10: Verify seed rollback safety - forced failure leaves no partial state.",
-    "id": "test_test_seed_db_test_b10_transaction_rollback_safety_d754c1d4",
+    "id": "test_test_seed_db_test_b10_transaction_rollback_safety_487299f6",
     "invariants_proven": [],
     "target_symbols": [],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_seed_db.py",
     "test_function": "test_b10_transaction_rollback_safety"
+  },
+  {
+    "content_sha256": "e48133e4e04c2acd1deee0da8bb933301a49a354f80ee9e1e33d67578daec4ae",
+    "docstring": "B11: Verify seed_demo_state creates valid demo transactions and SHA-256 audit chain.",
+    "id": "test_test_seed_db_test_b11_demo_state_seed_e48133e4",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_seed_db.py",
+    "test_function": "test_b11_demo_state_seed"
+  },
+  {
+    "content_sha256": "f46f6b00c3013603cdb95987321e7e610fbb8a003cd62ff74e72f87ab01f0a9b",
+    "docstring": "Verify POST /tts/synthesize securely calls Cartesia and returns WAV audio bytes.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_endpoint_f46f6b00",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_tts_endpoint.py",
+    "test_function": "test_tts_synthesize_endpoint"
+  },
+  {
+    "content_sha256": "b76cb4f66432c4c102956ef3aa2e7fe6ca55c03070620eb210936c6c4bbc9d76",
+    "docstring": "Verify validation error when text is empty.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_empty_text_b76cb4f6",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_tts_endpoint.py",
+    "test_function": "test_tts_synthesize_empty_text"
   }
 ]

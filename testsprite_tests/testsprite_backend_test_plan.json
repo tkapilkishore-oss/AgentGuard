@@ -1,0 +1,82 @@
+[
+  {
+    "id": "TC001",
+    "title": "basic intent recognition and natural phrasings",
+    "description": "Verify that POST /conversational/query accurately recognizes core AgentGuard topics (price tampering, replay attacks, mandate budget, forensic ledger, audit trail, SHA-256 verification) across different natural phrasings and returns semantically correct, grounded responses with evidence citations."
+  },
+  {
+    "id": "TC002",
+    "title": "compound multi-intent sentence understanding",
+    "description": "Verify that POST /conversational/query extracts and addresses all meaningful clauses in compound multi-intent sentences connected by 'and', 'also', 'but', 'while', 'plus' (e.g., questions combining price tampering, live protection impact, and current budget) without dropping secondary intents."
+  },
+  {
+    "id": "TC003",
+    "title": "conversational filler and noise filtering",
+    "description": "Verify that POST /conversational/query filters out realistic conversational filler, colloquialisms, hesitation phrases, and informal preamble while accurately identifying and answering the core technical request."
+  },
+  {
+    "id": "TC004",
+    "title": "multi-turn context and coreference resolution",
+    "description": "Verify that POST /conversational/query preserves conversational context across multiple turns and correctly resolves pronouns ('it', 'that', 'this', 'the check', 'the attack') to the established active topic without reverting to generic definitions."
+  },
+  {
+    "id": "TC005",
+    "title": "topic switching with negative transition markers",
+    "description": "Verify that POST /conversational/query seamlessly transitions to a new topic when the user uses negative pivot markers ('forget that', 'never mind about X', 'instead of X tell me about Y', 'let's move away from X') and does not cling to abandoned keywords."
+  },
+  {
+    "id": "TC006",
+    "title": "topic reversion across multi-turn conversation",
+    "description": "Verify that POST /conversational/query correctly restores and continues a previous topic when the user explicitly requests to go back or return to an earlier subject discussed in the conversation history."
+  },
+  {
+    "id": "TC007",
+    "title": "paraphrase and natural language generalization",
+    "description": "Verify that POST /conversational/query demonstrates semantic generalization by correctly answering diverse, non-keyword-identical paraphrases of security mechanisms (e.g., duplicate transaction submission, repeat payment protection, replay prevention)."
+  },
+  {
+    "id": "TC008",
+    "title": "typo and informal language robustness",
+    "description": "Verify that POST /conversational/query tolerates common user typos, informal abbreviations, punctuation irregularities, and ungrammatical questions without failing or returning unhelpful fallbacks."
+  },
+  {
+    "id": "TC009",
+    "title": "live-state query routing and authoritative data accuracy",
+    "description": "Verify that POST /conversational/query dynamically routes live-state questions (current budget, product catalog prices, forensic ledger transaction counts, mandate status, and combined live queries) to authoritative PostgreSQL database state rather than returning static conceptual explanations."
+  },
+  {
+    "id": "TC010",
+    "title": "grounded answers and code location references",
+    "description": "Verify that POST /conversational/query provides accurate, grounded code references and architectural locations (e.g. backend/app/policy/engine.py, backend/app/api/execute.py, backend/app/services/audit_log.py) when asked where specific security checks and protections are implemented."
+  },
+  {
+    "id": "TC011",
+    "title": "security boundary and adversarial prompt hardening",
+    "description": "Verify that POST /conversational/query strictly enforces zero financial authority, rejects prompt injections, prevents unauthorized payment authorization attempts, blocks budget modification requests, and refuses secret/credential exfiltration."
+  },
+  {
+    "id": "TC012",
+    "title": "out-of-scope domain boundary enforcement",
+    "description": "Verify that POST /conversational/query politely identifies out-of-scope domain requests (weather, jokes, sports, general trivia) and redirects the user back to AgentGuard's commerce firewall capabilities."
+  },
+  {
+    "id": "TC013",
+    "title": "session state inspection lifecycle",
+    "description": "Verify that GET /conversational/session/{session_id} accurately returns active dialogue state, turn count, active topic, and turn history for multi-turn sessions, and returns 404 for non-existent sessions."
+  },
+  {
+    "id": "TC014",
+    "title": "session reset lifecycle and state clearing",
+    "description": "Verify that DELETE /conversational/session/{session_id} successfully resets active session history, and that subsequent queries or inspections show a clean session without stale topic context."
+  },
+  {
+    "id": "TC015",
+    "title": "ui and navigation surface recommendations",
+    "description": "Verify that POST /conversational/query provides accurate UI navigation recommendations and structured action hints for application surfaces including Forensic Ledger, Threat Lab, and Live Protection."
+  },
+  {
+    "id": "TC016",
+    "title": "autonomous action boundary and authority enforcement",
+    "description": "Verify that POST /conversational/query maintains the strict autonomous action boundary when asked to directly buy products or execute transactions, explaining the requirement for agent proposals and dual-loop firewall authorization."
+  }
+]

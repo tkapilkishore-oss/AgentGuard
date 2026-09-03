@@ -17,6 +17,7 @@ from backend.app.api.routes_agent import router as agent_router
 from backend.app.api.routes_audit import router as audit_router
 from backend.app.api.routes_conversational import router as conversational_router
 from backend.app.api.routes_mandate import router as mandate_router
+from backend.app.api.routes_tts import router as tts_router
 from backend.app.api.schemas import ApiResponse
 
 app = FastAPI(
@@ -42,6 +43,7 @@ app.include_router(agent_router)
 app.include_router(mandate_router)
 app.include_router(audit_router)
 app.include_router(conversational_router)
+app.include_router(tts_router)
 
 
 
