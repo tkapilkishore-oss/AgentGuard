@@ -1,99 +1,107 @@
 import requests
-import time
+import uuid
 
-BASE_URL = "http://localhost:8000"
-QUERY_ENDPOINT = f"{BASE_URL}/conversational/query"
+BASE_URL = "http://localhost:8000/conversational/query"
 TIMEOUT = 30
 
 
-def test_multi_turn_context_and_coreference_resolution():
-    user_id = "test_user_123"
+def test_multi_turn_context_coreference_resolution():
+    headers = {"Content-Type": "application/json"}
+
+    user_id = str(uuid.uuid4())
     session_id = None
 
-    # Initial query to start a new session with a clear topic
-    initial_question = "Can you explain the price tampering mechanism in AgentGuard?"
-    payload_1 = {"query": initial_question, "session_id": None, "user_id": user_id}
+    # Turn 1: Start new conversation on a specific AgentGuard topic to establish context (e.g. "price tampering")
+    query_1 = "Can you explain the AgentGuard price tampering detection mechanism?"
+    payload_1 = {"query": query_1, "user_id": user_id}
 
     try:
-        # Turn 1: Start conversation, obtain session_id
-        response1 = requests.post(QUERY_ENDPOINT, json=payload_1, timeout=TIMEOUT)
-        assert response1.status_code == 200, f"Unexpected status code: {response1.status_code}"
-        resp_json_1 = response1.json()
-        assert resp_json_1.get("success") is True
-        data1 = resp_json_1.get("data", {})
+        r1 = requests.post(BASE_URL, json=payload_1, headers=headers, timeout=TIMEOUT)
+        assert r1.status_code == 200, f"Unexpected status code on turn 1: {r1.status_code}"
+        resp1 = r1.json()
+        assert resp1.get("success") is True, "API responded unsuccessfully on turn 1"
+        data1 = resp1.get("data", {})
         session_id = data1.get("session_id")
-        assert session_id is not None and isinstance(data1.get("turn_id"), int)
-        assert isinstance(data1.get("message"), str) and len(data1.get("message")) > 0
-        assert isinstance(data1.get("intent"), str) and len(data1.get("intent")) > 0
+        turn_id_1 = data1.get("turn_id")
+        intent_1 = data1.get("intent")
+        message_1 = data1.get("message", "")
+        assert session_id and isinstance(session_id, str), "Missing or invalid session_id in turn 1 response"
+        assert isinstance(turn_id_1, int) and turn_id_1 == 1, "Invalid turn_id for turn 1"
+        assert isinstance(intent_1, str) and len(intent_1) > 0, "Missing intent in turn 1 response"
+        assert isinstance(message_1, str) and len(message_1) > 0, "Empty message in turn 1 response"
 
-        # Store current turn id for validation of progression
-        prior_turn_id = data1.get("turn_id")
+        # Validate that turn 1 establishes the price tampering topic via trace or message
+        trace_1 = data1.get("trace", {})
+        assert trace_1.get("canonical_topic") == "PRICE_TAMPERING" or "price tampering" in message_1.lower(), (
+            "Turn 1 did not establish price tampering topic"
+        )
+        assert any(term in message_1.lower() for term in ["price", "tampering", "catalog"]), (
+            "Turn 1 message does not discuss price tampering"
+        )
 
-        # Follow-up queries using pronouns and references to test coreference resolution
-        follow_ups = [
-            "What about it, how does it detect tampering?",
-            "Can you elaborate on that check involved?",
-            "Is this mechanism effective against attacks?",
-            "Tell me more about the attack it focuses on.",
-            "Does the check cover all replay attacks?"
+        # Define a series of follow-up pronoun-based questions referencing the established active topic
+
+        pronoun_queries = [
+            "How does it detect anomalies?",
+            "Can you tell me more about that?",
+            "What about this mechanism's limitations?",
+            "Explain the check it performs on transactions.",
+            "Could you give details about the attack it prevents?"
         ]
 
-        for i, q in enumerate(follow_ups, start=2):
-            payload_n = {"query": q, "session_id": session_id, "user_id": user_id}
-            response_n = requests.post(QUERY_ENDPOINT, json=payload_n, timeout=TIMEOUT)
-            assert response_n.status_code == 200, f"Unexpected status code on turn {i}: {response_n.status_code}"
-            resp_json_n = response_n.json()
-            assert resp_json_n.get("success") is True, f"Request failed on turn {i}"
-            data_n = resp_json_n.get("data", {})
+        previous_turn_id = turn_id_1
 
-            # Validate session_id consistency
-            assert data_n.get("session_id") == session_id, f"Session ID changed on turn {i}"
+        for i, follow_up_query in enumerate(pronoun_queries, start=2):
+            payload_followup = {"query": follow_up_query, "session_id": session_id, "user_id": user_id}
+            r_followup = requests.post(BASE_URL, json=payload_followup, headers=headers, timeout=TIMEOUT)
+            assert r_followup.status_code == 200, f"Unexpected status code on turn {i}: {r_followup.status_code}"
+            resp_followup = r_followup.json()
+            assert resp_followup.get("success") is True, f"API responded unsuccessfully on turn {i}"
+            data_followup = resp_followup.get("data", {})
 
-            # Validate turn progression (turn_id increments)
-            turn_id = data_n.get("turn_id")
-            assert isinstance(turn_id, int), f"Invalid turn_id type on turn {i}"
-            assert turn_id > prior_turn_id, f"Turn ID did not increment on turn {i}"
-            prior_turn_id = turn_id
+            current_session_id = data_followup.get("session_id")
+            current_turn_id = data_followup.get("turn_id")
+            current_intent = data_followup.get("intent")
+            current_dialogue_act = data_followup.get("dialogue_act")
+            current_message = data_followup.get("message", "")
 
-            # Validate message presence and content (not generic)
-            message = data_n.get("message", "")
-            assert len(message) > 0, f"Empty message response on turn {i}"
-            lowered = message.lower()
-            # The response should mention price tampering or related terms as active topic,
-            # and should not fallback to generic or unrelated answers
-            assert any(keyword in lowered for keyword in [
-                "tampering", "attack", "check", "mechanism"
-            ]), f"Response does not address active topic on turn {i}"
+            assert current_session_id == session_id, f"Session ID changed on turn {i}"
+            # Removed assertion that current_turn_id == i because turn_id can be a sequence not necessarily aligned with i
+            assert current_intent, f"Missing intent on turn {i}"
+            assert current_dialogue_act, f"Missing dialogue_act on turn {i}"
+            assert isinstance(current_message, str) and len(current_message) > 0, f"Empty message on turn {i}"
 
-            # Validate intent and dialogue_act exist and are non-empty strings
-            intent = data_n.get("intent")
-            dialogue_act = data_n.get("dialogue_act")
-            assert isinstance(intent, str) and len(intent) > 0, f"Invalid intent on turn {i}"
-            assert isinstance(dialogue_act, str) and len(dialogue_act) > 0, f"Invalid dialogue_act on turn {i}"
+            # Validate that pronouns are resolved to the original topic of "price tampering" or related terms
+            # The intent or message should reflect the context without generic fallback
+            intent_lower = current_intent.lower()
+            msg_lower = current_message.lower()
+            topic_keywords = ["price", "tampering", "attack", "check", "detection", "transaction"]
 
-            # Validate evidence citations are present (non-empty list)
-            citations = data_n.get("evidence_citations")
-            assert isinstance(citations, list), f"Invalid citations type on turn {i}"
+            matched = any((k in intent_lower) or (k in msg_lower) for k in topic_keywords)
+            assert matched, (
+                f"Turn {i} response does not appear to preserve context or resolve pronouns correctly."
+                f"\nIntent: {current_intent}\nMessage: {current_message}"
+            )
 
-            # Validate trace and action objects exist (at least dict or None)
-            assert "trace" in data_n and isinstance(data_n.get("trace"), (dict, type(None)))
-            assert "action" in data_n and isinstance(data_n.get("action"), (dict, type(None)))
+            # Turn ID should increment by 1 each turn
+            assert current_turn_id == previous_turn_id + 1, f"Turn ID mismatch at turn {i}"
 
-            # Small delay to simulate real conversation pacing
-            time.sleep(0.2)
+            previous_turn_id = current_turn_id
 
     finally:
-        # Try to reset/delete session to cleanup if API supports session reset
+        # Cleanup: Delete the conversational session to reset system state using DELETE /conversational/session/{session_id}
+        # This endpoint exists per PRD but is not in base_url; so adjust URL accordingly.
         if session_id:
+            import time
+
+            delete_url = f"http://localhost:8000/conversational/session/{session_id}"
             try:
-                delete_resp = requests.delete(f"{BASE_URL}/conversational/session/{session_id}", timeout=TIMEOUT)
-                if delete_resp.status_code == 200:
-                    delete_json = delete_resp.json()
-                    assert delete_json.get("success") is True
-                    assert delete_json.get("data", {}).get("session_id") == session_id
-                    assert "status" in delete_json.get("data", {})
-            except Exception:
-                pass
+                resp_del = requests.delete(delete_url, timeout=TIMEOUT)
+                # Accept 200 success or 404 if session already expired; do not fail test on cleanup
+                if resp_del.status_code not in (200, 404):
+                    print(f"Warning: cleanup delete returned unexpected status {resp_del.status_code}")
+            except Exception as e:
+                print(f"Warning: Exception on cleanup DELETE request: {e}")
 
 
-test_multi_turn_context_and_coreference_resolution()
+test_multi_turn_context_coreference_resolution()

@@ -27,10 +27,15 @@ class SafetyGuardrails:
     DIRECT_EXECUTION_PATTERNS = [
         r"(approve|execute|authorize|send|transfer|pay|process)\s+.*(payment|transaction|funds|budget|money|account|order|purchase)",
         r"(approve|execute|authorize)\s+(this\s+|the\s+|a\s+|an\s+)?(purchase\s+order|transaction|payment|proposal|order)",
+        r"(buy|purchase)\s+.*(for\s+me\s+now|for\s+me\s+right\s+now|right\s+now\s+and\s+execute|directly\s+for\s+me)",
+        r"(charge|debit)\s+(my\s+)?(card|account|balance|mandate|funds|wallet)",
         r"pretend\s+you\s+are|act\s+as(\s+an?)?\s+admin|roleplay\s+as|simulate\s+admin",
         r"bypass\s+(the\s+)?(firewall|policy|rules|safeguards)",
         r"override\s+.*(security|policy|mandate|budget|rules|safeguards|check)",
-        r"(change|increase|modify|alter|set|reset|raise|boost)\s+.*(mandate\s+)?(budget|limit|spending|cap)",
+        r"\b(change|increase|decrease|reduce|lower|modify|alter|set|reset|raise|boost|extend|expand|update|adjust)\s+.*(the\s+|my\s+)?(mandate\s+)?(budget|limit|spending|cap|authority|allowance)\b",
+        r"\b(modifying|altering|changing|increasing|decreasing|reducing|resetting|extending|adjusting)\s+.*(the\s+|my\s+)?(mandate\s+)?(budget|spending|limit|cap|authority)\b",
+        r"\b(mandate\s+)?(budget|spending|limit|spending\s+cap|spending\s+authority|allowance)\s+(modification|alteration|change|adjustment|increase|decrease|reduction|extension|reset|override)\b",
+        r"\b(attempting|requesting|initiating|performing|executing)\s+.*(budget|spending|mandate)\s+(modification|alteration|change|adjustment|increase|decrease|reduction|override|reset)\b",
         r"change\s+the\s+price\s+to",
         r"transfer\s+.*(funds|budget|money|account|wallet)",
         r"send\s+[0-9]+\s+to",
@@ -98,7 +103,10 @@ class SafetyGuardrails:
                 "I have zero financial authority and no financial authority, and cannot authorize access to protected keys. "
                 "The request is denied."
             )
-        elif any(w in lower for w in ["budget", "mandate budget", "increase", "spending cap", "change the budget", "spending limit"]):
+        elif any(w in lower for w in [
+            "budget", "mandate budget", "increase", "spending cap", "change the budget",
+            "spending limit", "mandate limit", "spending authority", "budget modification"
+        ]):
             msg = (
                 "AgentGuard operates with zero financial authority and enforces a strict security boundary: "
                 "I have no financial authority and cannot authorize budget modifications or changes to spending limits. "

@@ -18,7 +18,9 @@ export type AgentTargetId =
   | 'cockpit-budget'
   | 'live-protection-mandate'
   | 'threat-price-tampering'
+  | 'threat-custom-amount'
   | 'threat-happy-path'
+  | 'threat-legitimate-item'
   | 'decision-result'
   | 'forensic-latest-transaction'
   | null;

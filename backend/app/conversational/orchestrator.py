@@ -120,6 +120,9 @@ class ConversationalBrain:
                     if "transaction" in lower_q or "ledger" in lower_q:
                         txn_data = self.live_bridge._query_transaction_status(plan.live_tool_request.parameters, db=local_db)
                         live_res.data.update(txn_data)
+                    if "audit" in lower_q or "chain" in lower_q or "trail" in lower_q:
+                        audit_data = self.live_bridge._verify_live_audit_chain(plan.live_tool_request.parameters, db=local_db)
+                        live_res.data.update(audit_data)
                 finally:
                     if db is None:
                         local_db.close()

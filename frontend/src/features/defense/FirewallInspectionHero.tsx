@@ -28,13 +28,13 @@ export const FirewallInspectionHero: React.FC = () => {
 
   if (!activeTransaction) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-white rounded-2xl border border-surface-container p-8 sm:p-12 text-center shadow-ambient-1">
-        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-primary mb-4 ring-8 ring-lavender-tint shadow-sm">
+      <div className="flex flex-col items-center justify-center h-full bg-white/95 rounded-2xl border border-slate-200/90 p-8 sm:p-12 text-center shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_24px_-4px_rgba(15,23,42,0.06)]">
+        <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-primary mb-4 ring-8 ring-lavender-tint/80 shadow-xs border border-slate-200/80">
           <Shield className="w-8 h-8 text-primary" />
         </div>
         <h3 className="text-xl font-bold text-primary font-outfit">AgentGuard Firewall Ready</h3>
-        <p className="text-sm text-on-surface-variant max-w-md mt-2 leading-relaxed font-inter">
-          Submit a purchase using the Shopping Agent on the left or select a quick prompt to observe the server-authoritative boundary inspect, verify, and enforce financial invariants in real time.
+        <p className="text-xs sm:text-sm text-on-surface-variant max-w-md mt-2 leading-relaxed font-inter">
+          Submit a purchase using the Shopping Agent on the left or select a quick action to observe the server-authoritative boundary inspect, verify, and enforce financial invariants in real time.
         </p>
       </div>
     );
@@ -53,9 +53,9 @@ export const FirewallInspectionHero: React.FC = () => {
     : activeTransaction.reason_code;
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-surface-container shadow-ambient-1 p-5 sm:p-6 space-y-5">
+    <div className="flex flex-col h-full bg-white/95 rounded-2xl overflow-hidden border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_24px_-4px_rgba(15,23,42,0.06)] p-5 sm:p-6 space-y-5">
       {/* Top Banner: Authority Core + Verdict Badge */}
-      <div className="flex flex-wrap items-center justify-between pb-4 border-b border-surface-container gap-3">
+      <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-200/90 gap-3">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-base sm:text-lg font-bold text-primary flex items-center gap-2 font-outfit">
@@ -82,7 +82,7 @@ export const FirewallInspectionHero: React.FC = () => {
       {/* 2-Column Machine Representation: Firewall Centerpiece + Authoritative Ledger Output */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
         {/* Left Sub-Card: Firewall Scan & Decision */}
-        <div className="bg-surface rounded-2xl p-5 border border-surface-container flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <div className="bg-slate-50/70 rounded-2xl p-5 border border-slate-200/90 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xs">
           <div className="absolute top-3 right-3 flex items-center gap-1">
             {loadingAction ? (
               <>
@@ -96,8 +96,8 @@ export const FirewallInspectionHero: React.FC = () => {
 
           {/* Central Shield Graphic */}
           <div className="relative w-28 h-28 my-3 flex items-center justify-center">
-            <div className="absolute inset-0 bg-lavender-tint rounded-full animate-ping opacity-30"></div>
-            <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-lavender-tint shadow-lg">
+            <div className="absolute inset-0 bg-lavender-tint/60 rounded-full animate-ping opacity-30"></div>
+            <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-lavender-tint/80 shadow-md">
               {activeTransaction.decision === 'ALLOW' ? (
                 <ShieldCheck className="w-12 h-12 text-verified" />
               ) : activeTransaction.decision === 'ESCALATE' ? (
@@ -113,18 +113,18 @@ export const FirewallInspectionHero: React.FC = () => {
             Evaluating claimed parameters against mandate invariants & database stock.
           </p>
 
-          <div className="mt-3 w-full pt-3 border-t border-surface-container flex items-center justify-between text-xs font-inter">
+          <div className="mt-3 w-full pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs font-inter">
             <span className="text-on-surface-variant">Reason Code:</span>
-            <span className="font-mono font-bold text-primary bg-white px-2.5 py-1 rounded-lg border border-surface-container text-[11px]">
+            <span className="font-mono font-bold text-primary bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-[11px] shadow-2xs">
               {currentReasonCode}
             </span>
           </div>
         </div>
 
         {/* Right Sub-Card: Authoritative Database Truth & Invariant Verification */}
-        <div className="bg-surface rounded-2xl p-5 border border-surface-container flex flex-col justify-between space-y-4">
+        <div className="bg-slate-50/70 rounded-2xl p-5 border border-slate-200/90 flex flex-col justify-between space-y-4 shadow-xs">
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-surface-container">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
               <div className="flex items-center gap-1.5 text-xs font-inter font-bold text-primary">
                 <Database className="w-4 h-4 text-secondary" />
                 <span>PostgreSQL Catalog Truth</span>
@@ -136,14 +136,14 @@ export const FirewallInspectionHero: React.FC = () => {
 
             {/* Price Comparison Block */}
             <div className="grid grid-cols-2 gap-2 text-center text-xs">
-              <div className={`p-3 rounded-xl border ${priceMismatch ? 'bg-error-container/30 border-error-container text-error' : 'bg-white border-surface-container text-on-surface'}`}>
+              <div className={`p-3 rounded-xl border ${priceMismatch ? 'bg-error-container/30 border-error-container text-error' : 'bg-white border-slate-200 text-on-surface shadow-2xs'}`}>
                 <div className="text-[11px] text-on-surface-variant font-medium mb-1 font-inter">Claimed Price</div>
                 <div className="text-base font-bold font-mono">
                   ₹{claimedPrice ? claimedPrice.toLocaleString('en-IN') : 'N/A'}
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-white border border-surface-container text-primary">
+              <div className="p-3 rounded-xl bg-white border border-slate-200 text-primary shadow-2xs">
                 <div className="text-[11px] text-on-surface-variant font-medium mb-1 font-inter">Catalog Price</div>
                 <div className="text-base font-bold font-mono text-verified">
                   ₹{authoritativeTotal.toLocaleString('en-IN')}
@@ -152,14 +152,14 @@ export const FirewallInspectionHero: React.FC = () => {
             </div>
 
             {priceMismatch && (
-              <div className="p-2.5 bg-error-container/30 rounded-xl border border-error-container flex items-center gap-2 text-xs text-error font-inter">
+              <div className="p-2.5 bg-error-container/30 rounded-xl border border-error-container flex items-center gap-2 text-xs text-error font-inter shadow-2xs">
                 <AlertTriangle className="w-4 h-4 text-error flex-shrink-0" />
                 <span>Price tampering detected: Claimed ₹{claimedPrice} ≠ Database ₹{authoritativeTotal}</span>
               </div>
             )}
           </div>
 
-          <div className="text-xs font-inter text-on-surface-variant pt-2 border-t border-surface-container">
+          <div className="text-xs font-inter text-on-surface-variant pt-2 border-t border-slate-200/80">
             <div className="flex justify-between">
               <span>Item Identifier:</span>
               <span className="font-mono font-medium text-primary">{activeAgentClaim?.product_id || 'prod-001'}</span>
@@ -174,7 +174,7 @@ export const FirewallInspectionHero: React.FC = () => {
 
       {/* Human Escalation Resolution Box (if ESCALATED) */}
       {activeTransaction.decision === 'ESCALATE' && (
-        <div className="p-4 sm:p-5 bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl space-y-3 shadow-sm">
+        <div className="p-4 sm:p-5 bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl space-y-3 shadow-xs">
           <div className="flex items-center gap-2 text-escalation text-sm font-bold font-outfit">
             <UserCheck className="w-5 h-5 text-escalation" />
             <span>Human Approver Action Required (Budget Exceeded)</span>
@@ -186,7 +186,7 @@ export const FirewallInspectionHero: React.FC = () => {
             <button
               onClick={approveActiveTransaction}
               disabled={loadingAction}
-              className="flex-1 py-2.5 bg-verified hover:bg-green-700 text-white text-xs font-semibold rounded-full transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+              className="flex-1 py-2.5 bg-verified hover:bg-green-700 text-white text-xs font-semibold rounded-full transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 active:scale-95"
             >
               <UserCheck className="w-4 h-4" />
               <span>Approve Over-Budget Purchase</span>
@@ -194,7 +194,7 @@ export const FirewallInspectionHero: React.FC = () => {
             <button
               onClick={rejectActiveTransaction}
               disabled={loadingAction}
-              className="flex-1 py-2.5 bg-error hover:bg-red-800 text-white text-xs font-semibold rounded-full transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+              className="flex-1 py-2.5 bg-error hover:bg-red-800 text-white text-xs font-semibold rounded-full transition-all flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 active:scale-95"
             >
               <UserX className="w-4 h-4" />
               <span>Reject Proposal</span>
@@ -205,7 +205,7 @@ export const FirewallInspectionHero: React.FC = () => {
 
       {/* Payment Execution Controls (if ALLOWED or APPROVED) */}
       {activeTransaction.decision === 'ALLOW' && activeExecutionResult?.status !== 'success' && (
-        <div className="p-4 sm:p-5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl space-y-3 shadow-sm">
+        <div className="p-4 sm:p-5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl space-y-3 shadow-xs">
           <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-verified font-outfit">
             <span className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-verified" />
@@ -219,7 +219,7 @@ export const FirewallInspectionHero: React.FC = () => {
           <button
             onClick={() => executeActiveTransaction()}
             disabled={loadingAction}
-            className="w-full py-3 bg-primary hover:bg-secondary text-white text-xs sm:text-sm font-bold rounded-full transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 font-inter"
+            className="w-full py-3 bg-primary hover:bg-[#2c054c] text-white text-xs sm:text-sm font-bold rounded-full transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 font-inter active:scale-98"
           >
             <Play className="w-4 h-4 fill-current" />
             <span>{loadingAction ? 'Executing Payment via Razorpay...' : 'Execute Payment via Razorpay Gateway'}</span>
@@ -230,8 +230,8 @@ export const FirewallInspectionHero: React.FC = () => {
 
       {/* Execution Result Log Card */}
       {activeExecutionResult && (
-        <div className="p-4 bg-surface rounded-2xl border border-surface-container text-xs text-on-surface space-y-2">
-          <div className="flex items-center justify-between border-b border-surface-container pb-2">
+        <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 text-xs text-on-surface space-y-2 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
             <span className="text-xs text-on-surface-variant font-semibold font-inter">Razorpay Execution Result</span>
             <span
               className={`px-2.5 py-0.5 rounded-full font-bold text-xs font-inter ${

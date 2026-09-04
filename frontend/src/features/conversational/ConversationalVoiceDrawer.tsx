@@ -19,6 +19,7 @@ import {
   Terminal,
   Activity,
   AlertCircle,
+  Play,
 } from 'lucide-react';
 import { useVoiceIO } from './useVoiceIO';
 import { useAgentGuard, ChatMessageItem } from '../../context/AgentGuardContext';
@@ -201,7 +202,7 @@ export const ConversationalVoiceDrawer: React.FC = () => {
     }
   }, [isConversationalOpen]);
 
-  const { demoState } = useAutonomousDemo();
+  const { demoState, startDemo } = useAutonomousDemo();
 
   // Drawer is mounted if opened or during any active demo state
   const isDemoActive = demoState !== 'IDLE';
@@ -229,25 +230,25 @@ export const ConversationalVoiceDrawer: React.FC = () => {
 
   return (
     <div
-      className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[500px] max-w-full bg-white border-l border-surface-container shadow-2xl backdrop-blur-2xl flex flex-col transition-transform duration-500 ease-in-out font-inter ${
+      className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[500px] max-w-full bg-white border-l border-slate-200/90 shadow-2xl backdrop-blur-2xl flex flex-col transition-transform duration-300 ease-out font-inter ${
         isDrawerHidden ? 'translate-x-full pointer-events-none' : 'translate-x-0'
       }`}
     >
       {/* Drawer Header */}
-      <div className="p-4 sm:p-5 bg-surface border-b border-surface-container flex items-center justify-between flex-shrink-0">
+      <div className="p-4 sm:p-5 bg-white border-b border-slate-200/80 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-lavender-tint shadow-sm flex-shrink-0">
-            <Bot className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-xs flex-shrink-0 border border-slate-800">
+            <Bot className="w-5 h-5 text-cyan-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-primary font-outfit">The Voice of Trust</h3>
-              <span className="text-[10px] font-inter font-semibold px-2 py-0.5 bg-lavender-tint text-[#4C1D95] rounded-full border border-primary-fixed flex items-center gap-1">
+              <h3 className="text-base font-bold text-slate-900 font-outfit">The Voice of Trust</h3>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-md border border-primary/20 flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5 text-primary" />
-                <span>B-3 Brain Active</span>
+                <span>B-3 KERNEL</span>
               </span>
             </div>
-            <p className="text-xs text-on-surface-variant font-inter">
+            <p className="text-xs text-slate-500 font-inter">
               Grounded Conversational Intelligence & Diagnostics
             </p>
           </div>
@@ -258,7 +259,7 @@ export const ConversationalVoiceDrawer: React.FC = () => {
           <button
             onClick={() => resetConversationalSession()}
             disabled={isConversationalQuerying}
-            className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors disabled:opacity-40"
+            className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
             title="Start New Conversation Session"
           >
             <RotateCcw className="w-4 h-4" />
@@ -267,7 +268,7 @@ export const ConversationalVoiceDrawer: React.FC = () => {
           {/* Close Drawer Button */}
           <button
             onClick={() => setIsConversationalOpen(false)}
-            className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             title="Close Assistant"
           >
             <X className="w-5 h-5" />
@@ -276,12 +277,12 @@ export const ConversationalVoiceDrawer: React.FC = () => {
       </div>
 
       {/* Voice Waveform Visualizer & Presence Section */}
-      <div className="p-3.5 bg-gradient-to-b from-surface to-white border-b border-surface-container flex-shrink-0">
+      <div className="p-3 bg-slate-50 border-b border-slate-200/80 flex-shrink-0">
         <VoiceWaveformVisualizer state={agentVoiceState} />
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs bg-[#FAFBFD]">
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs bg-[#F8FAFC]">
         {conversationalMessages.map((m: ChatMessageItem) => {
           const isUser = m.sender === 'user';
           const isLatestAgent = !isUser && m.id === latestAgentMessage?.id;
@@ -292,21 +293,21 @@ export const ConversationalVoiceDrawer: React.FC = () => {
               <div className={`flex items-start gap-2.5 max-w-[92%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                 {/* Avatar */}
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 text-white ${
-                    isUser ? 'bg-secondary' : m.isError ? 'bg-error' : 'bg-primary ring-2 ring-lavender-tint'
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5 text-white ${
+                    isUser ? 'bg-primary' : m.isError ? 'bg-rose-600' : 'bg-slate-900 border border-slate-800'
                   }`}
                 >
-                  {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                  {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5 text-cyan-400" />}
                 </div>
 
                 {/* Bubble Body */}
                 <div
-                  className={`rounded-2xl p-3.5 text-xs leading-relaxed shadow-sm font-inter ${
+                  className={`rounded-2xl p-3.5 text-xs leading-relaxed shadow-xs font-inter ${
                     isUser
-                      ? 'bg-primary text-white rounded-tr-none'
+                      ? 'bg-slate-900 text-white rounded-tr-none'
                       : m.isError
-                      ? 'bg-error-container/30 border border-error-container text-on-surface rounded-tl-none space-y-2'
-                      : 'bg-white border border-surface-container text-on-surface rounded-tl-none space-y-2'
+                      ? 'bg-rose-50 border border-rose-200 text-rose-900 rounded-tl-none space-y-2'
+                      : 'bg-white border border-slate-200/80 text-slate-800 rounded-tl-none space-y-2'
                   }`}
                 >
                   {/* Message Formatted Content */}
@@ -433,26 +434,38 @@ export const ConversationalVoiceDrawer: React.FC = () => {
               </div>
 
               {/* Follow-up Suggestion Chips (Rendered on Latest Agent Message) */}
-              {isLatestAgent && m.suggestedFollowups && m.suggestedFollowups.length > 0 && (
+              {isLatestAgent && (
                 <div className="pl-9 pr-2 pt-1.5 space-y-1.5 w-full">
-                  <div className="flex items-center gap-1.5 text-[10px] text-outline font-bold uppercase tracking-wider">
-                    <Sparkles className="w-3 h-3 text-secondary" />
-                    <span>Suggested Next Questions</span>
+                  <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3 text-primary" />
+                    <span>Suggested Inquiries</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {m.suggestedFollowups.map((s, sIdx) => {
-                      const label = typeof s === 'string' ? s : (s.label || s.query);
-                      return (
-                        <button
-                          key={sIdx}
-                          onClick={() => handleSuggestionClick(s)}
-                          disabled={isConversationalQuerying}
-                          className="px-3 py-1.5 bg-white hover:bg-lavender-tint text-primary hover:text-primary rounded-full border border-surface-container hover:border-primary-fixed text-[11px] font-medium transition-all shadow-sm flex items-center gap-1.5 active:scale-95 disabled:opacity-50 text-left"
-                        >
-                          <span>{label}</span>
-                        </button>
-                      );
-                    })}
+                    {/* Permanent Project Demo Button */}
+                    <button
+                      onClick={() => startDemo(1)}
+                      disabled={isConversationalQuerying}
+                      className="px-3 py-1.5 bg-primary hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-xs flex items-center gap-1.5 active:scale-95 disabled:opacity-50 text-left cursor-pointer"
+                      title="Start Autonomous Project Demo"
+                    >
+                      <Play className="w-3 h-3 fill-current text-white" />
+                      <span>Project Demo</span>
+                    </button>
+
+                    {m.suggestedFollowups &&
+                      m.suggestedFollowups.map((s, sIdx) => {
+                        const label = typeof s === 'string' ? s : (s.label || s.query);
+                        return (
+                          <button
+                            key={sIdx}
+                            onClick={() => handleSuggestionClick(s)}
+                            disabled={isConversationalQuerying}
+                            className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 hover:border-slate-300 text-[11px] font-medium transition-all shadow-xs flex items-center gap-1.5 active:scale-95 disabled:opacity-50 text-left cursor-pointer"
+                          >
+                            <span>{label}</span>
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
               )}
@@ -463,15 +476,15 @@ export const ConversationalVoiceDrawer: React.FC = () => {
         {/* Loading Indicator while in-flight */}
         {isConversationalQuerying && (
           <div className="flex items-start gap-2.5 max-w-[85%]">
-            <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 ring-2 ring-lavender-tint">
-              <Bot className="w-3.5 h-3.5" />
+            <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5 border border-slate-800">
+              <Bot className="w-3.5 h-3.5 text-cyan-400" />
             </div>
-            <div className="bg-white border border-surface-container rounded-2xl rounded-tl-none p-3.5 shadow-sm space-y-1">
+            <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-none p-3.5 shadow-xs space-y-1">
               <div className="flex items-center gap-2 text-primary font-semibold text-xs">
-                <Activity className="w-3.5 h-3.5 animate-spin text-secondary" />
-                <span>B-3 Conversational Brain is evaluating query...</span>
+                <Activity className="w-3.5 h-3.5 animate-spin text-primary" />
+                <span>B-3 Conversational Kernel evaluating query...</span>
               </div>
-              <p className="text-[11px] text-on-surface-variant font-inter">
+              <p className="text-[11px] text-slate-500 font-inter">
                 Resolving context, AST evidence retrieval, and safety invariants.
               </p>
             </div>
@@ -482,34 +495,46 @@ export const ConversationalVoiceDrawer: React.FC = () => {
       </div>
 
       {/* System State & Telemetry Feedback Bar */}
-      <div className="p-2.5 px-4 bg-surface border-t border-surface-container text-xs font-inter flex items-center justify-between flex-shrink-0">
+      <div className="p-2.5 px-4 bg-slate-50 border-t border-slate-200/80 text-xs font-inter flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2 truncate">
-          <span className="w-2 h-2 rounded-full bg-verified animate-pulse flex-shrink-0"></span>
-          <span className="text-[11px] text-on-surface-variant truncate">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span>
+          <span className="text-[11px] text-slate-500 font-mono truncate">
             {conversationalSessionId
               ? `Session: ${conversationalSessionId.substring(0, 18)}...`
               : 'New Dialogue Session Ready'}
           </span>
         </div>
 
-        <button
-          onClick={() => setWireDrawerOpen(true)}
-          className="text-[11px] text-secondary hover:text-primary font-semibold flex items-center gap-1 flex-shrink-0 transition-colors"
-          title="Inspect Wire Telemetry"
-        >
-          <Terminal className="w-3 h-3 text-secondary" />
-          <span>Wire Telemetry</span>
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => startDemo(1)}
+            disabled={isConversationalQuerying}
+            className="px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary font-bold rounded-lg border border-primary/20 text-[11px] flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer disabled:opacity-50"
+            title="Start Autonomous Project Demo"
+          >
+            <Play className="w-2.5 h-2.5 fill-current text-primary" />
+            <span>Project Demo</span>
+          </button>
+
+          <button
+            onClick={() => setWireDrawerOpen(true)}
+            className="text-[11px] text-slate-500 hover:text-slate-900 font-mono font-semibold flex items-center gap-1 flex-shrink-0 transition-colors cursor-pointer"
+            title="Inspect Wire Telemetry"
+          >
+            <Terminal className="w-3 h-3 text-slate-500" />
+            <span>Wire Telemetry</span>
+          </button>
+        </div>
       </div>
 
       {/* Voice Error Banner */}
       {voiceError && (
-        <div className="px-4 py-2.5 bg-[#FEF2F2] border-t border-[#FCA5A5] flex items-start gap-2 flex-shrink-0">
-          <AlertCircle className="w-3.5 h-3.5 text-error flex-shrink-0 mt-0.5" />
-          <span className="text-[11px] text-error font-inter flex-1 leading-snug">{voiceError}</span>
+        <div className="px-4 py-2.5 bg-rose-50 border-t border-rose-200 flex items-start gap-2 flex-shrink-0">
+          <AlertCircle className="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5" />
+          <span className="text-[11px] text-rose-700 font-inter flex-1 leading-snug">{voiceError}</span>
           <button
             onClick={dismissError}
-            className="text-error hover:text-[#7f1d1d] transition-colors flex-shrink-0"
+            className="text-rose-600 hover:text-rose-800 transition-colors flex-shrink-0"
             title="Dismiss"
           >
             <X className="w-3.5 h-3.5" />
@@ -519,8 +544,8 @@ export const ConversationalVoiceDrawer: React.FC = () => {
 
       {/* Voice Status Label — shown while actively in a voice state */}
       {(voiceState === 'LISTENING' || voiceState === 'PROCESSING' || voiceState === 'SPEAKING') && (
-        <div className="px-4 py-1.5 bg-lavender-tint border-t border-primary-fixed flex items-center justify-between flex-shrink-0">
-          <span className="text-[11px] font-semibold text-primary font-inter animate-pulse">
+        <div className="px-4 py-1.5 bg-primary/10 border-t border-primary/20 flex items-center justify-between flex-shrink-0">
+          <span className="text-[11px] font-semibold text-primary font-mono animate-pulse">
             {voiceState === 'LISTENING' && '🎙 Listening…'}
             {voiceState === 'PROCESSING' && '⚙️ Thinking…'}
             {voiceState === 'SPEAKING' && '🔊 AgentGuard is speaking…'}
@@ -528,7 +553,7 @@ export const ConversationalVoiceDrawer: React.FC = () => {
           {voiceState === 'SPEAKING' && (
             <button
               onClick={stopSpeaking}
-              className="text-[11px] text-secondary hover:text-primary font-semibold flex items-center gap-1 transition-colors"
+              className="text-[11px] text-slate-700 hover:text-primary font-semibold flex items-center gap-1 transition-colors cursor-pointer"
               title="Stop speaking"
             >
               <StopCircle className="w-3.5 h-3.5" />
@@ -539,14 +564,14 @@ export const ConversationalVoiceDrawer: React.FC = () => {
       )}
 
       {/* Input Bar */}
-      <div className="p-3.5 sm:p-4 bg-white border-t border-surface-container flex items-center gap-2 flex-shrink-0">
+      <div className="p-3.5 sm:p-4 bg-white border-t border-slate-200/80 flex items-center gap-2 flex-shrink-0">
         {/* Mic Button — Phase 5.5C real STT */}
         {voiceState === 'IDLE' && (
           isSTTSupported ? (
             <button
               onClick={startListening}
               disabled={isConversationalQuerying}
-              className="p-2.5 text-secondary hover:bg-secondary-fixed/50 rounded-full transition-all flex-shrink-0 disabled:opacity-40"
+              className="p-2.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all flex-shrink-0 disabled:opacity-40 cursor-pointer"
               title="Talk to AgentGuard (voice input)"
             >
               <Mic className="w-4 h-4" />
@@ -554,7 +579,7 @@ export const ConversationalVoiceDrawer: React.FC = () => {
           ) : (
             <button
               disabled
-              className="p-2.5 text-on-surface-variant rounded-full flex-shrink-0 opacity-40 cursor-not-allowed"
+              className="p-2.5 text-slate-300 rounded-xl flex-shrink-0 opacity-40 cursor-not-allowed"
               title="Voice input is not supported in this browser. Use Chrome for voice."
             >
               <MicOff className="w-4 h-4" />
@@ -614,14 +639,14 @@ export const ConversationalVoiceDrawer: React.FC = () => {
               ? 'AgentGuard is speaking…'
               : 'Ask AgentGuard architecture, threats, or live state…'
           }
-          className="flex-1 bg-surface-container-low text-on-surface text-xs px-4 py-2.5 rounded-full border border-surface-container focus:outline-none focus:border-secondary transition-colors font-inter disabled:opacity-60"
+          className="flex-1 bg-slate-50 text-slate-900 text-xs px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all font-inter disabled:opacity-60 placeholder:text-slate-400"
         />
 
         {/* Send Button */}
         <button
           onClick={() => handleSubmit(inputQuery)}
           disabled={isConversationalQuerying || !inputQuery.trim() || voiceState === 'LISTENING' || voiceState === 'PROCESSING'}
-          className="p-2.5 bg-primary hover:bg-secondary disabled:opacity-40 text-white rounded-full transition-all shadow-sm flex items-center justify-center flex-shrink-0 active:scale-95"
+          className="p-2.5 bg-primary hover:bg-slate-800 disabled:opacity-40 text-white rounded-xl transition-all shadow-xs flex items-center justify-center flex-shrink-0 active:scale-95 cursor-pointer"
           title="Send query"
         >
           <Send className="w-4 h-4" />

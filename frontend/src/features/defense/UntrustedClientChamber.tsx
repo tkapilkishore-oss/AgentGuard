@@ -87,44 +87,44 @@ export const UntrustedClientChamber: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-surface-container shadow-ambient-1 relative">
-      {/* Top red indicator bar matching Stitch */}
-      <div className="w-full h-1.5 bg-error"></div>
+    <div className="flex flex-col h-full bg-white/95 rounded-2xl overflow-hidden border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_8px_24px_-4px_rgba(15,23,42,0.06)] relative">
+      {/* Top red indicator bar matching security boundary */}
+      <div className="w-full h-1 bg-error"></div>
 
       {/* Header */}
       <div
         data-agent-target="live-protection-mandate"
-        className="p-4 sm:p-5 bg-white border-b border-surface-container flex items-center justify-between"
+        className="p-4 sm:p-5 bg-white border-b border-slate-200/90 flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-error-container/50 text-error flex items-center justify-center border border-error-container">
+          <div className="w-10 h-10 rounded-xl bg-error-container/40 text-error flex items-center justify-center border border-error-container/60 shadow-xs">
             <Bot className="w-5 h-5 text-error" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm sm:text-base font-bold text-primary font-outfit">Untrusted Claim Chamber</h3>
-              <span className="px-2.5 py-0.5 text-xs font-inter font-semibold bg-error-container/60 text-error rounded-full border border-error-container">
+              <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-error-container/40 text-error rounded-full border border-error-container/60">
                 Untrusted
               </span>
             </div>
-            <p className="text-xs text-on-surface-variant font-inter">
-              Gemini LLM Agent (Zero Financial Authority)
+            <p className="text-xs text-on-surface-variant/80 font-inter">
+              Gemini LLM Client (Zero Financial Authority)
             </p>
           </div>
         </div>
 
         {/* Mandate Budget summary pill */}
         {mandate && (
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-surface-container-low rounded-full border border-surface-container text-xs font-inter">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-200 text-xs font-inter shadow-xs">
             <DollarSign className="w-3.5 h-3.5 text-verified" />
-            <span className="text-on-surface-variant text-[11px]">Budget:</span>
+            <span className="text-on-surface-variant text-[11px] font-medium">Budget:</span>
             <span className="font-bold text-verified font-mono">₹{parseFloat(mandate.budget_remaining).toLocaleString('en-IN')}</span>
           </div>
         )}
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 text-xs max-h-[380px] min-h-[260px] bg-[#FAFBFD]">
+      <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 text-xs max-h-[380px] min-h-[260px] bg-slate-50/60">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -133,11 +133,11 @@ export const UntrustedClientChamber: React.FC = () => {
             {msg.sender !== 'user' && (
               <div className="mr-2 flex-shrink-0 mt-1">
                 {msg.sender === 'agent' ? (
-                  <div className="w-7 h-7 rounded-lg bg-error-container/60 text-error flex items-center justify-center border border-error-container">
+                  <div className="w-7 h-7 rounded-lg bg-error-container/50 text-error flex items-center justify-center border border-error-container/60 shadow-xs">
                     <Bot className="w-4 h-4" />
                   </div>
                 ) : (
-                  <div className="w-7 h-7 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-slate-200/80 text-on-surface-variant flex items-center justify-center">
                     <Info className="w-4 h-4" />
                   </div>
                 )}
@@ -149,14 +149,14 @@ export const UntrustedClientChamber: React.FC = () => {
                 msg.sender === 'user'
                   ? 'bg-primary text-white rounded-tr-none shadow-sm'
                   : msg.sender === 'agent'
-                  ? 'bg-white text-on-surface border border-surface-container rounded-tl-none space-y-2 shadow-sm'
-                  : 'bg-surface-container-low text-on-surface-variant border border-surface-container'
+                  ? 'bg-white text-on-surface border border-slate-200/90 rounded-tl-none space-y-2 shadow-xs'
+                  : 'bg-slate-100/90 text-on-surface-variant border border-slate-200/80'
               }`}
             >
               <div className="font-inter">{msg.text}</div>
 
               {msg.thought && (
-                <div className="p-2.5 bg-surface-container-low/80 rounded-xl border border-surface-container text-xs text-on-surface">
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 text-xs text-on-surface">
                   <div className="flex items-center gap-1 text-primary mb-1 font-inter font-semibold text-[11px]">
                     <Sparkles className="w-3.5 h-3.5 text-secondary" />
                     <span>LLM Reasoning Thought</span>
@@ -166,9 +166,9 @@ export const UntrustedClientChamber: React.FC = () => {
               )}
 
               {msg.claim && (
-                <div className="p-3 bg-[#1e1e1e] rounded-xl font-mono text-[11px] text-[#d4d4d4] space-y-1 overflow-x-auto shadow-inner">
-                  <div className="text-[10px] text-outline mb-0.5 font-bold uppercase font-inter">Action Payload:</div>
-                  <pre className="text-[11px] leading-tight font-mono">
+                <div className="p-3 bg-[#111827] rounded-xl font-mono text-[11px] text-[#e5e7eb] space-y-1 overflow-x-auto shadow-inner border border-slate-800">
+                  <div className="text-[10px] text-slate-400 mb-0.5 font-bold uppercase font-inter tracking-wider">Untrusted Action Payload:</div>
+                  <pre className="text-[11px] leading-tight font-mono text-emerald-400">
                     {JSON.stringify(
                       {
                         action: "checkout",
@@ -190,7 +190,7 @@ export const UntrustedClientChamber: React.FC = () => {
 
             {msg.sender === 'user' && (
               <div className="ml-2 flex-shrink-0 mt-1">
-                <div className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center">
+                <div className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center shadow-xs">
                   <User className="w-4 h-4" />
                 </div>
               </div>
@@ -199,7 +199,7 @@ export const UntrustedClientChamber: React.FC = () => {
         ))}
 
         {loadingAction && (
-          <div className="flex items-center gap-2 text-xs text-error animate-pulse p-2.5 bg-error-container/20 rounded-xl border border-error-container font-inter">
+          <div className="flex items-center gap-2 text-xs text-error animate-pulse p-2.5 bg-error-container/20 rounded-xl border border-error-container/60 font-inter">
             <Bot className="w-4 h-4" />
             <span>Formulating untrusted candidate claim & submitting to firewall...</span>
           </div>
@@ -207,28 +207,28 @@ export const UntrustedClientChamber: React.FC = () => {
       </div>
 
       {/* Quick Prompt Scenario Chips */}
-      <div className="px-3 py-2.5 bg-white border-t border-surface-container flex items-center gap-2 overflow-x-auto text-xs font-inter">
-        <span className="text-outline whitespace-nowrap text-[11px] font-semibold">Quick Prompts:</span>
+      <div className="px-3.5 py-2.5 bg-white border-t border-slate-200/90 flex items-center gap-2 overflow-x-auto text-xs font-inter">
+        <span className="text-on-surface-variant/70 whitespace-nowrap text-[11px] font-bold uppercase tracking-wider">Quick Actions:</span>
         <button
           onClick={() => handleSendPrompt('Buy Bluetooth Speaker')}
           disabled={loadingAction}
-          className="px-3 py-1 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-full border border-surface-container whitespace-nowrap transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          className="px-3 py-1 bg-slate-50 hover:bg-slate-100 text-on-surface rounded-full border border-slate-200 whitespace-nowrap transition-all flex items-center gap-1.5 disabled:opacity-50 active:scale-95 shadow-2xs"
         >
           <ShoppingBag className="w-3 h-3 text-verified" />
-          <span>Speaker (<span className="font-mono">₹2,799</span>)</span>
+          <span>Speaker (<span className="font-mono text-verified font-semibold">₹2,799</span>)</span>
         </button>
         <button
           onClick={() => handleSendPrompt('Buy Studio Headphones')}
           disabled={loadingAction}
-          className="px-3 py-1 bg-surface-container-low hover:bg-surface-container text-on-surface rounded-full border border-surface-container whitespace-nowrap transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          className="px-3 py-1 bg-slate-50 hover:bg-slate-100 text-on-surface rounded-full border border-slate-200 whitespace-nowrap transition-all flex items-center gap-1.5 disabled:opacity-50 active:scale-95 shadow-2xs"
         >
           <ShoppingBag className="w-3 h-3 text-escalation" />
-          <span>Headphones (<span className="font-mono">₹5,999</span>)</span>
+          <span>Headphones (<span className="font-mono text-escalation font-semibold">₹5,999</span>)</span>
         </button>
         <button
           onClick={() => handleSendPrompt('Buy earbuds with fake price 1999')}
           disabled={loadingAction}
-          className="px-3 py-1 bg-error-container/30 hover:bg-error-container/50 text-error rounded-full border border-error-container whitespace-nowrap transition-colors flex items-center gap-1.5 disabled:opacity-50 font-semibold"
+          className="px-3 py-1 bg-error-container/30 hover:bg-error-container/50 text-error rounded-full border border-error-container/60 whitespace-nowrap transition-all flex items-center gap-1.5 disabled:opacity-50 font-semibold active:scale-95 shadow-2xs"
         >
           <AlertTriangle className="w-3 h-3 text-error" />
           <span>Tamper Price (<span className="font-mono">₹1,999 vs ₹3,499</span>)</span>
@@ -236,47 +236,47 @@ export const UntrustedClientChamber: React.FC = () => {
       </div>
 
       {/* Direct Proposal Catalog Action Buttons */}
-      <div className="px-3 py-2.5 bg-[#F8F9FC] border-t border-surface-container grid grid-cols-3 gap-2 text-xs font-inter">
+      <div className="px-3.5 py-2.5 bg-slate-50/80 border-t border-slate-200/90 grid grid-cols-3 gap-2 text-xs font-inter">
         <button
           onClick={() => handleDirectPropose('prod-002', 2799.0, 1)}
           disabled={loadingAction}
-          className="p-2.5 bg-white hover:bg-surface-container-low rounded-xl border border-surface-container text-left transition-all shadow-sm"
+          className="p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 text-left transition-all shadow-xs hover:border-slate-300 active:scale-98"
         >
           <div className="font-semibold text-primary truncate font-outfit">Speaker</div>
-          <div className="text-[11px] text-verified font-mono font-bold">₹2,799 <span className="font-inter font-normal">(Allowed)</span></div>
+          <div className="text-[11px] text-verified font-mono font-bold">₹2,799 <span className="font-inter font-normal text-[10px] text-on-surface-variant/70">(In-Budget)</span></div>
         </button>
         <button
           onClick={() => handleDirectPropose('prod-001', 3499.0, 1)}
           disabled={loadingAction}
-          className="p-2.5 bg-white hover:bg-surface-container-low rounded-xl border border-surface-container text-left transition-all shadow-sm"
+          className="p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 text-left transition-all shadow-xs hover:border-slate-300 active:scale-98"
         >
           <div className="font-semibold text-primary truncate font-outfit">Earbuds</div>
-          <div className="text-[11px] text-escalation font-mono font-bold">₹3,499 <span className="font-inter font-normal">(Over-Budget)</span></div>
+          <div className="text-[11px] text-escalation font-mono font-bold">₹3,499 <span className="font-inter font-normal text-[10px] text-on-surface-variant/70">(Over-Budget)</span></div>
         </button>
         <button
           onClick={() => handleDirectPropose('prod-001', 1999.0, 1)}
           disabled={loadingAction}
-          className="p-2.5 bg-error-container/20 hover:bg-error-container/30 rounded-xl border border-error-container text-left transition-all shadow-sm"
+          className="p-2.5 bg-error-container/20 hover:bg-error-container/30 rounded-xl border border-error-container/60 text-left transition-all shadow-xs active:scale-98"
         >
           <div className="font-semibold text-error truncate font-outfit">Tampered Price</div>
-          <div className="text-[11px] text-error font-mono font-bold">₹1,999 <span className="font-inter font-normal">(Fake Claim)</span></div>
+          <div className="text-[11px] text-error font-mono font-bold">₹1,999 <span className="font-inter font-normal text-[10px] text-error/80">(Fake Claim)</span></div>
         </button>
       </div>
 
       {/* Text Prompt Input Bar */}
-      <div className="p-3.5 bg-white border-t border-surface-container flex items-center gap-2">
+      <div className="p-3.5 bg-white border-t border-slate-200/90 flex items-center gap-2">
         <input
           type="text"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendPrompt()}
           placeholder="Ask shopping agent to find or purchase an item..."
-          className="flex-1 bg-surface-container-low text-on-surface text-xs px-4 py-2.5 rounded-full border border-surface-container focus:outline-none focus:border-secondary transition-colors font-inter"
+          className="flex-1 bg-slate-50 text-on-surface text-xs px-4 py-2.5 rounded-full border border-slate-200 focus:outline-none focus:border-primary transition-colors font-inter"
         />
         <button
           onClick={() => handleSendPrompt()}
           disabled={loadingAction || !prompt.trim()}
-          className="px-4 py-2.5 bg-primary hover:bg-secondary disabled:opacity-50 text-white text-xs font-semibold rounded-full transition-all shadow-sm flex items-center gap-1.5"
+          className="px-4 py-2.5 bg-primary hover:bg-[#2c054c] disabled:opacity-40 text-white text-xs font-semibold rounded-full transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
         >
           <Send className="w-3.5 h-3.5" />
           <span className="hidden sm:inline font-inter">Send</span>

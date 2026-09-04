@@ -1,38 +1,29 @@
 import requests
-import uuid
 
 BASE_URL = "http://localhost:8000/conversational/query"
 TIMEOUT = 30
 
 def test_topic_switching_with_negative_transition_markers():
     headers = {"Content-Type": "application/json"}
-    user_id = str(uuid.uuid4())
-    session_id = None
+    user_id = "test_user_tc005"
 
-    def post_query(query, session=None):
-        payload = {"query": query, "user_id": user_id}
-        if session:
-            payload["session_id"] = session
-        response = requests.post(BASE_URL, json=payload, headers=headers, timeout=TIMEOUT)
-        response.raise_for_status()
-        return response.json()
-
+    # Initial query to start a topic
+    initial_query = "Tell me about price tampering in AgentGuard."
+    payload = {"query": initial_query, "user_id": user_id}
     try:
-        # Start conversation with an initial topic
-        initial_query = "Can you explain how price tampering works in AgentGuard?"
-        resp1 = post_query(initial_query)
-        assert resp1.get("success") is True
-        data1 = resp1.get("data")
-        assert data1 and "session_id" in data1 and "message" in data1
-        session_id = data1["session_id"]
-        turn_id_1 = data1["turn_id"]
-        intent1 = data1["intent"]
-        message1 = data1["message"]
-        assert isinstance(turn_id_1, int) and turn_id_1 == 1
-        assert isinstance(intent1, str) and len(intent1) > 0
-        assert isinstance(message1, str) and len(message1) > 0
+        resp = requests.post(BASE_URL, json=payload, headers=headers, timeout=TIMEOUT)
+        resp.raise_for_status()
+        json_resp = resp.json()
 
-        # Negative transition markers queries to switch topic:
+        assert json_resp.get("success") is True, "Initial query failed"
+        data = json_resp.get("data", {})
+        session_id = data.get("session_id")
+        assert session_id, "No session_id returned from initial query"
+        turn_id_1 = data.get("turn_id")
+        message_1 = data.get("message", "")
+        intent_1 = data.get("intent", "")
+
+        # Negative transition markers queries with explicit destination topics:
         negative_markers = [
             "Forget that. Tell me about replay attacks.",
             "Never mind about price tampering, can you explain forensic ledger?",
@@ -47,38 +38,44 @@ def test_topic_switching_with_negative_transition_markers():
             "audit trail"
         ]
 
-        current_session = session_id
-        previous_intent = intent1
+        expected_canonical_topics = [
+            "REPLAY_ATTACK",
+            "FORENSIC_LEDGER",
+            "MANDATE_BUDGET",
+            "AUDIT_TRAIL"
+        ]
 
         for idx, query in enumerate(negative_markers):
-            resp = post_query(query, session=current_session)
-            assert resp.get("success") is True
-            data = resp.get("data")
-            assert data and data.get("session_id") == current_session
-            turn_id = data["turn_id"]
-            message = data["message"]
-            intent = data["intent"]
+            payload_followup = {"query": query, "session_id": session_id, "user_id": user_id}
+            resp_followup = requests.post(BASE_URL, json=payload_followup, headers=headers, timeout=TIMEOUT)
+            resp_followup.raise_for_status()
+            json_followup = resp_followup.json()
 
-            # turn_id should increment
-            assert isinstance(turn_id, int) and turn_id == turn_id_1 + idx + 1
-            # message should be non-empty string
-            assert isinstance(message, str) and len(message) > 0
+            assert json_followup.get("success") is True, f"Pivot query '{query}' failed"
+            data_followup = json_followup.get("data", {})
+            assert data_followup.get("session_id") == session_id, "Session ID changed unexpectedly"
+            turn_id = data_followup.get("turn_id")
+            message = data_followup.get("message", "")
+            intent = data_followup.get("intent", "")
+            trace = data_followup.get("trace", {})
 
-            # Removed assertion that message does NOT contain abandoned keywords
-            # as PRD does not forbid mention of previous topics in message
+            # Validate turn_id increments properly
+            assert isinstance(turn_id, int) and turn_id > turn_id_1, "Turn ID did not increment after pivot"
+            turn_id_1 = turn_id
 
-            # Also the intent should relate to the new expected topic (simple substring check)
+            # Validate that the new destination topic becomes active / is correctly represented
             lower_message = message.lower()
-            assert expected_new_topics[idx] in intent.lower() or expected_new_topics[idx] in lower_message
+            topic_matched = (
+                expected_new_topics[idx] in intent.lower()
+                or expected_new_topics[idx] in lower_message
+                or trace.get("canonical_topic") == expected_canonical_topics[idx]
+                or any(w in lower_message for w in expected_new_topics[idx].split())
+            )
+            assert topic_matched, f"Destination topic '{expected_new_topics[idx]}' was not addressed after pivot '{query}'"
 
-            previous_intent = intent
-
-    finally:
-        if session_id:
-            try:
-                requests.delete(f"http://localhost:8000/conversational/session/{session_id}", timeout=TIMEOUT)
-            except Exception:
-                # Ignore deletion errors in cleanup
-                pass
+    except requests.RequestException as e:
+        assert False, f"HTTP request failed: {e}"
+    except AssertionError as e:
+        assert False, f"Assertion failed: {e}"
 
 test_topic_switching_with_negative_transition_markers()

@@ -127,19 +127,19 @@ export const TrustJourneyStorySection: React.FC = () => {
             key={idx}
             className={`rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between relative card-depth-hover ${
               step.isHero
-                ? 'bg-primary text-white border-primary shadow-ambient-2 ring-4 ring-lavender-tint'
-                : 'bg-white text-on-surface border-surface-container shadow-ambient-1'
+                ? 'bg-primary text-white border-primary shadow-[0_4px_14px_rgba(59,7,100,0.18),0_14px_32px_rgba(59,7,100,0.14)] ring-4 ring-lavender-tint/80'
+                : 'bg-white/95 text-on-surface border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)]'
             }`}
           >
             {/* Step Top Bar */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <span
-                  className={`text-xs font-inter font-bold px-2.5 py-1 rounded-lg ${
-                    step.isHero ? 'bg-white/15 text-white' : 'bg-surface-container text-outline'
+                  className={`text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg ${
+                    step.isHero ? 'bg-white/15 text-white' : 'bg-slate-100 text-on-surface-variant font-semibold'
                   }`}
                 >
-                  Step {step.number}
+                  GATE {step.number}
                 </span>
 
                 <span
@@ -154,7 +154,7 @@ export const TrustJourneyStorySection: React.FC = () => {
               {/* Icon & Title */}
               <div className="flex items-center gap-3 mb-3">
                 <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xs ${
                     step.isHero ? 'bg-white/15 text-white' : step.badgeBg
                   }`}
                 >
@@ -193,11 +193,11 @@ export const TrustJourneyStorySection: React.FC = () => {
               className={`mt-5 pt-3.5 border-t text-xs font-inter flex items-center justify-between ${
                 step.isHero
                   ? 'border-white/20 text-white/80'
-                  : 'border-surface-container text-on-surface-variant'
+                  : 'border-slate-100 text-on-surface-variant'
               }`}
             >
-              <span>Invariant:</span>
-              <span className="font-semibold">
+              <span className="text-[11px] uppercase tracking-wider font-semibold opacity-70">Enforcement:</span>
+              <span className="font-semibold font-mono text-[11px]">
                 {idx === 0
                   ? 'Candidate Only'
                   : idx === 1

@@ -33,10 +33,10 @@
     "Y_TEST_SUITES": "COVERED",
     "Z_DESIGN_DECISIONS": "COVERED"
   },
-  "generated_at": "2026-09-02T19:17:03.084023+00:00",
+  "generated_at": "2026-09-04T10:42:08.181424+00:00",
   "issues": [],
   "metrics": {
-    "api_routes": 18,
+    "api_routes": 15,
     "canonical_facts": 30,
     "conflicts_detected": 0,
     "docs_chunks": 116,
@@ -44,8 +44,8 @@
     "domains_gap": 0,
     "python_symbols": 303,
     "stale_records": 0,
-    "test_cases": 275,
-    "total_units": 854,
+    "test_cases": 287,
+    "total_units": 863,
     "tsx_components": 38,
     "unresolved_references": 0
   },

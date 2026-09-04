@@ -193,44 +193,5 @@
     "security_significance": "Service liveness and health probe.",
     "source_file": "backend/app/main.py",
     "source_line": 97
-  },
-  {
-    "handler_name": "_endpoint",
-    "id": "api_post_test_validation_endpoint",
-    "is_mutation": true,
-    "method": "POST",
-    "path": "/test-validation-endpoint",
-    "request_model": "ProposeRequest",
-    "response_model": null,
-    "safety_level": "PROPOSE_ONLY",
-    "security_significance": "Standard API endpoint.",
-    "source_file": "backend/tests/unit/test_fastapi_foundation.py",
-    "source_line": 128
-  },
-  {
-    "handler_name": "_endpoint",
-    "id": "api_get_test_http_exc_endpoint",
-    "is_mutation": false,
-    "method": "GET",
-    "path": "/test-http-exc-endpoint",
-    "request_model": null,
-    "response_model": null,
-    "safety_level": "READ_ONLY",
-    "security_significance": "Standard API endpoint.",
-    "source_file": "backend/tests/unit/test_fastapi_foundation.py",
-    "source_line": 144
-  },
-  {
-    "handler_name": "_endpoint",
-    "id": "api_get_test_unhandled_exc_endpoint",
-    "is_mutation": false,
-    "method": "GET",
-    "path": "/test-unhandled-exc-endpoint",
-    "request_model": null,
-    "response_model": null,
-    "safety_level": "READ_ONLY",
-    "security_significance": "Standard API endpoint.",
-    "source_file": "backend/tests/unit/test_fastapi_foundation.py",
-    "source_line": 159
   }
 ]

@@ -468,7 +468,7 @@ class DeterministicMockLLM(BaseConversationalLLM):
                 if mandate_note:
                     parts.append(mandate_note.replace("LIVE MANDATE:", "").strip())
                 else:
-                    parts.append("mandate `mandate-001` currently has ₹3,000.00 in remaining budget (Total: ₹3,000.00, Status: active)")
+                    parts.append("mandate budget for `mandate-001` currently has ₹3,000.00 in remaining budget (Total: ₹3,000.00, Status: active)")
                 if catalog_note:
                     parts.append(catalog_note.replace("LIVE CATALOG:", "").strip())
                 else:
@@ -476,7 +476,12 @@ class DeterministicMockLLM(BaseConversationalLLM):
                 if transaction_note:
                     parts.append(transaction_note.replace("LIVE TRANSACTION LEDGER:", "").strip())
                 else:
-                    parts.append("there are 3 recorded transactions in the forensic ledger backed by 11 SHA-256 chained audit events")
+                    parts.append("there are 3 recorded transactions in the forensic ledger")
+                if "audit" in query_lower or audit_note:
+                    if audit_note:
+                        parts.append(f"the forensic audit trail is verified: {audit_note.replace('LIVE AUDIT LEDGER:', '').strip()}")
+                    else:
+                        parts.append("the SHA-256 audit trail is cryptographically verified across 11 chained events with zero tampering anomalies")
                 return "According to live PostgreSQL records:\n- " + "\n- ".join(parts)
 
             # Specific product affordability checks
@@ -503,12 +508,18 @@ class DeterministicMockLLM(BaseConversationalLLM):
 
         # 15. Code references & implementation locations
         if strategy_line == "PROVIDE_CODE_LOCATION" or any(w in query_lower for w in ["where is", "implemented in", "show code", "which file", "point me to the code"]):
-            if "replay" in topic_lower or "replay" in query_lower:
+            if "engine.py" in query_lower or "policy/engine" in query_lower:
+                return (
+                    "The main security checks in `backend/app/policy/engine.py` are implemented within the `evaluate_policy()` function "
+                    "(lines 50-80), which validates merchant scope against authorized merchants, computes the Claim Diff "
+                    "against catalog prices to block price tampering, and checks mandate spending limits."
+                )
+            if "replay" in topic_lower or "replay" in query_lower or "execute.py" in query_lower:
                 return (
                     "Protection against replay attacks is implemented in `backend/app/api/execute.py` within `execute_transaction()` "
                     "using database-backed idempotency record locking."
                 )
-            if "audit" in topic_lower or "audit" in query_lower or "ledger" in query_lower or "hash" in query_lower:
+            if "audit" in topic_lower or "audit" in query_lower or "ledger" in query_lower or "hash" in query_lower or "audit_log.py" in query_lower:
                 return (
                     "The cryptographic audit chain verification is implemented in `backend/app/services/audit_log.py` "
                     "within the `verify_audit_chain()` function and exposed via `GET /transaction/{id}/audit`."
@@ -568,9 +579,9 @@ class DeterministicMockLLM(BaseConversationalLLM):
         if strategy_line == "EXPLAIN_HOW" or "how does that protection work" in query_lower or "how is that prevented" in query_lower or "how does agentguard stop" in query_lower or "how does it work" in query_lower or "how the audit" in query_lower or "forensic ledger" in query_lower:
             if "bypass" in query_lower or "can an attacker bypass" in query_lower:
                 return (
-                    "No. AgentGuard's protections are enforced server-side in Python and PostgreSQL before any payment call. "
-                    "Because the LLM never receives private API credentials or direct database write access, it cannot bypass "
-                    "the deterministic policy checks or forge the append-only SHA-256 audit ledger."
+                    "No. AgentGuard's security protections and price tampering validation are enforced server-side in Python and PostgreSQL before any payment call. "
+                    "Because the LLM never receives private API credentials or direct database write access, it cannot tamper with catalog data, bypass "
+                    "the deterministic policy checks, or forge the append-only SHA-256 audit ledger."
                 )
             if "audit" in topic_lower or "audit" in query_lower or "ledger" in query_lower or "sha-256" in query_lower or "forensic" in query_lower:
                 return (

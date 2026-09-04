@@ -5,12 +5,12 @@
       "router.post('/transaction/{transaction_id}/approve', response_model=ApiResponse[ApprovalData])"
     ],
     "dependencies": [
-      "HTTPException",
       "Approval",
-      "Depends",
-      "str",
+      "log_audit_event",
+      "HTTPException",
       "ApprovalData",
-      "log_audit_event"
+      "Depends",
+      "str"
     ],
     "docstring": "Human approval endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
     "file_path": "backend/app/api/approve.py",
@@ -27,12 +27,12 @@
       "router.post('/transaction/{transaction_id}/reject', response_model=ApiResponse[ApprovalData])"
     ],
     "dependencies": [
-      "HTTPException",
       "Approval",
-      "Depends",
-      "str",
+      "log_audit_event",
+      "HTTPException",
       "ApprovalData",
-      "log_audit_event"
+      "Depends",
+      "str"
     ],
     "docstring": "Human rejection endpoint for transactions in ESCALATED / BUDGET_EXCEEDED state.",
     "file_path": "backend/app/api/approve.py",
@@ -49,15 +49,15 @@
       "router.post('/transaction/execute', response_model=ApiResponse[ExecuteData])"
     ],
     "dependencies": [
-      "HTTPException",
-      "Depends",
       "Decimal",
-      "str",
-      "abs",
       "IdempotencyRecord",
-      "JSONResponse",
       "log_audit_event",
-      "ExecuteData"
+      "HTTPException",
+      "JSONResponse",
+      "abs",
+      "ExecuteData",
+      "Depends",
+      "str"
     ],
     "docstring": "Execute a server-authorized transaction against the payment gateway with atomic budget reservation.",
     "file_path": "backend/app/api/execute.py",
@@ -74,17 +74,17 @@
       "router.post('/transaction/propose', response_model=ApiResponse[ProposeData])"
     ],
     "dependencies": [
+      "MandatePolicyInput",
+      "AgentProposalInput",
       "Transaction",
       "timedelta",
-      "HTTPException",
-      "Depends",
-      "AgentProposalInput",
-      "str",
-      "ProposeData",
-      "MandatePolicyInput",
       "log_audit_event",
+      "HTTPException",
       "evaluate_policy",
-      "ProductPolicyInput"
+      "ProductPolicyInput",
+      "ProposeData",
+      "Depends",
+      "str"
     ],
     "docstring": "Process an untrusted agent transaction proposal and persist the server-authorized decision.",
     "file_path": "backend/app/api/propose.py",
@@ -116,13 +116,13 @@
       "router.post('/agent/chat', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "HTTPException",
-      "Depends",
       "GeminiShoppingAgentClient",
-      "str",
-      "ProposeRequest",
+      "AgentClaim",
+      "HTTPException",
       "propose_transaction",
-      "AgentClaim"
+      "Depends",
+      "str",
+      "ProposeRequest"
     ],
     "docstring": "Reference Shopping Agent chat endpoint.\n\nInterprets user prompt, generates agent proposal claims, and passes them to\nthe server-authoritative firewall proposal endpoint.",
     "file_path": "backend/app/api/routes_agent.py",
@@ -139,8 +139,8 @@
       "router.get('/transactions', response_model=ApiResponse[list[TransactionSummary]])"
     ],
     "dependencies": [
-      "TransactionSummary",
-      "Depends"
+      "Depends",
+      "TransactionSummary"
     ],
     "docstring": "List past transactions in descending order by created_at for audit selection.",
     "file_path": "backend/app/api/routes_audit.py",
@@ -157,12 +157,12 @@
       "router.get('/transaction/{transaction_id}/audit', response_model=ApiResponse[TransactionAuditData])"
     ],
     "dependencies": [
-      "HTTPException",
-      "TransactionSummary",
-      "Depends",
       "AuditEventItem",
+      "TransactionSummary",
+      "HTTPException",
       "TransactionAuditData",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "Depends"
     ],
     "docstring": "Retrieve the authoritative server-generated audit event trace for a transaction.\n\nVerifies transaction existence, returns events in deterministic chronological\nsequence order (seq_id ASC), and reports cryptographic SHA-256 chain integrity.",
     "file_path": "backend/app/api/routes_audit.py",
@@ -194,8 +194,8 @@
       "router.post('/query', response_model=ApiResponse[AssistantResponse])"
     ],
     "dependencies": [
-      "get_conversational_brain",
-      "Depends"
+      "Depends",
+      "get_conversational_brain"
     ],
     "docstring": "Processes a user conversational query with multi-turn session tracking,\n\nretrieval/live routing, and evidence-grounded response generation.",
     "file_path": "backend/app/api/routes_conversational.py",
@@ -248,10 +248,10 @@
       "router.post('/mandate/{mandate_id}/revoke', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
-      "str",
-      "HTTPException",
       "Depends",
-      "log_audit_event"
+      "log_audit_event",
+      "HTTPException",
+      "str"
     ],
     "docstring": "Revoke an active mandate by ID.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -268,9 +268,9 @@
       "router.get('/mandate/{mandate_id}', response_model=ApiResponse[dict[str, Any]])"
     ],
     "dependencies": [
+      "Depends",
       "str",
-      "HTTPException",
-      "Depends"
+      "HTTPException"
     ],
     "docstring": "Fetch mandate details and remaining budget.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -287,8 +287,8 @@
       "router.get('/products', response_model=ApiResponse[list[dict[str, Any]]])"
     ],
     "dependencies": [
-      "str",
-      "Depends"
+      "Depends",
+      "str"
     ],
     "docstring": "Fetch product catalog for shopping agent and frontend UI.",
     "file_path": "backend/app/api/routes_mandate.py",
@@ -608,9 +608,9 @@
     "content_sha256": "b301606b8c5ad5f17f51d287fbe764da792a8c1d2b44fed25bd28ecfa0256e86",
     "decorators": [],
     "dependencies": [
-      "ConversationSession",
+      "min",
       "len",
-      "min"
+      "ConversationSession"
     ],
     "docstring": "Retrieves an existing session or creates a new one with a unique session ID.",
     "file_path": "backend/app/conversational/dialogue_manager.py",
@@ -638,10 +638,10 @@
     "content_sha256": "3dcecf3fbf87aab8dd5a8fada606175f4c82ec56f2af066beb9919e7635162e5",
     "decorators": [],
     "dependencies": [
-      "ConversationTurn",
-      "isinstance",
       "ConversationAction",
-      "len"
+      "isinstance",
+      "len",
+      "ConversationTurn"
     ],
     "docstring": "Appends a turn to the session history, updates entity/topic/semantic state, and advances turn counter.",
     "file_path": "backend/app/conversational/dialogue_manager.py",
@@ -713,9 +713,9 @@
     "content_sha256": "bb659df684566f4568ad2839021f12795038fb8c69b8093e692fd97670f0af3f",
     "decorators": [],
     "dependencies": [
+      "TopicContext",
       "any",
       "isinstance",
-      "TopicContext",
       "reversed"
     ],
     "docstring": null,
@@ -744,9 +744,9 @@
     "content_sha256": "c704f41ba306f61d7903c18c176d0dfdf88d3d536ebe80d234bb2ebb747749be",
     "decorators": [],
     "dependencies": [
-      "FollowUpSuggestion",
+      "ProgressiveDisclosureOffer",
       "ConversationAction",
-      "ProgressiveDisclosureOffer"
+      "FollowUpSuggestion"
     ],
     "docstring": "Evaluates whether a progressive disclosure offer is appropriate and crafts tailored follow-up suggestions.",
     "file_path": "backend/app/conversational/disclosure.py",
@@ -817,8 +817,8 @@
     "content_sha256": "93876c4430e7113434f86d17e1e6407580d340ae138ef8a39dfb733b0797f59c",
     "decorators": [],
     "dependencies": [
-      "any",
       "BrainTrace",
+      "any",
       "AssistantResponse"
     ],
     "docstring": "Generates a safe, educational refusal upholding AgentGuard's zero-financial-authority invariant.",
@@ -837,7 +837,7 @@
     "docstring": "Resolves natural user queries into strongly-typed conversational intent plans,\n\nperforming contextual pronoun/coreference resolution, topic tracking, purpose identification,\nresponse strategy selection, and deterministic static-vs-live routing.",
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver_f2864362",
-    "line_end": 1152,
+    "line_end": 1166,
     "line_start": 27,
     "name": "IntentResolver",
     "signature": "class IntentResolver()",
@@ -872,18 +872,18 @@
     "symbol_type": "method"
   },
   {
-    "content_sha256": "035f582d8b40826c6abd9faa8c0fbecb557786f34cea39752f8db1acf4823e83",
+    "content_sha256": "abe5d53b4449773316833917f816379f489e5890661527282ac745bd06478d0a",
     "decorators": [],
     "dependencies": [
-      "ResponsePlan",
-      "any",
+      "bool",
       "LiveToolRequest",
+      "ResponsePlan",
       "len",
-      "bool"
+      "any"
     ],
     "docstring": "Processes a query in the context of an optional session and generates a ResponsePlan.",
     "file_path": "backend/app/conversational/intent_resolver.py",
-    "id": "sym_intent_resolver_IntentResolver.resolve_035f582d",
+    "id": "sym_intent_resolver_IntentResolver.resolve_abe5d53b",
     "line_end": 543,
     "line_start": 349,
     "name": "IntentResolver.resolve",
@@ -891,15 +891,15 @@
     "symbol_type": "method"
   },
   {
-    "content_sha256": "fd95ca519efe454db7d4b95c6d8ad7ce3f673442bf7f4581eeb238438eada88f",
+    "content_sha256": "146078a84f40690105966f5c45e0708cf56d98c44e3efaa3a8cdf40de0f27e4a",
     "decorators": [],
     "dependencies": [
       "any"
     ],
     "docstring": "Determines the active canonical topic for the current turn with negative pivot isolation.",
     "file_path": "backend/app/conversational/intent_resolver.py",
-    "id": "sym_intent_resolver_IntentResolver._identify_topic_fd95ca51",
-    "line_end": 631,
+    "id": "sym_intent_resolver_IntentResolver._identify_topic_146078a8",
+    "line_end": 637,
     "line_start": 545,
     "name": "IntentResolver._identify_topic",
     "signature": "def _identify_topic(...)",
@@ -914,14 +914,14 @@
     "docstring": "Infers communicative purpose and response strategy.",
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver._infer_purpose_and_strategy_3006fc78",
-    "line_end": 719,
-    "line_start": 633,
+    "line_end": 725,
+    "line_start": 639,
     "name": "IntentResolver._infer_purpose_and_strategy",
     "signature": "def _infer_purpose_and_strategy(...)",
     "symbol_type": "method"
   },
   {
-    "content_sha256": "d797e02d84db467560f4f53bc8ea599f4595f42a28c64fc0336207bef4cce176",
+    "content_sha256": "04f60cbc8fdd3a69230a1203ede70a180b8246427ae13b97f3f50fd502db664e",
     "decorators": [],
     "dependencies": [
       "any",
@@ -929,9 +929,9 @@
     ],
     "docstring": "Resolves pronouns, coreferences, and context into a self-contained query grounded in the active topic.",
     "file_path": "backend/app/conversational/intent_resolver.py",
-    "id": "sym_intent_resolver_IntentResolver._resolve_contextual_query_d797e02d",
-    "line_end": 848,
-    "line_start": 721,
+    "id": "sym_intent_resolver_IntentResolver._resolve_contextual_query_04f60cbc",
+    "line_end": 862,
+    "line_start": 727,
     "name": "IntentResolver._resolve_contextual_query",
     "signature": "def _resolve_contextual_query(...)",
     "symbol_type": "method"
@@ -940,14 +940,14 @@
     "content_sha256": "0ba7f37c270bf039f53a689f2cc40c65ee3df2adb5e91774b7be57dfec6b7a90",
     "decorators": [],
     "dependencies": [
-      "LiveToolRequest",
-      "ResponsePlan"
+      "ResponsePlan",
+      "LiveToolRequest"
     ],
     "docstring": "Constructs a ResponsePlan when user accepts a progressive disclosure offer.",
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver._resolve_progressive_affirmation_0ba7f37c",
-    "line_end": 898,
-    "line_start": 850,
+    "line_end": 912,
+    "line_start": 864,
     "name": "IntentResolver._resolve_progressive_affirmation",
     "signature": "def _resolve_progressive_affirmation(...)",
     "symbol_type": "method"
@@ -961,8 +961,8 @@
     "docstring": "Deterministic check for live runtime state requirements.",
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver._check_live_routing_acd8e312",
-    "line_end": 941,
-    "line_start": 900,
+    "line_end": 955,
+    "line_start": 914,
     "name": "IntentResolver._check_live_routing",
     "signature": "def _check_live_routing(...)",
     "symbol_type": "method"
@@ -974,8 +974,8 @@
     "docstring": null,
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver._map_resource_to_live_tool_0e24c90f",
-    "line_end": 954,
-    "line_start": 943,
+    "line_end": 968,
+    "line_start": 957,
     "name": "IntentResolver._map_resource_to_live_tool",
     "signature": "def _map_resource_to_live_tool(...)",
     "symbol_type": "method"
@@ -989,8 +989,8 @@
     "docstring": null,
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver._map_classification_to_intent_56d5c2ce",
-    "line_end": 1047,
-    "line_start": 956,
+    "line_end": 1061,
+    "line_start": 970,
     "name": "IntentResolver._map_classification_to_intent",
     "signature": "def _map_classification_to_intent(...)",
     "symbol_type": "method"
@@ -1005,8 +1005,8 @@
     "docstring": null,
     "file_path": "backend/app/conversational/intent_resolver.py",
     "id": "sym_intent_resolver_IntentResolver._detect_ui_action_0c6849b7",
-    "line_end": 1152,
-    "line_start": 1049,
+    "line_end": 1166,
+    "line_start": 1063,
     "name": "IntentResolver._detect_ui_action",
     "signature": "def _detect_ui_action(...)",
     "symbol_type": "method"
@@ -1042,8 +1042,8 @@
     "decorators": [],
     "dependencies": [
       "str",
-      "round",
-      "LiveToolResult"
+      "LiveToolResult",
+      "round"
     ],
     "docstring": "Executes a live tool query against authoritative backend systems.",
     "file_path": "backend/app/conversational/live_bridge.py",
@@ -1055,14 +1055,14 @@
     "symbol_type": "method"
   },
   {
-    "content_sha256": "1431aef020a0482816bfa5edaeb0723bdb3dc67edbc5eb5a71e2a08be577ebf3",
+    "content_sha256": "f11228b4a01c65f24b362aaa16520ee092cd13af62bd947a2010bace31eeef09",
     "decorators": [],
     "dependencies": [
       "EvidenceContext"
     ],
     "docstring": "Converts a live tool result into an EvidenceContext for response generation.",
     "file_path": "backend/app/conversational/live_bridge.py",
-    "id": "sym_live_bridge_LiveRuntimeBridge.create_evidence_context_1431aef0",
+    "id": "sym_live_bridge_LiveRuntimeBridge.create_evidence_context_f11228b4",
     "line_end": 144,
     "line_start": 76,
     "name": "LiveRuntimeBridge.create_evidence_context",
@@ -1227,14 +1227,14 @@
     "docstring": "Deterministic, fast, offline mock LLM for repeatable unit and benchmark testing.",
     "file_path": "backend/app/conversational/llm_provider.py",
     "id": "sym_llm_provider_DeterministicMockLLM_fa979a73",
-    "line_end": 690,
+    "line_end": 701,
     "line_start": 54,
     "name": "DeterministicMockLLM",
     "signature": "class DeterministicMockLLM(BaseConversationalLLM)",
     "symbol_type": "class"
   },
   {
-    "content_sha256": "053de7155a1ebf715c45b8dd26b1adf801c3344c45c5b476775dc834fcc9205d",
+    "content_sha256": "26cbd87688c27042bece250e88f3d316836077bf2138470dfdd90cd383dfddf0",
     "decorators": [],
     "dependencies": [
       "next",
@@ -1243,8 +1243,8 @@
     ],
     "docstring": null,
     "file_path": "backend/app/conversational/llm_provider.py",
-    "id": "sym_llm_provider_DeterministicMockLLM.generate_response_053de715",
-    "line_end": 690,
+    "id": "sym_llm_provider_DeterministicMockLLM.generate_response_26cbd876",
+    "line_end": 701,
     "line_start": 57,
     "name": "DeterministicMockLLM.generate_response",
     "signature": "def generate_response(...)",
@@ -1649,8 +1649,8 @@
     ],
     "dependencies": [
       "str",
-      "isinstance",
-      "field_serializer"
+      "field_serializer",
+      "isinstance"
     ],
     "docstring": null,
     "file_path": "backend/app/conversational/models.py",
@@ -1686,7 +1686,7 @@
     "docstring": "Master orchestrator for the AgentGuard conversational intelligence system.",
     "file_path": "backend/app/conversational/orchestrator.py",
     "id": "sym_orchestrator_ConversationalBrain_8b6d4212",
-    "line_end": 202,
+    "line_end": 205,
     "line_start": 26,
     "name": "ConversationalBrain",
     "signature": "class ConversationalBrain()",
@@ -1696,14 +1696,14 @@
     "content_sha256": "2c8ab3ef01487335455e624370592f9a658f549ab439d2cb2ac5537c4d63c08d",
     "decorators": [],
     "dependencies": [
-      "ResponseGenerator",
-      "DialogueManager",
-      "LiveRuntimeBridge",
+      "RetrievalBridge",
       "GeminiConversationalLLM",
-      "IntentResolver",
-      "ProgressiveDisclosureEngine",
       "SafetyGuardrails",
-      "RetrievalBridge"
+      "ProgressiveDisclosureEngine",
+      "DialogueManager",
+      "IntentResolver",
+      "LiveRuntimeBridge",
+      "ResponseGenerator"
     ],
     "docstring": null,
     "file_path": "backend/app/conversational/orchestrator.py",
@@ -1715,19 +1715,19 @@
     "symbol_type": "method"
   },
   {
-    "content_sha256": "407e7ab89eacd917bbd3b36f6b57084a41337c8ddd6f8c35a1897b9c87f75a0e",
+    "content_sha256": "c3ae44d03a7d3988314524c974b3de1435b908b2bb0fbf286b2d29f80288ba1c",
     "decorators": [],
     "dependencies": [
-      "EvidenceContext",
       "SessionLocal",
-      "len",
       "round",
+      "len",
+      "EvidenceContext",
       "BrainTrace"
     ],
     "docstring": "End-to-end processing of a user conversational turn.",
     "file_path": "backend/app/conversational/orchestrator.py",
-    "id": "sym_orchestrator_ConversationalBrain.process_query_407e7ab8",
-    "line_end": 202,
+    "id": "sym_orchestrator_ConversationalBrain.process_query_c3ae44d0",
+    "line_end": 205,
     "line_start": 48,
     "name": "ConversationalBrain.process_query",
     "signature": "def process_query(...)",
@@ -1742,8 +1742,8 @@
     "docstring": "Returns the cached singleton ConversationalBrain instance.",
     "file_path": "backend/app/conversational/orchestrator.py",
     "id": "sym_orchestrator_get_conversational_brain_1198955f",
-    "line_end": 216,
-    "line_start": 209,
+    "line_end": 219,
+    "line_start": 212,
     "name": "get_conversational_brain",
     "signature": "def get_conversational_brain(...)",
     "symbol_type": "function"
@@ -1755,7 +1755,7 @@
     "docstring": "Synthesizes evidence-grounded, natural, and non-repetitive assistant responses\n\nadapted dynamically to the user's communicative purpose and response strategy.",
     "file_path": "backend/app/conversational/response_generator.py",
     "id": "sym_response_generator_ResponseGenerator_84c4456f",
-    "line_end": 247,
+    "line_end": 254,
     "line_start": 26,
     "name": "ResponseGenerator",
     "signature": "class ResponseGenerator()",
@@ -1781,8 +1781,8 @@
     "decorators": [],
     "dependencies": [
       "any",
-      "len",
-      "AssistantResponse"
+      "AssistantResponse",
+      "len"
     ],
     "docstring": "Generates grounded response and wraps it in a complete AssistantResponse contract.",
     "file_path": "backend/app/conversational/response_generator.py",
@@ -1797,10 +1797,10 @@
     "content_sha256": "19efcb4e1d77ed804c9576aa67db3f9baeb4c7c511a1feaa68e2e6c965786c71",
     "decorators": [],
     "dependencies": [
+      "min",
       "len",
       "zip",
-      "set",
-      "min"
+      "set"
     ],
     "docstring": "Calculates 3-gram word set overlap against the last 2 assistant responses in history.",
     "file_path": "backend/app/conversational/response_generator.py",
@@ -1825,15 +1825,15 @@
     "symbol_type": "method"
   },
   {
-    "content_sha256": "8cfbfdc4a28dd475dc66204406b85f290bd44a7ed74e5caf77853a64052b3321",
+    "content_sha256": "280c5bf90eb890a6080f96adcaeb8451f64087062539fda3fcb0daa59cc732a1",
     "decorators": [],
     "dependencies": [
       "len"
     ],
     "docstring": null,
     "file_path": "backend/app/conversational/response_generator.py",
-    "id": "sym_response_generator_ResponseGenerator._build_prompt_8cfbfdc4",
-    "line_end": 227,
+    "id": "sym_response_generator_ResponseGenerator._build_prompt_280c5bf9",
+    "line_end": 234,
     "line_start": 186,
     "name": "ResponseGenerator._build_prompt",
     "signature": "def _build_prompt(...)",
@@ -1846,8 +1846,8 @@
     "docstring": "Builds an adjusted prompt with explicit negative constraints to break repetitive phrasing.",
     "file_path": "backend/app/conversational/response_generator.py",
     "id": "sym_response_generator_ResponseGenerator._build_retry_prompt_c1b4fee0",
-    "line_end": 247,
-    "line_start": 229,
+    "line_end": 254,
+    "line_start": 236,
     "name": "ResponseGenerator._build_retry_prompt",
     "signature": "def _build_retry_prompt(...)",
     "symbol_type": "method"
@@ -2035,9 +2035,9 @@
     "content_sha256": "9f417ffed01ec890320cc01b6e804de0afcc8c3a6ac38a2eb45d75f0bef72e5a",
     "decorators": [],
     "dependencies": [
+      "int",
       "str",
-      "Decimal",
-      "int"
+      "Decimal"
     ],
     "docstring": "Interprets a user shopping prompt against the catalog and returns a transaction proposal.\n\nReturns a dict with structure:\n{\n    \"product_id\": str,\n    \"claimed_price\": Decimal,\n    \"quantity\": int,\n    \"thought\": str\n}",
     "file_path": "backend/app/integrations/gemini_client.py",
@@ -2052,9 +2052,9 @@
     "content_sha256": "a8715fa251fc77863721bad0833d32b62c7c19e0fd06e4902ce1cfd89f9a004f",
     "decorators": [],
     "dependencies": [
-      "Decimal",
+      "str",
       "any",
-      "str"
+      "Decimal"
     ],
     "docstring": "Deterministic keyword matching for demo & test reliability without external API calls.",
     "file_path": "backend/app/integrations/gemini_client.py",
@@ -2181,9 +2181,9 @@
     "content_sha256": "57d8f40dcb03042f59706729c0432df5011841350347b1b309b3f89a05e6f740",
     "decorators": [],
     "dependencies": [
-      "hasattr",
+      "getattr",
       "isinstance",
-      "getattr"
+      "hasattr"
     ],
     "docstring": "Recursively unpacks FastAPI routes, including nested routers and _IncludedRouter objects.",
     "file_path": "backend/app/knowledge/api_extractor.py",
@@ -2198,16 +2198,16 @@
     "content_sha256": "59501077f0ef76d4454c4e8b347529d44a56c8d2551fb87a42a19fc7b56327d5",
     "decorators": [],
     "dependencies": [
-      "str",
-      "min",
-      "ApiRouteRecord",
       "hasattr",
-      "KnowledgeUnit",
-      "len",
-      "getattr",
-      "list",
+      "Path",
       "max",
-      "Path"
+      "min",
+      "list",
+      "getattr",
+      "ApiRouteRecord",
+      "len",
+      "KnowledgeUnit",
+      "str"
     ],
     "docstring": "Introspects all registered routes from the FastAPI app instance.",
     "file_path": "backend/app/knowledge/api_extractor.py",
@@ -2263,12 +2263,12 @@
     "content_sha256": "7374a06f07451cc629179c5bc2dd9f841ab1f14501eab2cef9ca128991479853",
     "decorators": [],
     "dependencies": [
-      "str",
-      "QAIssue",
+      "Path",
       "isinstance",
-      "KnowledgeUnit",
+      "QAIssue",
       "len",
-      "Path"
+      "KnowledgeUnit",
+      "str"
     ],
     "docstring": "Parses a Python file using AST and extracts symbols and knowledge units.",
     "file_path": "backend/app/knowledge/ast_extractor.py",
@@ -2283,13 +2283,13 @@
     "content_sha256": "7ab183fa13ac66decbee2fc4085fa0b70e8a377af6babc5e3ff77648ce1d4ba2",
     "decorators": [],
     "dependencies": [
-      "set",
-      "CodeRelationship",
       "isinstance",
-      "KnowledgeUnit",
-      "list",
+      "Path",
+      "CodeRelationship",
+      "set",
       "CodeSymbolRecord",
-      "Path"
+      "list",
+      "KnowledgeUnit"
     ],
     "docstring": "Extracts a function/method symbol and knowledge unit.",
     "file_path": "backend/app/knowledge/ast_extractor.py",
@@ -2304,11 +2304,11 @@
     "content_sha256": "babd546247093e30f5950b845a62aef7b8a8b6ad642fd462394ff603bfa8fd6a",
     "decorators": [],
     "dependencies": [
-      "CodeRelationship",
+      "Path",
       "isinstance",
-      "KnowledgeUnit",
+      "CodeRelationship",
       "CodeSymbolRecord",
-      "Path"
+      "KnowledgeUnit"
     ],
     "docstring": "Extracts a class symbol, its methods, and knowledge units.",
     "file_path": "backend/app/knowledge/ast_extractor.py",
@@ -2364,18 +2364,18 @@
     "content_sha256": "8ede881f789bd59485376a496dc8476a7e47b401e16fec1664e944b043e64c19",
     "decorators": [],
     "dependencies": [
-      "TestExtractor",
-      "FrontendExtractor",
-      "DocIngestor",
-      "KnowledgeManifest",
-      "CodeAstExtractor",
       "ApiExtractor",
       "QAReport",
-      "any",
+      "CoverageMetrics",
       "ConflictDetector",
+      "FrontendExtractor",
+      "TestExtractor",
       "sum",
+      "any",
       "len",
-      "CoverageMetrics"
+      "KnowledgeManifest",
+      "DocIngestor",
+      "CodeAstExtractor"
     ],
     "docstring": "Executes full knowledge extraction, secret scanning, QA validation, and persistence.",
     "file_path": "backend/app/knowledge/builder.py",
@@ -2457,9 +2457,9 @@
       "classmethod"
     ],
     "dependencies": [
-      "str",
       "KnowledgeUnit",
-      "CanonicalFactRecord"
+      "CanonicalFactRecord",
+      "str"
     ],
     "docstring": "Constructs canonical fact records and converts them to KnowledgeUnits.",
     "file_path": "backend/app/knowledge/canonical_facts.py",
@@ -2515,9 +2515,9 @@
     "content_sha256": "57d8f40dcb03042f59706729c0432df5011841350347b1b309b3f89a05e6f740",
     "decorators": [],
     "dependencies": [
-      "hasattr",
+      "getattr",
       "isinstance",
-      "getattr"
+      "hasattr"
     ],
     "docstring": "Recursively unpacks FastAPI routes, including nested routers and _IncludedRouter objects.",
     "file_path": "backend/app/knowledge/conflict_detector.py",
@@ -2590,9 +2590,9 @@
     "decorators": [],
     "dependencies": [
       "str",
+      "QAIssue",
       "enumerate",
-      "len",
-      "QAIssue"
+      "len"
     ],
     "docstring": "Parses a single markdown documentation file into heading-structured KnowledgeUnits.",
     "file_path": "backend/app/knowledge/doc_ingestor.py",
@@ -2677,12 +2677,12 @@
     "content_sha256": "bdfc5f752fea199f6f2ef681d81a92b2fbe4b0ee75e4fbff8c6ed3f66e4c16ca",
     "decorators": [],
     "dependencies": [
-      "set",
       "CodeRelationship",
-      "str",
+      "set",
+      "len",
       "QAIssue",
       "KnowledgeUnit",
-      "len"
+      "str"
     ],
     "docstring": "Extracts component definitions, UI actions, and API bindings from a TS/TSX file.",
     "file_path": "backend/app/knowledge/frontend_extractor.py",
@@ -3066,8 +3066,8 @@
     ],
     "dependencies": [
       "list",
-      "any",
-      "QAIssue"
+      "QAIssue",
+      "any"
     ],
     "docstring": "Scans text for secrets, redacts any matches, and returns (redacted_text, issues, is_clean).\n\nIf a non-placeholder secret is detected, an ERROR issue is emitted.",
     "file_path": "backend/app/knowledge/secret_scanner.py",
@@ -3123,15 +3123,15 @@
     "content_sha256": "0e73443a0c5df57b1722dafb54d2c125c5204f682537e9338e0101563d886016",
     "decorators": [],
     "dependencies": [
+      "isinstance",
+      "Path",
+      "TestKnowledgeRecord",
       "set",
       "CodeRelationship",
-      "str",
-      "TestKnowledgeRecord",
-      "QAIssue",
-      "isinstance",
-      "KnowledgeUnit",
       "list",
-      "Path"
+      "QAIssue",
+      "KnowledgeUnit",
+      "str"
     ],
     "docstring": "Parses a test file using AST and extracts test metadata and knowledge units.",
     "file_path": "backend/app/knowledge/test_extractor.py",
@@ -3187,8 +3187,8 @@
     "content_sha256": "9cbc8a4134ecebaf9aaccd9aa1013f4dde03145c04b4a82641f5bc94b3cd5f3d",
     "decorators": [],
     "dependencies": [
-      "enumerate",
-      "len"
+      "len",
+      "enumerate"
     ],
     "docstring": "Validates existing knowledge assets on disk.\n\nReturns (is_valid: bool, error_messages: list[str]).",
     "file_path": "backend/app/knowledge/validator.py",
@@ -3203,8 +3203,8 @@
     "content_sha256": "02b61dfbdd42dc971763209350c3b32e1766e29b925a326f50c509f982ec3005",
     "decorators": [],
     "dependencies": [
-      "KnowledgeValidator",
-      "print"
+      "print",
+      "KnowledgeValidator"
     ],
     "docstring": "CLI runner for standalone knowledge validation.",
     "file_path": "backend/app/knowledge/validator.py",
@@ -3421,9 +3421,9 @@
     "content_sha256": "949c215c0b2d52715474360ba8bd24e7153c344adf66355987f3236b09d8eefc",
     "decorators": [],
     "dependencies": [
-      "Decimal",
-      "isinstance",
       "abs",
+      "isinstance",
+      "Decimal",
       "PolicyEvaluationResult"
     ],
     "docstring": "Pure Python policy engine for Agentic Commerce Firewall.\n\nAuthoritative Validation Order:\n1. Check mandate status (must be active)\n2. Check mandate expiry\n3. Authoritative product/merchant data supplied directly\n4. Validate quantity (int, not bool, >= 1, <= stock, <= 10)\n5. Compare claimed price vs authoritative price\n6. Verify merchant scope using server-derived product.merchant_id\n7. Compute authoritative_total = product.price * quantity\n8. Compare authoritative_total against budget_remaining & max_transaction_amount\n9. Return decision (ALLOW, ESCALATE, DENY) and canonical reason code",
@@ -3617,8 +3617,8 @@
     "content_sha256": "ed4156dd440029c001c39bdafaeb4f2380bda915ad421209982bb0c5e5b605d6",
     "decorators": [],
     "dependencies": [
-      "bool",
-      "DynamicLiveAction"
+      "DynamicLiveAction",
+      "bool"
     ],
     "docstring": "Explainable bidirectional detection of live operational state queries.",
     "file_path": "backend/app/retrieval/classifier.py",
@@ -3633,9 +3633,9 @@
     "content_sha256": "1b0b156cdbf7027aa824d832804beea2aad41fbb01a28effe9f434e43dd42e5c",
     "decorators": [],
     "dependencies": [
-      "QueryClassification",
       "len",
-      "bool"
+      "bool",
+      "QueryClassification"
     ],
     "docstring": "Classifies a natural language query into a structured QueryClassification.",
     "file_path": "backend/app/retrieval/classifier.py",
@@ -3680,8 +3680,8 @@
       "staticmethod"
     ],
     "dependencies": [
-      "RetrievalScoreBreakdown",
-      "RetrievalResult"
+      "RetrievalResult",
+      "RetrievalScoreBreakdown"
     ],
     "docstring": "Generates the authoritative LIVE_QUERY_REQUIRED sentinel result for dynamic queries.",
     "file_path": "backend/app/retrieval/dynamic_safeguards.py",
@@ -3724,12 +3724,12 @@
     "content_sha256": "1af105a3a35a642dd95df246599b704c7e73da616ad954ac35886b1b8546a610",
     "decorators": [],
     "dependencies": [
-      "SemanticMatcher",
-      "AstCodeRetriever",
+      "ExactMatcher",
       "AuthorityReranker",
-      "LexicalBM25Matcher",
       "QueryClassifier",
-      "ExactMatcher"
+      "AstCodeRetriever",
+      "SemanticMatcher",
+      "LexicalBM25Matcher"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/engine.py",
@@ -3746,9 +3746,9 @@
       "classmethod"
     ],
     "dependencies": [
+      "Path",
       "FileNotFoundError",
-      "cls",
-      "Path"
+      "cls"
     ],
     "docstring": "Factory initializing the engine directly from canonical knowledge directory JSON.",
     "file_path": "backend/app/retrieval/engine.py",
@@ -3804,8 +3804,8 @@
     "content_sha256": "8d52c33e7a6a2a7c794590a74f697b095cc3bdb30d472b14e70dd65b1dccff64",
     "decorators": [],
     "dependencies": [
-      "round",
-      "len"
+      "len",
+      "round"
     ],
     "docstring": "Performs retrieval and synthesizes the minimal sufficient multi-source EvidenceSet.",
     "file_path": "backend/app/retrieval/engine.py",
@@ -3901,16 +3901,16 @@
     "decorators": [],
     "dependencies": [
       "defaultdict",
-      "zip",
-      "range",
-      "dict",
-      "any",
       "EvaluationSummary",
-      "sum",
-      "len",
+      "range",
+      "max",
       "CategoryEvaluationMetric",
       "round",
-      "max"
+      "zip",
+      "dict",
+      "sum",
+      "any",
+      "len"
     ],
     "docstring": "Executes the benchmark evaluation dataset and computes granular category metrics.",
     "file_path": "backend/app/retrieval/evaluation.py",
@@ -3983,8 +3983,8 @@
     "content_sha256": "e8160aaa154cf821ded387c3c94409a943f8131ea0b40766a2a165c5b2f1d3c7",
     "decorators": [],
     "dependencies": [
-      "len",
-      "Path"
+      "Path",
+      "len"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/exact_matcher.py",
@@ -3999,10 +3999,10 @@
     "content_sha256": "ed691d6f260559dc9ff3160663913e8996a13873ed4b62ea1a554a5dbb5b9315",
     "decorators": [],
     "dependencies": [
-      "RetrievalScoreBreakdown",
-      "len",
       "sorted",
-      "RetrievalResult"
+      "RetrievalResult",
+      "len",
+      "RetrievalScoreBreakdown"
     ],
     "docstring": "Performs multi-key exact matching against extracted query entities.",
     "file_path": "backend/app/retrieval/exact_matcher.py",
@@ -4061,9 +4061,9 @@
     "content_sha256": "73a064b54178522be63b5f6f46708d011ea6358fa6bf552302adcc58949346ad",
     "decorators": [],
     "dependencies": [
-      "Counter",
       "max",
-      "len"
+      "len",
+      "Counter"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/lexical_matcher.py",
@@ -4078,11 +4078,11 @@
     "content_sha256": "d16d44264932aec9c63f898b56e878be2c9fdacc810c2c82429ab0af50f48ae6",
     "decorators": [],
     "dependencies": [
-      "RetrievalScoreBreakdown",
       "range",
+      "max",
       "min",
       "RetrievalResult",
-      "max"
+      "RetrievalScoreBreakdown"
     ],
     "docstring": "Executes BM25 search over the indexed knowledge units.",
     "file_path": "backend/app/retrieval/lexical_matcher.py",
@@ -4306,10 +4306,10 @@
     "content_sha256": "1066e512731bfb440e72d6c3e27f26bb3b904a467be5e0f6c6907054f7e2cdbc",
     "decorators": [],
     "dependencies": [
-      "any",
-      "round",
       "max",
-      "len"
+      "any",
+      "len",
+      "round"
     ],
     "docstring": "Performs multi-signal deterministic scoring with authority constraints.",
     "file_path": "backend/app/retrieval/reranker.py",
@@ -4398,8 +4398,8 @@
     "decorators": [],
     "dependencies": [
       "list",
-      "range",
-      "len"
+      "len",
+      "range"
     ],
     "docstring": "Extracts word tokens, character 3-grams and 4-grams for subword semantic capture.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -4415,10 +4415,10 @@
     "decorators": [],
     "dependencies": [
       "defaultdict",
-      "sorted",
       "set",
-      "enumerate",
-      "len"
+      "sorted",
+      "len",
+      "enumerate"
     ],
     "docstring": "Builds the vocabulary and IDF tables from the knowledge corpus.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -4433,9 +4433,9 @@
     "content_sha256": "b2e06c156171cdd16061fd70d6f8c16faa7680d3e683f32cd47a2181db88fda8",
     "decorators": [],
     "dependencies": [
-      "Counter",
+      "sum",
       "len",
-      "sum"
+      "Counter"
     ],
     "docstring": null,
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -4576,12 +4576,12 @@
     "content_sha256": "1f5b2ebd509f189288bc0c7690248d8c071e45561834d4e02e06aeef0f8c143b",
     "decorators": [],
     "dependencies": [
-      "RetrievalScoreBreakdown",
+      "max",
       "min",
-      "any",
-      "enumerate",
       "RetrievalResult",
-      "max"
+      "RetrievalScoreBreakdown",
+      "any",
+      "enumerate"
     ],
     "docstring": "Performs cosine vector search across all indexed units.",
     "file_path": "backend/app/retrieval/semantic_matcher.py",
@@ -4624,9 +4624,9 @@
     "dependencies": [
       "AuditChainState",
       "AuditEvent",
+      "compute_event_hash",
       "str",
-      "compute_payload_hash",
-      "compute_event_hash"
+      "compute_payload_hash"
     ],
     "docstring": "Appends a new tamper-evident audit event to the server-side hash chain under row lock.",
     "file_path": "backend/app/services/audit_log.py",

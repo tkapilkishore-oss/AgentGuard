@@ -27,16 +27,16 @@ class ApiResponse(BaseModel, Generic[T]):
 
 
 class AgentClaim(BaseModel):
-    product_id: str
-    claimed_price: Decimal = Field(gt=Decimal("0.00"))
+    product_id: str = Field(..., min_length=1, max_length=128)
+    claimed_price: Decimal = Field(gt=Decimal("0.00"), le=Decimal("10000000.00"))
     quantity: int = Field(ge=1, le=10, strict=True)
 
     model_config = ConfigDict(extra="ignore")
 
 
 class ProposeRequest(BaseModel):
-    user_id: str
-    mandate_id: str
+    user_id: str = Field(..., min_length=1, max_length=128)
+    mandate_id: str = Field(..., min_length=1, max_length=128)
     agent_claim: AgentClaim
 
     model_config = ConfigDict(extra="ignore")
@@ -53,8 +53,8 @@ class ProposeData(BaseModel):
 
 
 class ExecuteRequest(BaseModel):
-    transaction_id: str
-    idempotency_key: str
+    transaction_id: str = Field(..., min_length=1, max_length=128)
+    idempotency_key: str = Field(..., min_length=1, max_length=128)
 
     model_config = ConfigDict(extra="ignore")
 

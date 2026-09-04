@@ -85,7 +85,7 @@ class LiveRuntimeBridge:
                     )
                 else:
                     summary_notes.append(
-                        f"LIVE MANDATE: ID {d.get('id')}, Remaining Budget: ₹{d.get('budget_remaining')}, "
+                        f"LIVE MANDATE: mandate budget for ID {d.get('id')}, Remaining Budget: ₹{d.get('budget_remaining')}, "
                         f"Total: ₹{d.get('budget_total')}, Status: {d.get('status')}"
                     )
             elif tool_result.tool_type == LiveToolType.TRANSACTION_STATUS:

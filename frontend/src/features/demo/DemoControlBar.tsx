@@ -1,11 +1,13 @@
 /**
  * DemoControlBar.tsx — Autonomous Demo Mode Control Panel
  *
- * Compact, floating glassmorphism control bar displaying:
- *  - ● AGENT DEMO MODE status with pulsing indicator
- *  - Step progression: Cockpit → Defense → Attack → Decision → Forensics
- *  - Spoken narration caption text
+ * Floating subtle glassmorphic control bar displaying:
+ *  - Status with subtle pulsing indicator
+ *  - Compact step progression: Cockpit → Defense → Threat Lab → Attack & Denial → Legitimate & Approval → Summary
+ *  - Spoken narration live rolling caption text
  *  - Interactive [ Pause ] / [ Play ] and [ Stop ] controls
+ *
+ * Styled for subtle presence that doesn't compete with the demonstrated UI.
  */
 
 import React from 'react';
@@ -31,37 +33,37 @@ export const DemoControlBar: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9990] w-11/12 max-w-xl mx-auto font-inter">
-      <div className="bg-white/95 backdrop-blur-xl border border-surface-container-high rounded-2xl shadow-ambient-3 p-4 sm:p-5 flex flex-col gap-3 transition-all duration-300">
-        {/* Header Row: Indicator & Controls */}
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[9990] w-11/12 max-w-lg mx-auto font-inter pointer-events-auto">
+      <div className="bg-white/40 sm:bg-white/35 hover:bg-white/80 backdrop-blur-xl border border-white/50 hover:border-white/80 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-3 sm:p-3.5 flex flex-col gap-2 transition-all duration-300">
+        {/* Header Row: Status & Controls */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
+            <span className="relative flex h-2 w-2">
               <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${
                   isPaused ? 'bg-escalation' : 'bg-primary'
                 }`}
               />
               <span
-                className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                className={`relative inline-flex rounded-full h-2 w-2 ${
                   isPaused ? 'bg-escalation' : 'bg-primary'
                 }`}
               />
             </span>
-            <span className="font-outfit font-extrabold text-xs sm:text-sm text-primary uppercase tracking-wider flex items-center gap-1.5">
+            <span className="font-outfit font-bold text-xs text-primary uppercase tracking-wider flex items-center gap-1.5 opacity-80">
               <span>Agent Demo Mode</span>
-              <span className="text-[10px] font-semibold text-on-surface-variant font-inter lowercase">
+              <span className="text-[10px] font-medium text-on-surface-variant font-inter lowercase">
                 ({isPaused ? 'paused' : 'autonomous'})
               </span>
             </span>
           </div>
 
           {/* Action Buttons: Pause / Play & Stop */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isPaused ? (
               <button
                 onClick={resumeDemo}
-                className="h-8 px-3.5 bg-primary hover:bg-secondary text-white rounded-full font-inter text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
+                className="h-7 px-3 bg-primary/90 hover:bg-primary text-white rounded-full font-inter text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5 active:scale-95 cursor-pointer"
                 title="Resume Walkthrough"
               >
                 <Play className="w-3 h-3 fill-current" />
@@ -70,7 +72,7 @@ export const DemoControlBar: React.FC = () => {
             ) : (
               <button
                 onClick={pauseDemo}
-                className="h-8 px-3.5 bg-surface-container hover:bg-surface-container-high text-primary rounded-full font-inter text-xs font-bold transition-all border border-surface-container-high flex items-center gap-1.5 active:scale-95"
+                className="h-7 px-3 bg-white/50 hover:bg-white text-primary rounded-full font-inter text-xs font-semibold transition-all border border-white/60 hover:border-surface-container flex items-center gap-1.5 active:scale-95 cursor-pointer shadow-xs"
                 title="Pause Walkthrough"
               >
                 <Pause className="w-3 h-3 fill-current" />
@@ -80,7 +82,7 @@ export const DemoControlBar: React.FC = () => {
 
             <button
               onClick={stopDemo}
-              className="h-8 px-3.5 bg-error-container/60 hover:bg-error-container text-error rounded-full font-inter text-xs font-bold transition-all border border-error-container flex items-center gap-1.5 active:scale-95"
+              className="h-7 px-3 bg-error-container/30 hover:bg-error-container/70 text-error rounded-full font-inter text-xs font-semibold transition-all border border-error-container/40 flex items-center gap-1.5 active:scale-95 cursor-pointer"
               title="Stop Walkthrough"
             >
               <Square className="w-3 h-3 fill-current" />
@@ -90,29 +92,29 @@ export const DemoControlBar: React.FC = () => {
         </div>
 
         {/* Step Progress Indicators */}
-        <div className="flex items-center justify-between gap-1 sm:gap-1.5 pt-1">
+        <div className="flex items-center justify-between gap-1 sm:gap-1.5 pt-0.5">
           {steps.map((s) => {
             const isCurrent = s.activeAt.includes(currentStepId);
             const isPast = Math.max(...s.activeAt) < currentStepId;
 
             return (
-              <div key={s.label} className="flex-1 flex flex-col items-center gap-1">
+              <div key={s.label} className="flex-1 flex flex-col items-center gap-0.5">
                 <div
-                  className={`h-1.5 w-full rounded-full transition-all duration-300 ${
+                  className={`h-1 w-full rounded-full transition-all duration-300 ${
                     isCurrent
-                      ? 'bg-primary shadow-sm'
+                      ? 'bg-primary'
                       : isPast
-                      ? 'bg-verified'
-                      : 'bg-surface-container'
+                      ? 'bg-verified/80'
+                      : 'bg-surface-container/40'
                   }`}
                 />
                 <span
-                  className={`text-[10px] font-semibold truncate ${
+                  className={`text-[9px] sm:text-[10px] font-medium truncate ${
                     isCurrent
                       ? 'text-primary font-bold'
                       : isPast
-                      ? 'text-on-surface-variant'
-                      : 'text-outline'
+                      ? 'text-on-surface-variant/75'
+                      : 'text-outline/50'
                   }`}
                 >
                   {s.label}
@@ -122,11 +124,11 @@ export const DemoControlBar: React.FC = () => {
           })}
         </div>
 
-        {/* Narration Caption Box */}
+        {/* Live Rolling Caption Box */}
         {currentNarration && (
-          <div className="px-3 py-2 bg-surface-container-low rounded-xl border border-surface-container text-xs text-on-surface font-inter flex items-start gap-2 leading-relaxed">
-            <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
-            <p className="line-clamp-2">{currentNarration}</p>
+          <div className="px-3 py-1.5 bg-white/40 rounded-xl border border-white/50 text-xs text-on-surface font-inter flex items-start gap-2 leading-relaxed backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-primary/70 flex-shrink-0 mt-0.5" />
+            <p className="line-clamp-2 transition-all duration-150 font-medium">{currentNarration}</p>
           </div>
         )}
       </div>

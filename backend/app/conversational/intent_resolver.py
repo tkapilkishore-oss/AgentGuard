@@ -38,7 +38,10 @@ class IntentResolver:
         r"bypass\s+(the\s+)?(firewall|policy|authorization|security)",
         r"(approve|execute|authorize|pay|process)\s+(this\s+|the\s+|a\s+|an\s+)?(purchase\s+order|order|transaction|payment|merchant\s+[0-9a-zA-Z_\-]+)(\s+for\s+me|\s+yourself)?",
         r"pretend\s+you\s+are|act\s+as(\s+an?)?\s+admin|roleplay\s+as|simulate\s+admin",
-        r"(change|increase|modify|alter|set|reset|raise|boost)\s+(the\s+|my\s+)?(mandate\s+)?(budget|limit|spending|cap)",
+        r"\b(change|increase|decrease|reduce|lower|modify|alter|set|reset|raise|boost|extend|expand|update|adjust)\s+.*(the\s+|my\s+)?(mandate\s+)?(budget|limit|spending|cap|authority|allowance)\b",
+        r"\b(modifying|altering|changing|increasing|decreasing|reducing|resetting|extending|adjusting)\s+.*(the\s+|my\s+)?(mandate\s+)?(budget|spending|limit|cap|authority)\b",
+        r"\b(mandate\s+)?(budget|spending|limit|spending\s+cap|spending\s+authority|allowance)\s+(modification|alteration|change|adjustment|increase|decrease|reduction|extension|reset|override)\b",
+        r"\b(attempting|requesting|initiating|performing|executing)\s+.*(budget|spending|mandate)\s+(modification|alteration|change|adjustment|increase|decrease|reduction|override|reset)\b",
         r"(disable|turn\s+off|skip)\s+(the\s+)?(policy\s+check|firewall|validation)",
         r"override\s+.*(rules|limits|budget|policy|safeguards|security|check)",
         r"(give\s+me|show\s+me|list|dump|exfiltrate)\s+.*(password|secret|key|api[_\s]key|token|credential)",
@@ -357,7 +360,12 @@ class IntentResolver:
                 subtype = "GENERAL"
                 if re.search(r"(approve|execute|authorize|pay)\s+(this\s+|the\s+)?(transaction|payment|merchant)", lower):
                     subtype = "TRANSACTION_APPROVAL"
-                elif re.search(r"(change|increase|modify|alter|set)\s+(the\s+|my\s+)?(mandate\s+)?budget", lower):
+                elif re.search(
+                    r"\b(change|increase|decrease|reduce|lower|modify|alter|set|reset|raise|boost|extend|expand|update|adjust)\s+.*(the\s+|my\s+)?(mandate\s+)?(budget|limit|spending|cap|authority|allowance)\b|"
+                    r"\b(mandate\s+)?(budget|spending|limit|spending\s+cap|spending\s+authority|allowance)\s+(modification|alteration|change|adjustment|increase|decrease|reduction|extension|reset|override)\b|"
+                    r"\b(attempting|requesting|initiating|performing|executing)\s+.*(budget|spending|mandate)\s+(modification|alteration|change)\b",
+                    lower,
+                ):
                     subtype = "BUDGET_MODIFICATION"
                 elif re.search(r"(reveal|give\s+me|show\s+me)\s+.*(key|secret|\.env|credentials)", lower):
                     subtype = "CREDENTIAL_EXFILTRATION"
@@ -450,12 +458,12 @@ class IntentResolver:
                 sub_intents.append({"intent": UserIntentCategory.CONCEPT_EXPLANATION.value, "topic": "MERCHANT_SCOPE", "clause": "merchant scope authorization"})
             if any(w in lower for w in ["live protection", "dual-chamber", "firewall protection", "live defense", "firewall"]):
                 sub_intents.append({"intent": UserIntentCategory.LIVE_PROTECTION.value, "topic": "LIVE_PROTECTION", "clause": "live protection impact"})
-            if any(w in lower for w in ["mandate budget", "spending limit", "spending cap"]):
+            if any(w in lower for w in ["mandate budget", "spending limit", "spending cap", "budget"]):
                 sub_intents.append({"intent": UserIntentCategory.MANDATE_BUDGET.value, "topic": "MANDATE_BUDGET", "clause": "mandate budget"})
             if any(w in lower for w in ["replay", "idempotency", "duplicate", "repeat payment", "repeated payment", "same payment"]):
                 sub_intents.append({"intent": UserIntentCategory.REPLAY_ATTACK.value, "topic": "REPLAY_ATTACK", "clause": "replay attack prevention"})
-            if any(w in lower for w in ["audit chain", "audit ledger", "sha-256", "hash chain", "forensic ledger"]):
-                sub_intents.append({"intent": UserIntentCategory.AUDIT_CHAIN.value, "topic": "AUDIT_CHAIN", "clause": "cryptographic audit chain"})
+            if any(w in lower for w in ["audit chain", "audit ledger", "sha-256", "hash chain", "forensic ledger", "audit trail", "audit"]):
+                sub_intents.append({"intent": UserIntentCategory.AUDIT_CHAIN.value, "topic": "AUDIT_CHAIN", "clause": "cryptographic audit trail"})
 
         # 8. Deterministic Static vs Live Routing Check
         live_tool_request = self._check_live_routing(resolved_query, session, lower)
@@ -577,9 +585,15 @@ class IntentResolver:
 
         if any(k in active_lower for k in [
             "audit", "hash chain", "ledger", "sha-256", "sha256", "audit chain", "audit record",
-            "forensic ledger", "tamper with audit", "tamper with the record"
+            "forensic ledger", "tamper with audit", "tamper with the record", "audit_log.py"
         ]):
             return CanonicalTopic.AUDIT_CHAIN
+
+        if "engine.py" in active_lower or "policy/engine" in active_lower:
+            return CanonicalTopic.PRICE_TAMPERING
+
+        if "execute.py" in active_lower:
+            return CanonicalTopic.REPLAY_ATTACK
 
         if any(k in active_lower for k in [
             "price tampering", "price manipulation", "price mismatch", "claim diff",
@@ -795,6 +809,14 @@ class IntentResolver:
             return "Can you give a realistic example of an end-to-end AgentGuard shopping proposal and firewall decision?"
 
         elif purpose == ConversationalPurpose.CODE_LOCATION_REQUEST:
+            if "engine.py" in lower:
+                return "Where is policy evaluation and security validation implemented in backend/app/policy/engine.py?"
+            if "execute.py" in lower:
+                return "Where is replay attack protection implemented in backend/app/api/execute.py?"
+            if "audit_log.py" in lower:
+                return "Where is cryptographic audit chain verification implemented in backend/app/services/audit_log.py?"
+            if "propose.py" in lower:
+                return "Where is purchase proposal validation implemented in backend/app/api/propose.py?"
             if topic == CanonicalTopic.PRICE_TAMPERING or "price" in lower or "claim diff" in lower or "mismatch" in lower:
                 return "Where is price tampering validation implemented in backend/app/policy/engine.py and propose.py?"
             elif topic == CanonicalTopic.REPLAY_ATTACK or "replay" in lower:

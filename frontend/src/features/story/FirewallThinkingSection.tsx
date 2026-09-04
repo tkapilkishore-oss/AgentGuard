@@ -69,14 +69,14 @@ export const FirewallThinkingSection: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch"
       >
         {/* Invariant 1 */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-surface-container shadow-ambient-1 card-depth-hover flex flex-col justify-between space-y-4">
+        <div className="bg-white/95 rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)] card-depth-hover flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-xl bg-error-container/40 text-error flex items-center justify-center border border-error-container">
+              <div className="w-12 h-12 rounded-xl bg-error-container/40 text-error flex items-center justify-center border border-error-container/60 shadow-xs">
                 <FileCode className="w-6 h-6" />
               </div>
-              <span className="text-xs font-inter font-semibold px-2.5 py-1 rounded-full bg-error-container/30 text-error">
-                Invariant 1
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-error-container/30 text-error border border-error-container/40">
+                INVARIANT 01
               </span>
             </div>
 
@@ -88,21 +88,21 @@ export const FirewallThinkingSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-surface-container-low p-3.5 rounded-xl border border-surface-container font-inter text-xs text-on-surface flex items-center justify-between">
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/90 font-inter text-xs text-on-surface flex items-center justify-between">
             <span className="text-on-surface-variant font-medium">Defense Result:</span>
-            <span className="font-semibold text-verified">LLM Hallucinations Neutralized</span>
+            <span className="font-semibold text-verified font-mono text-[11px]">LLM Hallucinations Neutralized</span>
           </div>
         </div>
 
         {/* Invariant 2 */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-surface-container shadow-ambient-1 card-depth-hover flex flex-col justify-between space-y-4">
+        <div className="bg-white/95 rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)] card-depth-hover flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-xl bg-secondary-fixed text-secondary flex items-center justify-center border border-secondary-container">
+              <div className="w-12 h-12 rounded-xl bg-secondary-fixed text-secondary flex items-center justify-center border border-secondary-container/60 shadow-xs">
                 <Database className="w-6 h-6" />
               </div>
-              <span className="text-xs font-inter font-semibold px-2.5 py-1 rounded-full bg-secondary-fixed text-[#00346e]">
-                Invariant 2
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-secondary-fixed text-[#00346e] border border-secondary-container">
+                INVARIANT 02
               </span>
             </div>
 
@@ -114,21 +114,21 @@ export const FirewallThinkingSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-surface-container-low p-3.5 rounded-xl border border-surface-container font-inter text-xs text-on-surface flex items-center justify-between">
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/90 font-inter text-xs text-on-surface flex items-center justify-between">
             <span className="text-on-surface-variant font-medium">Defense Result:</span>
-            <span className="font-semibold text-verified">400 Bad Request / PRICE_MISMATCH</span>
+            <span className="font-semibold text-error font-mono text-[11px]">400 Bad Request / PRICE_MISMATCH</span>
           </div>
         </div>
 
         {/* Invariant 3 */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-surface-container shadow-ambient-1 card-depth-hover flex flex-col justify-between space-y-4">
+        <div className="bg-white/95 rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)] card-depth-hover flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-sm ring-4 ring-lavender-tint">
+              <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs ring-4 ring-lavender-tint/80">
                 <Lock className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xs font-inter font-semibold px-2.5 py-1 rounded-full bg-lavender-tint text-[#4C1D95]">
-                Invariant 3
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-lavender-tint text-[#4C1D95] border border-primary-fixed">
+                INVARIANT 03
               </span>
             </div>
 
@@ -140,21 +140,21 @@ export const FirewallThinkingSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-surface-container-low p-3.5 rounded-xl border border-surface-container font-inter text-xs text-on-surface flex items-center justify-between">
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/90 font-inter text-xs text-on-surface flex items-center justify-between">
             <span className="text-on-surface-variant font-medium">Defense Result:</span>
-            <span className="font-semibold text-verified">409 Conflict / REPLAY_DETECTED</span>
+            <span className="font-semibold text-error font-mono text-[11px]">409 Conflict / REPLAY_DETECTED</span>
           </div>
         </div>
 
         {/* Invariant 4 */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-surface-container shadow-ambient-1 card-depth-hover flex flex-col justify-between space-y-4">
+        <div className="bg-white/95 rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)] card-depth-hover flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-xl bg-[#F0FDF4] text-verified flex items-center justify-center border border-[#BBF7D0]">
+              <div className="w-12 h-12 rounded-xl bg-[#F0FDF4] text-verified flex items-center justify-center border border-[#BBF7D0] shadow-xs">
                 <Scale className="w-6 h-6 text-verified" />
               </div>
-              <span className="text-xs font-inter font-semibold px-2.5 py-1 rounded-full bg-[#F0FDF4] text-verified border border-[#BBF7D0]">
-                Invariant 4
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#F0FDF4] text-verified border border-[#BBF7D0]">
+                INVARIANT 04
               </span>
             </div>
 
@@ -166,9 +166,9 @@ export const FirewallThinkingSection: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-surface-container-low p-3.5 rounded-xl border border-surface-container font-inter text-xs text-on-surface flex items-center justify-between">
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/90 font-inter text-xs text-on-surface flex items-center justify-between">
             <span className="text-on-surface-variant font-medium">Defense Result:</span>
-            <span className="font-semibold text-verified">Tamper-Evident SHA-256 Forward Chain</span>
+            <span className="font-semibold text-verified font-mono text-[11px]">SHA-256 Tamper-Evident Chain</span>
           </div>
         </div>
       </div>

@@ -15,9 +15,10 @@ router = APIRouter(prefix="/conversational", tags=["Conversational Brain"])
 
 
 class ConversationalQueryRequest(BaseModel):
-    query: str = Field(..., min_length=1, description="User conversational query or instruction")
-    session_id: str | None = Field(default=None, description="Optional conversation session ID")
-    user_id: str = Field(default="user-001", description="User ID associated with the session")
+    query: str = Field(..., min_length=1, max_length=4000, description="User conversational query or instruction")
+    session_id: str | None = Field(default=None, max_length=128, description="Optional conversation session ID")
+    user_id: str = Field(default="user-001", max_length=128, description="User ID associated with the session")
+
 
 
 @router.post("/query", response_model=ApiResponse[AssistantResponse])

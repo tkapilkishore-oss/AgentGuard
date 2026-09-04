@@ -140,16 +140,19 @@ export const HeroStorySection: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full max-w-5xl text-left"
       >
         {/* Card 1 */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-surface-container ambient-shadow-1 card-depth-hover flex flex-col justify-between space-y-3">
+        <div className="bg-white/95 rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)] card-depth-hover flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-error-container/40 text-error flex items-center justify-center border border-error-container">
+            <div className="w-10 h-10 rounded-xl bg-error-container/40 text-error flex items-center justify-center border border-error-container/60">
               <Bot className="w-5 h-5" />
             </div>
-            <span className="text-[11px] font-inter font-semibold px-2.5 py-0.5 rounded-full bg-error-container/30 text-error">
+            <span className="text-[10px] font-inter font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-error-container/30 text-error border border-error-container/40">
               Zero Trust
             </span>
           </div>
           <div>
+            <div className="text-[10px] font-inter font-semibold uppercase tracking-wider text-on-surface-variant/70 mb-0.5">
+              Invariant Layer 01
+            </div>
             <h3 className="font-outfit font-bold text-primary text-base sm:text-lg mb-1">
               Zero Prompt Authority
             </h3>
@@ -160,16 +163,19 @@ export const HeroStorySection: React.FC = () => {
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-surface-container ambient-shadow-1 card-depth-hover flex flex-col justify-between space-y-3 ring-1 ring-primary/10">
+        <div className="bg-white/95 rounded-2xl p-5 sm:p-6 border border-primary/30 shadow-[0_2px_5px_rgba(15,23,42,0.04),0_12px_28px_rgba(59,7,100,0.08)] card-depth-hover flex flex-col justify-between space-y-3 ring-1 ring-primary/10">
           <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-sm ring-4 ring-lavender-tint">
+            <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-sm ring-4 ring-lavender-tint/80">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-[11px] font-inter font-semibold px-2.5 py-0.5 rounded-full bg-lavender-tint text-[#4C1D95]">
+            <span className="text-[10px] font-inter font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-lavender-tint text-[#4C1D95] border border-primary-fixed">
               Deterministic
             </span>
           </div>
           <div>
+            <div className="text-[10px] font-inter font-semibold uppercase tracking-wider text-on-surface-variant/70 mb-0.5">
+              Invariant Layer 02
+            </div>
             <h3 className="font-outfit font-bold text-primary text-base sm:text-lg mb-1">
               PostgreSQL Truth Gate
             </h3>
@@ -180,16 +186,19 @@ export const HeroStorySection: React.FC = () => {
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-surface-container ambient-shadow-1 card-depth-hover flex flex-col justify-between space-y-3">
+        <div className="bg-white/95 rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_6px_18px_rgba(15,23,42,0.04)] card-depth-hover flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-[#F0FDF4] text-verified flex items-center justify-center border border-[#BBF7D0]">
               <CreditCard className="w-5 h-5 text-verified" />
             </div>
-            <span className="text-[11px] font-inter font-semibold px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-verified border border-[#BBF7D0]">
+            <span className="text-[10px] font-inter font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-verified border border-[#BBF7D0]">
               Idempotent
             </span>
           </div>
           <div>
+            <div className="text-[10px] font-inter font-semibold uppercase tracking-wider text-on-surface-variant/70 mb-0.5">
+              Invariant Layer 03
+            </div>
             <h3 className="font-outfit font-bold text-primary text-base sm:text-lg mb-1">
               Razorpay Execution
             </h3>

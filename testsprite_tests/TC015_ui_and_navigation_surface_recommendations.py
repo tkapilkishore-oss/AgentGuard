@@ -3,15 +3,13 @@ import requests
 BASE_URL = "http://localhost:8000/conversational/query"
 TIMEOUT = 30
 
-def test_ui_navigation_surface_recommendations():
-    query_text = (
-        "Can you provide UI navigation recommendations and suggest structured action hints "
-        "for application surfaces including Forensic Ledger, Threat Lab, and Live Protection?"
-    )
+def test_ui_and_navigation_surface_recommendations():
     payload = {
-        "query": query_text,
-        "session_id": "",
-        "user_id": ""
+        "query": (
+            "Can you provide recommendations for UI navigation and action hints for "
+            "application surfaces such as Forensic Ledger, Threat Lab, and Live Protection?"
+        ),
+        # Not providing session_id or user_id to simulate a fresh query as per PRD user flows.
     }
     headers = {
         "Content-Type": "application/json"
@@ -21,53 +19,49 @@ def test_ui_navigation_surface_recommendations():
         response = requests.post(BASE_URL, json=payload, headers=headers, timeout=TIMEOUT)
         response.raise_for_status()
     except requests.RequestException as e:
-        assert False, f"Request failed: {e}"
+        assert False, f"HTTP request failed: {e}"
 
     resp_json = response.json()
-    assert resp_json.get("success") is True, f"API reported failure: {resp_json.get('error')}"
+    assert "success" in resp_json, "Response missing 'success' field"
+    assert resp_json["success"] is True, f"API reported failure: {resp_json.get('error')}"
 
     data = resp_json.get("data")
-    assert isinstance(data, dict), "Response 'data' field missing or not an object"
+    assert data, "Response data is empty or missing"
 
-    # Validate required fields presence
-    required_fields = [
-        "session_id",
-        "turn_id",
-        "message",
-        "intent",
-        "dialogue_act",
-        "suggested_followups",
-        "action"
-    ]
-    for field in required_fields:
-        assert field in data, f"Missing field in response data: {field}"
+    # Validate that session_id and turn_id are present
+    assert isinstance(data.get("session_id"), str) and data.get("session_id"), "Missing or invalid session_id"
+    assert isinstance(data.get("turn_id"), int), "Missing or invalid turn_id"
 
-    # Validate that session_id is a non-empty string
-    assert isinstance(data["session_id"], str) and data["session_id"], "Invalid or empty session_id"
+    # Validate that message is a non-empty string
+    assert isinstance(data.get("message"), str) and data.get("message").strip(), "Missing or empty message"
 
-    # Validate turn_id is an integer >= 1
-    assert isinstance(data["turn_id"], int) and data["turn_id"] >= 1, "Invalid turn_id"
+    # Validate intent and dialogue_act presence and are strings
+    assert isinstance(data.get("intent"), str) and data.get("intent").strip(), "Missing or empty intent"
+    assert isinstance(data.get("dialogue_act"), str) and data.get("dialogue_act").strip(), "Missing or empty dialogue_act"
 
-    # Validate message is a non-empty string
-    assert isinstance(data["message"], str) and data["message"].strip() != "", "Empty message"
+    # Validate presence of UI/navigation related fields: suggested_followups and action with expected structure
+    assert isinstance(data.get("suggested_followups"), list), "Missing or invalid suggested_followups"
+    assert isinstance(data.get("action"), dict), "Missing or invalid action hint"
 
-    # Removed validation that intent suggests UI/navigation context because actual intent can differ
-
-    # Validate dialogue_act is a non-empty string
-    assert isinstance(data["dialogue_act"], str) and data["dialogue_act"].strip() != "", "Empty dialogue_act"
-
-    # Validate suggested_followups is a list (can be empty)
-    assert isinstance(data["suggested_followups"], list), "suggested_followups is not a list"
-
-    # Validate action is an object containing structured hints for UI navigation
+    # Since the test focuses on UI navigation recommendations for specific surfaces,
+    # Validate that action hint contains keys or hints related to Forensic Ledger, Threat Lab, or Live Protection
     action = data["action"]
-    assert isinstance(action, dict), "action field is not an object"
+    action_str = str(action).lower()
+    relevant_keywords = ["forensic ledger", "threat lab", "live protection", "navigation", "ui", "surface", "action hint"]
+    assert any(keyword in action_str for keyword in relevant_keywords), (
+        "Action hints do not reference expected application surfaces or navigation suggestions"
+    )
 
-    # Removed checking for specific keys within action, as it's not guaranteed
+    # Validate evidence_citations is a list (can be empty or populated)
+    assert isinstance(data.get("evidence_citations"), list), "Missing or invalid evidence_citations"
 
-    # Additional checks can be made for evidence_citations and live_data_used for completeness
-    assert "evidence_citations" in data and isinstance(data["evidence_citations"], list), "Missing or invalid evidence_citations"
-    assert "live_data_used" in data and isinstance(data["live_data_used"], bool), "Missing or invalid live_data_used"
+    # Validate live_data_used is a boolean
+    assert isinstance(data.get("live_data_used"), bool), "Missing or invalid live_data_used"
 
+    # Validate progressive_disclosure_offer is a string (may be empty)
+    assert isinstance(data.get("progressive_disclosure_offer"), str), "Missing or invalid progressive_disclosure_offer"
 
-test_ui_navigation_surface_recommendations()
+    # Validate trace is an object/dict (may be empty)
+    assert isinstance(data.get("trace"), dict), "Missing or invalid trace"
+
+test_ui_and_navigation_surface_recommendations()

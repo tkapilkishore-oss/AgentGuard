@@ -198,6 +198,13 @@ class ResponseGenerator:
             parts.append(f"Canonical Topic: {plan.canonical_topic.value}")
         if plan.strategy_rationale:
             parts.append(f"Rationale: {plan.strategy_rationale}")
+        if plan.compound_query and plan.sub_intents:
+            clauses = [s.get("clause", s.get("topic", "")) for s in plan.sub_intents if s.get("clause") or s.get("topic")]
+            if clauses:
+                parts.append(
+                    f"Compound Multi-Topic Goals: The user coordinated multiple topics in this single turn: {', '.join(clauses)}. "
+                    f"You MUST explicitly address each coordinated topic in your synthesized response."
+                )
 
         # 2. Evidence / Live Readings
         if evidence.is_live and evidence.live_result:

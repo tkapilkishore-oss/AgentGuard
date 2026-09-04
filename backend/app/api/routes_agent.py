@@ -1,7 +1,7 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from backend.app.api.propose import propose_transaction
@@ -14,9 +14,10 @@ router = APIRouter()
 
 
 class AgentChatRequest(BaseModel):
-    user_id: str = "user-001"
-    mandate_id: str = "mandate-001"
-    prompt: str
+    user_id: str = Field(default="user-001", max_length=128)
+    mandate_id: str = Field(default="mandate-001", max_length=128)
+    prompt: str = Field(..., min_length=1, max_length=4000)
+
 
 
 @router.post("/agent/chat", response_model=ApiResponse[dict[str, Any]])

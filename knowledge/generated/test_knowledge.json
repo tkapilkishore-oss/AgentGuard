@@ -627,8 +627,8 @@
     "id": "test_test_audit_log_test_multiple_sequential_events_and_verification_a0c5f720",
     "invariants_proven": [],
     "target_symbols": [
-      "log_audit_event",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "log_audit_event"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -643,8 +643,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "log_audit_event",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "log_audit_event"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -659,8 +659,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "log_audit_event",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "log_audit_event"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -675,8 +675,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "log_audit_event",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "log_audit_event"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -763,8 +763,8 @@
     "id": "test_test_audit_log_test_audit_seq_id_deterministic_ordering_3541dfd3",
     "invariants_proven": [],
     "target_symbols": [
-      "log_audit_event",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "log_audit_event"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -776,8 +776,8 @@
     "id": "test_test_audit_log_test_audit_same_timestamp_events_verify_successfully_9b1affe6",
     "invariants_proven": [],
     "target_symbols": [
-      "log_audit_event",
-      "verify_audit_chain"
+      "verify_audit_chain",
+      "log_audit_event"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -2832,6 +2832,146 @@
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_retrieval_semantic.py",
     "test_function": "test_semantic_matcher_determinism"
+  },
+  {
+    "content_sha256": "bb45aa2de90dd4b4ec2a4ad2d5d563b758d537e7c5fc5ddddf71783ac8198f18",
+    "docstring": "Client claims \u20b91,999 for \u20b93,499 product -> Must be DENY / PRICE_MISMATCH.",
+    "id": "test_test_security_hardening_test_security_price_tampering_bb45aa2d",
+    "invariants_proven": [
+      "PRICE_MISMATCH (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_price_tampering"
+  },
+  {
+    "content_sha256": "724a477290aef5ececd251598d6566bb398d664f0fba82c017f65f5b8fb5aee1",
+    "docstring": "Proposal authoritative total exceeds remaining budget -> Must be ESCALATE / BUDGET_EXCEEDED.",
+    "id": "test_test_security_hardening_test_security_over_budget_escalation_724a4772",
+    "invariants_proven": [
+      "BUDGET_EXCEEDED (ESCALATE)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_over_budget_escalation"
+  },
+  {
+    "content_sha256": "cd95b76192c3cd7c28db12833dcff4487a1fb147aa7528ae7ef6cbaf6e692807",
+    "docstring": "Proposal exceeds per-transaction limit even if budget remains -> Must be ESCALATE / BUDGET_EXCEEDED.",
+    "id": "test_test_security_hardening_test_security_max_transaction_violation_cd95b761",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_max_transaction_violation"
+  },
+  {
+    "content_sha256": "aad41c8fb7366479d92d1f2dfe0accd449366affc6f7d07b4dba35aeabe14ca2",
+    "docstring": "Product merchant does not match mandate merchant scope -> Must be DENY / MERCHANT_MISMATCH.",
+    "id": "test_test_security_hardening_test_security_merchant_scope_violation_aad41c8f",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_merchant_scope_violation"
+  },
+  {
+    "content_sha256": "6039963b5b170711a5a46ff1c8e63c8e4f533addcd7ea509e976fc837d812640",
+    "docstring": "Expired mandate cannot authorize any transaction -> Must be DENY / MANDATE_EXPIRED.",
+    "id": "test_test_security_hardening_test_security_expired_mandate_6039963b",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_expired_mandate"
+  },
+  {
+    "content_sha256": "14226b744ec22164603249ba66275d5aaa26d9c14d0a52fe4d65ee3bda3fadb7",
+    "docstring": "Revoked mandate cannot authorize any transaction -> Must be DENY / MANDATE_REVOKED.",
+    "id": "test_test_security_hardening_test_security_revoked_mandate_14226b74",
+    "invariants_proven": [
+      "MANDATE_REVOKED (HTTP 403 / DENY)"
+    ],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_revoked_mandate"
+  },
+  {
+    "content_sha256": "9ce64122b42af7b742d2b9ac455fb2e29024493645e7ffc2af6b496833c93ad9",
+    "docstring": "Quantity must be 1 <= qty <= 10. Booleans, negatives, zeros, and >10 must be rejected.",
+    "id": "test_test_security_hardening_test_security_invalid_quantities_9ce64122",
+    "invariants_proven": [],
+    "target_symbols": [
+      "evaluate_policy"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_invalid_quantities"
+  },
+  {
+    "content_sha256": "ae01aed19a87163b9dd90fc341154d8d49ac6774ba693b7d2669c7a587cba897",
+    "docstring": "Verify Pydantic schemas reject non-positive prices and invalid quantities.",
+    "id": "test_test_security_hardening_test_security_schema_input_boundaries_ae01aed1",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_schema_input_boundaries"
+  },
+  {
+    "content_sha256": "715ddd45be0d49ec97d4c30c7cad126b2c9601b77c0b1df667419557d8322340",
+    "docstring": "Verify conversational queries attempting to execute payments are strictly refused.",
+    "id": "test_test_security_hardening_test_security_conversational_zero_financial_authority_715ddd45",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_conversational_zero_financial_authority"
+  },
+  {
+    "content_sha256": "9656d53f69abf8e96b54c9f3713cda5efef2f679268e585daba5ac7d288ddba9",
+    "docstring": "Verify instructions attempting to bypass security boundaries are blocked.",
+    "id": "test_test_security_hardening_test_security_prompt_injection_resilience_9656d53f",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_prompt_injection_resilience"
+  },
+  {
+    "content_sha256": "6fe0da22d210c83a36ac7e1879ff7963e6c8e86e142aa10d5440fa0266365683",
+    "docstring": "Verify attempts to delete or wipe audit history are blocked.",
+    "id": "test_test_security_hardening_test_security_destructive_audit_blocked_6fe0da22",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_destructive_audit_blocked"
+  },
+  {
+    "content_sha256": "348f68ec421e3cc58983dc758396571592d3b9bc3588f64363755108c5fe4b60",
+    "docstring": "Verify sensitive tokens and API keys are scrubbed before returning to the user.",
+    "id": "test_test_security_hardening_test_security_secret_scrubbing_348f68ec",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_secret_scrubbing"
   },
   {
     "content_sha256": "cf08912da7995e04a8278188a9daa0c4578a86f7ba64ad2ae14b8abfba3faa25",

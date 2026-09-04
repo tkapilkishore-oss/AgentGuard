@@ -21,6 +21,7 @@ export const ThreatSimulationLab: React.FC = () => {
     triggerScenario,
     proposeClaim,
     activeTransaction,
+    activeAgentClaim,
     rawWireLog,
     loadingAction,
     wireDrawerOpen,
@@ -30,6 +31,22 @@ export const ThreatSimulationLab: React.FC = () => {
   const [activeScenarioId, setActiveScenarioId] = useState<number>(3); // Default to price tampering
   const [customPrice, setCustomPrice] = useState<string>('1999');
   const [customQty, setCustomQty] = useState<number>(1);
+
+  // Sync active scenario view with current transaction
+  React.useEffect(() => {
+    if (
+      activeAgentClaim?.product_id === 'prod-002' ||
+      Number(activeTransaction?.authoritative_total) === 2799
+    ) {
+      setActiveScenarioId(1);
+    } else if (
+      activeAgentClaim?.product_id === 'prod-001' ||
+      activeTransaction?.reason_code === 'PRICE_MISMATCH' ||
+      Number(activeTransaction?.authoritative_total) === 3499
+    ) {
+      setActiveScenarioId(3);
+    }
+  }, [activeTransaction, activeAgentClaim]);
 
   const handleRunScenario = async (id: number) => {
     setActiveScenarioId(id);
@@ -115,12 +132,16 @@ export const ThreatSimulationLab: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Sidebar: Attack Scenario Selector (5 cols) */}
         <aside className="lg:col-span-5 flex flex-col gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-surface-container shadow-ambient-1 space-y-3">
-            <h2 className="text-xs font-inter uppercase tracking-wider text-outline font-bold">
-              Attack Scenarios
-            </h2>
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-3.5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+                Attack Scenarios (6)
+              </h2>
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">FASTAPI SUITE</span>
+            </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {scenarios.map((sc) => {
                 const isSelected = activeScenarioId === sc.id;
                 const isRunning = loadingAction && activeScenarioId === sc.id;
@@ -137,32 +158,45 @@ export const ThreatSimulationLab: React.FC = () => {
                     }
                     onClick={() => handleRunScenario(sc.id)}
                     disabled={loadingAction}
-                    className={`w-full text-left rounded-xl p-4 transition-all duration-300 flex items-center gap-3.5 border ${
+                    className={`w-full text-left rounded-xl p-3.5 transition-all duration-200 flex items-center gap-3 border cursor-pointer ${
                       isSelected
-                        ? 'bg-white shadow-ambient-2 border-l-4 border-primary ring-1 ring-primary/10'
-                        : 'bg-white/60 hover:bg-white hover:shadow-ambient-1 border-surface-container'
+                        ? 'bg-slate-50/90 shadow-xs border-primary ring-1 ring-primary/20'
+                        : 'bg-white hover:bg-slate-50/60 hover:border-slate-300 border-slate-200/70'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                      isSelected ? 'bg-white shadow-xs border border-slate-200' : 'bg-slate-100/80'
+                    }`}>
                       {sc.icon}
                     </div>
 
                     <div className="flex-grow min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-0.5">
-                        <span className={`font-outfit text-sm truncate ${isSelected ? 'font-bold text-primary' : 'font-semibold text-on-surface'}`}>
+                        <span className={`font-outfit text-sm truncate ${isSelected ? 'font-bold text-primary' : 'font-semibold text-slate-800'}`}>
                           {sc.title}
                         </span>
-                        <span className={`px-2 py-0.5 text-xs font-inter font-semibold rounded-full border ${sc.tagBg}`}>
+                        <span className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded-md border tracking-tight ${sc.tagBg}`}>
                           {sc.tag}
                         </span>
                       </div>
-                      <p className="font-inter text-xs text-on-surface-variant line-clamp-2">
+                      <p className="font-inter text-xs text-slate-500 line-clamp-2">
                         {sc.subtitle}
                       </p>
+                      {sc.id === 1 && (
+                        <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                          <span
+                            data-agent-target="threat-legitimate-item"
+                            className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#F0FDF4] text-verified rounded-md border border-[#BBF7D0] inline-flex items-center gap-1"
+                          >
+                            Bluetooth Speaker • ₹2,799
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-inter">In-budget baseline</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex-shrink-0">
-                      <Play className={`w-3.5 h-3.5 ${isSelected ? 'text-primary fill-current' : 'text-outline'} ${isRunning ? 'animate-spin' : ''}`} />
+                      <Play className={`w-3.5 h-3.5 transition-transform ${isSelected ? 'text-primary fill-current scale-110' : 'text-slate-300'} ${isRunning ? 'animate-spin' : ''}`} />
                     </div>
                   </button>
                 );
@@ -171,35 +205,41 @@ export const ThreatSimulationLab: React.FC = () => {
           </div>
 
           {/* Custom Attack Parameter Box */}
-          <div className="bg-white rounded-2xl p-5 border border-surface-container shadow-ambient-1 space-y-3 font-inter text-xs">
-            <div className="flex items-center gap-2 text-primary font-bold font-outfit text-sm">
-              <Zap className="w-4 h-4 text-escalation" />
-              <span>Custom Attack Studio</span>
+          <div
+            data-agent-target="threat-custom-amount"
+            className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-3 font-inter text-xs"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-primary font-bold font-outfit text-sm">
+                <Zap className="w-4 h-4 text-amber-500" />
+                <span>Custom Attack Studio</span>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">INJECTION LAB</span>
             </div>
-            <p className="text-on-surface-variant text-xs">
-              Inject custom price claim against Wireless Earbuds (Database price: <strong className="text-verified font-mono">₹3,499</strong>).
+            <p className="text-slate-500 text-xs">
+              Inject custom price claim against Wireless Earbuds (Authoritative catalog price: <strong className="text-verified font-mono font-bold">₹3,499</strong>).
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-xs text-on-surface-variant mb-1 font-semibold">Claimed Price (₹):</label>
+                <label className="block text-[11px] font-mono uppercase text-slate-500 mb-1 font-semibold">Claimed Price (₹):</label>
                 <input
                   type="number"
                   value={customPrice}
                   onChange={(e) => setCustomPrice(e.target.value)}
-                  className="w-full bg-surface-container-low border border-surface-container rounded-xl px-3 py-2 text-primary font-bold font-mono text-xs focus:outline-none focus:border-secondary"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold font-mono text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-on-surface-variant mb-1 font-semibold">Quantity (1–10):</label>
+                <label className="block text-[11px] font-mono uppercase text-slate-500 mb-1 font-semibold">Quantity (1–10):</label>
                 <input
                   type="number"
                   min={1}
                   max={10}
                   value={customQty}
                   onChange={(e) => setCustomQty(parseInt(e.target.value, 10) || 1)}
-                  className="w-full bg-surface-container-low border border-surface-container rounded-xl px-3 py-2 text-primary font-bold font-mono text-xs focus:outline-none focus:border-secondary"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold font-mono text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
                 />
               </div>
             </div>
@@ -207,115 +247,133 @@ export const ThreatSimulationLab: React.FC = () => {
             <button
               onClick={handleCustomAttack}
               disabled={loadingAction}
-              className="w-full py-2.5 bg-primary hover:bg-secondary text-white font-inter text-xs font-bold rounded-full transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-2.5 bg-primary hover:bg-slate-800 text-white font-inter text-xs font-semibold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-98"
             >
-              <Zap className="w-3.5 h-3.5 fill-current" />
+              <Zap className="w-3.5 h-3.5 fill-current text-amber-400" />
               <span>Inject Custom Claim to Firewall</span>
             </button>
           </div>
         </aside>
 
         {/* Center/Right: Simulation Canvas (7 cols) */}
-        <section className="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 border border-surface-container flex flex-col justify-between shadow-ambient-1 relative overflow-hidden">
+        <section className="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 flex flex-col justify-between shadow-xs relative overflow-hidden">
+          {/* Subtle background decorative grid */}
+          <div className="absolute inset-0 bg-radial-[circle_at_top_right] from-primary/3 via-transparent to-transparent pointer-events-none" />
+
           {/* Simulation Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-surface-container relative z-10">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 relative z-10">
             <div>
-              <span className="text-xs font-inter uppercase tracking-wider text-outline font-semibold">Active Simulation</span>
-              <h3 className="font-outfit text-lg sm:text-xl font-bold text-primary">{currentScenario.title}</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold">Active Simulation Environment</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              </div>
+              <h3 className="font-outfit text-lg sm:text-xl font-bold text-slate-900 mt-0.5">{currentScenario.title}</h3>
             </div>
-            <span className={`px-3 py-1 text-xs font-inter font-bold rounded-full border ${currentScenario.tagBg}`}>
+            <span className={`px-3 py-1 text-xs font-mono font-bold rounded-lg border shadow-xs ${currentScenario.tagBg}`}>
               {activeTransaction?.reason_code || currentScenario.tag}
             </span>
           </div>
 
           {/* Interactive Flow Visualizer */}
-          <div className="py-8 relative z-10 flex flex-col items-center justify-center gap-6">
-            <div className="flex items-center justify-between w-full max-w-lg relative">
-              {/* Center Line */}
-              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-surface-container-high -translate-y-1/2 z-0"></div>
+          <div className="py-8 sm:py-12 relative z-10 flex flex-col items-center justify-center gap-7">
+            <div className="flex items-center justify-between w-full max-w-2xl relative px-3 sm:px-6">
+              {/* Center Line with subtle glow */}
+              <div className="absolute top-1/2 left-8 right-8 h-1 bg-gradient-to-r from-slate-200 via-primary/35 to-slate-200 -translate-y-1/2 z-0 rounded-full"></div>
 
               {/* Node 1: Origin Terminal */}
-              <div className="flex flex-col items-center gap-2 z-10">
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-ambient-1 flex items-center justify-center border border-surface-container">
-                  <Terminal className="w-6 h-6 text-on-surface-variant" />
+              <div className="flex flex-col items-center gap-2.5 z-10">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-white shadow-xs flex items-center justify-center border-2 border-slate-200/90 transition-all hover:border-slate-300">
+                  <Terminal className="w-9 h-9 sm:w-11 sm:h-11 text-slate-700" />
                 </div>
-                <span className="text-xs font-inter uppercase tracking-wider text-on-surface-variant font-semibold">Untrusted LLM</span>
+                <div className="text-center">
+                  <span className="text-xs sm:text-sm font-mono uppercase tracking-wider text-slate-700 font-bold block">Untrusted LLM</span>
+                  <span className="text-[10px] font-mono text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200/70 inline-block mt-0.5 font-semibold">Agent Claim</span>
+                </div>
               </div>
 
-              {/* Node 2: AgentGuard Analyzing Core */}
-              <div className="relative w-36 h-36 flex items-center justify-center z-10">
-                <div className="absolute inset-0 bg-lavender-tint opacity-40 rounded-full blur-2xl animate-pulse"></div>
-                <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-lavender-tint shadow-lg">
+              {/* Node 2: AgentGuard Analyzing Core (The Central Visual Focal Point) */}
+              <div className="relative w-40 h-40 sm:w-48 sm:h-48 flex items-center justify-center z-10">
+                <div className="absolute inset-0 bg-primary/15 rounded-full blur-2xl animate-pulse"></div>
+                <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-primary/15 shadow-xl transition-all duration-300 border-2 border-white/20">
                   {activeTransaction?.decision === 'ALLOW' ? (
-                    <ShieldCheck className="w-10 h-10 text-verified" />
+                    <ShieldCheck className="w-14 h-14 sm:w-18 sm:h-18 text-emerald-400 drop-shadow-md" />
                   ) : activeTransaction?.decision === 'ESCALATE' ? (
-                    <AlertOctagon className="w-10 h-10 text-escalation" />
+                    <AlertOctagon className="w-14 h-14 sm:w-18 sm:h-18 text-amber-400 drop-shadow-md" />
                   ) : (
-                    <ShieldX className="w-10 h-10 text-denied" />
+                    <ShieldX className="w-14 h-14 sm:w-18 sm:h-18 text-rose-400 drop-shadow-md" />
                   )}
                 </div>
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-inter font-bold px-2.5 py-0.5 rounded-full shadow-md">
-                  {loadingAction ? 'Analyzing' : 'Verified'}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md border border-slate-700 whitespace-nowrap">
+                  {loadingAction ? 'Analyzing Invariants' : 'Deterministic Core'}
+                </div>
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
+                  <span className="text-[10px] sm:text-[11px] font-outfit uppercase tracking-wider text-primary font-extrabold bg-white/95 px-3 py-0.5 rounded-full border border-primary/20 shadow-xs">
+                    Firewall Cross-Verification
+                  </span>
                 </div>
               </div>
 
               {/* Node 3: Authoritative Ledger */}
-              <div className="flex flex-col items-center gap-2 z-10">
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-ambient-1 flex items-center justify-center border border-surface-container">
-                  <Database className="w-6 h-6 text-secondary" />
+              <div className="flex flex-col items-center gap-2.5 z-10">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-2xl bg-white shadow-xs flex items-center justify-center border-2 border-slate-200/90 transition-all hover:border-slate-300">
+                  <Database className="w-9 h-9 sm:w-11 sm:h-11 text-secondary" />
                 </div>
-                <span className="text-xs font-inter uppercase tracking-wider text-secondary font-semibold">PostgreSQL</span>
+                <div className="text-center">
+                  <span className="text-xs sm:text-sm font-mono uppercase tracking-wider text-secondary font-bold block">PostgreSQL</span>
+                  <span className="text-[10px] font-mono text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded border border-secondary-container inline-block mt-0.5 font-semibold">Authoritative Catalog</span>
+                </div>
               </div>
             </div>
 
             {/* Verdict Callout Banner */}
             <div
               data-agent-target="decision-result"
-              className="glass-panel px-6 py-4 rounded-2xl border border-surface-container shadow-ambient-2 flex flex-col items-center gap-2 max-w-md w-full text-center"
+              className="bg-slate-50/90 px-6 py-3.5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col items-center gap-1.5 max-w-md w-full text-center"
             >
               <div className="flex items-center gap-2">
                 {activeTransaction?.decision === 'ALLOW' ? (
                   <>
-                    <CheckCircle className="w-5 h-5 text-verified" />
-                    <span className="text-verified font-outfit text-base font-bold">Authorization Approved</span>
+                    <CheckCircle className="w-4 h-4 text-emerald-600" />
+                    <span className="text-emerald-700 font-outfit text-sm font-bold">Authorization Approved</span>
                   </>
                 ) : activeTransaction?.decision === 'ESCALATE' ? (
                   <>
-                    <AlertOctagon className="w-5 h-5 text-escalation" />
-                    <span className="text-escalation font-outfit text-base font-bold">Escalated to Human</span>
+                    <AlertOctagon className="w-4 h-4 text-amber-600" />
+                    <span className="text-amber-700 font-outfit text-sm font-bold">Escalated to Human Approver</span>
                   </>
                 ) : (
                   <>
-                    <ShieldX className="w-5 h-5 text-denied" />
-                    <span className="text-denied font-outfit text-base font-bold">Threat Neutralized</span>
+                    <ShieldX className="w-4 h-4 text-rose-600" />
+                    <span className="text-rose-700 font-outfit text-sm font-bold">Threat Neutralized</span>
                   </>
                 )}
               </div>
 
-              <div className="h-px w-full bg-surface-container my-1"></div>
+              <div className="h-px w-full bg-slate-200 my-0.5"></div>
 
-              <p className="text-xs text-on-surface font-inter">
-                Reason Code: <span className="font-mono font-bold">{activeTransaction?.reason_code || 'PRICE_MISMATCH'}</span>
+              <p className="text-xs text-slate-600 font-inter">
+                Reason Code: <span className="font-mono font-bold text-slate-900">{activeTransaction?.reason_code || 'PRICE_MISMATCH'}</span>
               </p>
             </div>
           </div>
 
-          {/* System Kernel / Telemetry Log View matching Stitch */}
-          <div className="relative z-10 w-full bg-surface-container-low rounded-xl p-4 text-xs text-on-surface shadow-sm border border-surface-container overflow-x-auto">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-surface-container">
+          {/* System Kernel / Telemetry Log View - Dark Command Console */}
+          <div className="relative z-10 w-full bg-[#0B0F19] rounded-xl p-4 text-xs text-slate-200 shadow-inner border border-slate-800/90 overflow-x-auto">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-error"></div>
-                  <div className="w-2 h-2 rounded-full bg-escalation"></div>
-                  <div className="w-2 h-2 rounded-full bg-verified"></div>
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
                 </div>
-                <span className="text-primary text-xs font-inter font-bold uppercase tracking-wider ml-1">
+                <span className="text-slate-300 text-[11px] font-mono font-bold uppercase tracking-wider ml-1.5 flex items-center gap-1.5">
+                  <Terminal className="w-3 h-3 text-cyan-400" />
                   System Kernel Output
                 </span>
               </div>
               <button
                 onClick={() => setWireDrawerOpen(!wireDrawerOpen)}
-                className="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 text-xs font-inter font-medium"
+                className="text-slate-400 hover:text-cyan-400 transition-colors flex items-center gap-1 text-[11px] font-mono cursor-pointer"
               >
                 <span>Inspect Wire</span>
                 <ArrowRight className="w-3 h-3" />
@@ -323,20 +381,26 @@ export const ThreatSimulationLab: React.FC = () => {
             </div>
 
             <div className="space-y-1.5 text-xs font-mono leading-relaxed">
-              <div className="flex gap-3 text-on-surface-variant">
-                <span className="text-outline shrink-0">{rawWireLog ? rawWireLog.timestamp : '14:02:11'}</span>
-                <span className="text-secondary font-bold font-inter">[INFO]</span>
-                <span className="font-inter">Ingesting untrusted candidate payload for evaluation</span>
+              <div className="flex gap-3 text-slate-400">
+                <span className="text-slate-600 shrink-0">{rawWireLog ? rawWireLog.timestamp : '14:02:11'}</span>
+                <span className="text-cyan-400 font-bold shrink-0">[INFO]</span>
+                <span className="truncate">Ingesting untrusted candidate payload for deterministic evaluation</span>
               </div>
-              <div className="flex gap-3 text-on-surface-variant">
-                <span className="text-outline shrink-0">{rawWireLog ? rawWireLog.timestamp : '14:02:11'}</span>
-                <span className="text-escalation font-bold font-inter">[EVAL]</span>
-                <span className="font-inter">Executing pure policy engine against PostgreSQL catalog truth...</span>
+              <div className="flex gap-3 text-slate-400">
+                <span className="text-slate-600 shrink-0">{rawWireLog ? rawWireLog.timestamp : '14:02:11'}</span>
+                <span className="text-amber-400 font-bold shrink-0">[EVAL]</span>
+                <span className="truncate">Executing pure policy engine against PostgreSQL catalog truth...</span>
               </div>
-              <div className={`flex gap-3 px-3 py-1 rounded-lg ${activeTransaction?.decision === 'ALLOW' ? 'bg-[#F0FDF4] text-verified font-semibold' : activeTransaction?.decision === 'ESCALATE' ? 'bg-[#FEF3C7] text-escalation font-semibold' : 'bg-error-container/40 text-denied font-bold'}`}>
-                <span className="shrink-0">{rawWireLog ? rawWireLog.timestamp : '14:02:12'}</span>
-                <span className="font-bold font-inter">[{activeTransaction?.decision || 'DENY'}]</span>
-                <span className="font-inter">
+              <div className={`flex gap-3 px-3 py-1 rounded-md ${
+                activeTransaction?.decision === 'ALLOW'
+                  ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-800/40 font-semibold'
+                  : activeTransaction?.decision === 'ESCALATE'
+                  ? 'bg-amber-950/40 text-amber-300 border border-amber-800/40 font-semibold'
+                  : 'bg-rose-950/40 text-rose-300 border border-rose-800/40 font-semibold'
+              }`}>
+                <span className="shrink-0 text-slate-500">{rawWireLog ? rawWireLog.timestamp : '14:02:12'}</span>
+                <span className="font-bold shrink-0">[{activeTransaction?.decision || 'DENY'}]</span>
+                <span className="truncate">
                   {activeTransaction?.decision === 'ALLOW'
                     ? 'Policy evaluation passed: Transaction authorized for execution'
                     : activeTransaction?.decision === 'ESCALATE'
