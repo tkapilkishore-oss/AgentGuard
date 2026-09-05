@@ -1,23 +1,23 @@
 /**
- * useVoiceIO — Phase 5.5C Voice I/O Hook (Cartesia Skylar TTS Integration)
+ * useVoiceIO — Voice I/O Hook (Deepgram Brooke TTS Integration)
  *
- * Encapsulates browser SpeechRecognition (STT) and backend-proxied Cartesia TTS (Skylar)
+ * Encapsulates browser SpeechRecognition (STT) and backend-proxied Deepgram TTS (Brooke)
  * lifecycle for the AgentGuard conversational assistant.
  *
  * ARCHITECTURE:
  *  - Microphone input uses browser SpeechRecognition (STT) untouched.
  *  - All queries are routed through the EXISTING sendConversationalQuery().
  *  - The chatbot response is cleaned using speechCleaner.ts (visible text is never altered).
- *  - Audio is synthesized via server-proxied Cartesia TTS (Voice: Skylar - Friendly Guide, Model: sonic-3).
+ *  - Audio is synthesized via server-proxied Deepgram TTS (Voice: Brooke, Model: flux-brooke-en).
  *  - Audio playback is handled via HTML5 Audio with full state management & cancellation.
  *  - The existing AgentGuardContext agentVoiceState drives the waveform visualizer.
- *  - The Cartesia API key remains strictly server-side and is NEVER exposed to the frontend.
+ *  - The Deepgram API key remains strictly server-side and is NEVER exposed to the frontend.
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { AgentVoiceState } from '../../context/AgentGuardContext';
 import { api, AssistantResponse } from '../../lib/api';
-import { cleanTextForSpeech } from './speechCleaner';
+import { cleanTextForSpeech, AGENTGUARD_TTS_PLAYBACK_RATE } from './speechCleaner';
 
 // ── Local button/label state machine (separate from context waveform state) ──
 export type VoiceIOState = 'IDLE' | 'LISTENING' | 'PROCESSING' | 'SPEAKING' | 'ERROR';
@@ -86,7 +86,7 @@ export interface UseVoiceIOReturn {
   voiceError: string | null;
   /** False when browser has no SpeechRecognition; mic button disabled. */
   isSTTSupported: boolean;
-  /** True when Cartesia audio playback is supported. */
+  /** True when audio playback is supported. */
   isTTSSupported: boolean;
   /** Start speech recognition. No-op unless IDLE. */
   startListening: () => void;
@@ -186,7 +186,7 @@ export function useVoiceIO({
     }
   }, [cleanupActiveAudio, updateVoiceState, setAgentVoiceState]);
 
-  // ── TTS: Synthesize with Cartesia Skylar & Play Audio ──────────────────────
+  // ── TTS: Synthesize with Deepgram Brooke & Play Audio ──────────────────────
   const speakText = useCallback(
     async (text: string) => {
       if (!isTTSSupported) {
@@ -220,7 +220,7 @@ export function useVoiceIO({
         }
 
         if (!blob) {
-          console.warn('[AgentGuard Cartesia TTS] Synthesis error:', error);
+          console.warn('[AgentGuard Deepgram TTS] Synthesis error:', error);
           cleanupActiveAudio();
           updateVoiceState('IDLE');
           setAgentVoiceState('IDLE');
@@ -231,10 +231,11 @@ export function useVoiceIO({
         currentAudioUrlRef.current = audioUrl;
 
         const audio = new Audio(audioUrl);
-        audio.playbackRate = 0.85;
+        audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
         currentAudioRef.current = audio;
 
         audio.onplay = () => {
+          audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
           if (!isMountedRef.current || playbackSessionIdRef.current !== currentSessionId) return;
           updateVoiceState('SPEAKING');
           setAgentVoiceState('SPEAKING');
@@ -259,7 +260,7 @@ export function useVoiceIO({
         if (err?.name === 'AbortError' || abortController.signal.aborted) {
           return;
         }
-        console.error('[AgentGuard Cartesia TTS] Audio playback error:', err);
+        console.error('[AgentGuard Deepgram TTS] Audio playback error:', err);
         if (isMountedRef.current && playbackSessionIdRef.current === currentSessionId) {
           cleanupActiveAudio();
           updateVoiceState('IDLE');
@@ -282,7 +283,7 @@ export function useVoiceIO({
       if (!isMountedRef.current) return;
 
       if (response && typeof response.message === 'string' && response.message.trim()) {
-        // Route the human-readable assistant response to Cartesia TTS
+        // Route the human-readable assistant response to Deepgram TTS
         speakText(response.message);
       } else {
         updateVoiceState('IDLE');

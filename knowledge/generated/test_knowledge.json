@@ -1396,6 +1396,48 @@
     "test_function": "test_secret_hygiene"
   },
   {
+    "content_sha256": "0420650ecd3cfff9ac0e24a9d9baf5610d6d42a6a4356b5e7573ca0477d5f9bf",
+    "docstring": "Verify that calling /internal/demo/reset-mandate without authorization header returns 403.",
+    "id": "test_test_demo_mandate_reset_test_demo_reset_unauthorized_missing_header_0420650e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_demo_mandate_reset.py",
+    "test_function": "test_demo_reset_unauthorized_missing_header"
+  },
+  {
+    "content_sha256": "ccfceb328230d5ddd7dcdeed725b8b935b5e773424e95ffda066b69f8b2b7483",
+    "docstring": "Verify that calling /internal/demo/reset-mandate with an invalid header returns 403.",
+    "id": "test_test_demo_mandate_reset_test_demo_reset_unauthorized_invalid_header_ccfceb32",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_demo_mandate_reset.py",
+    "test_function": "test_demo_reset_unauthorized_invalid_header"
+  },
+  {
+    "content_sha256": "9e2ecd91a5dc9a363b935b45af9ce222fe9bf278e99eb50e4ef33a12a57ed2f0",
+    "docstring": "Verify that /internal/demo/reset-mandate restores mandate-001 to clean \u20b93,000 state.",
+    "id": "test_test_demo_mandate_reset_test_demo_reset_success_restores_clean_state_9e2ecd91",
+    "invariants_proven": [],
+    "target_symbols": [
+      "verify_audit_chain"
+    ],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_demo_mandate_reset.py",
+    "test_function": "test_demo_reset_success_restores_clean_state"
+  },
+  {
+    "content_sha256": "875dfbc53818f52d5c6ccdd84e63116a89e521249edf760b086f367c6341853c",
+    "docstring": "Verify that resetting mandate-001 does not delete or alter transactions.",
+    "id": "test_test_demo_mandate_reset_test_demo_reset_does_not_mutate_transactions_875dfbc5",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_demo_mandate_reset.py",
+    "test_function": "test_demo_reset_does_not_mutate_transactions"
+  },
+  {
     "content_sha256": "0c69402473f62fb2f45092b33a218a7c20abc9c3b9f21d4a885486f92b84a3e4",
     "docstring": "Happy Path: Execute allowed transaction successfully.",
     "id": "test_test_execute_endpoint_test_execute_happy_path_0c694024",
@@ -2924,14 +2966,24 @@
     "test_function": "test_security_invalid_quantities"
   },
   {
-    "content_sha256": "ae01aed19a87163b9dd90fc341154d8d49ac6774ba693b7d2669c7a587cba897",
-    "docstring": "Verify Pydantic schemas reject non-positive prices and invalid quantities.",
-    "id": "test_test_security_hardening_test_security_schema_input_boundaries_ae01aed1",
+    "content_sha256": "0fdb26e34f9ee5bb0fc75d8fb2c6e917d979c5d5b1b0da76178394c69e14e981",
+    "docstring": "Verify Pydantic schemas reject non-positive prices, invalid quantities, and oversized payloads.",
+    "id": "test_test_security_hardening_test_security_schema_input_boundaries_0fdb26e3",
     "invariants_proven": [],
     "target_symbols": [],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_security_hardening.py",
     "test_function": "test_security_schema_input_boundaries"
+  },
+  {
+    "content_sha256": "9039f22354988fb0341acb4d1cc561792a7651a7e895ab7bef22524c4da3efcf",
+    "docstring": "Verify API responses include defensive HTTP security headers (nosniff, DENY, referrer policy).",
+    "id": "test_test_security_hardening_test_security_http_response_headers_9039f223",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_security_hardening.py",
+    "test_function": "test_security_http_response_headers"
   },
   {
     "content_sha256": "715ddd45be0d49ec97d4c30c7cad126b2c9601b77c0b1df667419557d8322340",
@@ -3086,9 +3138,9 @@
     "test_function": "test_b11_demo_state_seed"
   },
   {
-    "content_sha256": "f46f6b00c3013603cdb95987321e7e610fbb8a003cd62ff74e72f87ab01f0a9b",
-    "docstring": "Verify POST /tts/synthesize securely calls Cartesia and returns WAV audio bytes.",
-    "id": "test_test_tts_endpoint_test_tts_synthesize_endpoint_f46f6b00",
+    "content_sha256": "5e11cb799e31404142d167488c63ac0b8a56948f356cf396a1ac9abca0f15072",
+    "docstring": "Verify POST /tts/synthesize securely calls Deepgram and returns MP3 audio bytes.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_endpoint_5e11cb79",
     "invariants_proven": [],
     "target_symbols": [],
     "test_category": "unit_policy",
@@ -3096,13 +3148,53 @@
     "test_function": "test_tts_synthesize_endpoint"
   },
   {
-    "content_sha256": "b76cb4f66432c4c102956ef3aa2e7fe6ca55c03070620eb210936c6c4bbc9d76",
+    "content_sha256": "ca4a2300f6e5ebee17ed9bf8f38938dcd4ae2c77a009c59ddb168383470810bc",
+    "docstring": "Verify HTTP 500 when Deepgram API key is missing.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_missing_key_ca4a2300",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_tts_endpoint.py",
+    "test_function": "test_tts_synthesize_missing_key"
+  },
+  {
+    "content_sha256": "e8fd8c5b0dba1af5fa8d263a852edeb3dd65a9b1f0c9a816908dfa24caf28088",
+    "docstring": "Verify HTTP 502 when Deepgram returns an upstream error.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_deepgram_error_e8fd8c5b",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_tts_endpoint.py",
+    "test_function": "test_tts_synthesize_deepgram_error"
+  },
+  {
+    "content_sha256": "e8437c6c8d60b45629e7f54d86497f222e3ce2dbf76ac2e66e67a923adde3445",
+    "docstring": "Verify HTTP 502 when a network error occurs connecting to Deepgram.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_network_error_e8437c6c",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_tts_endpoint.py",
+    "test_function": "test_tts_synthesize_network_error"
+  },
+  {
+    "content_sha256": "1e078832017949fc4d95c640cb01d587dd936085f435b367a3a70858c455f5b4",
     "docstring": "Verify validation error when text is empty.",
-    "id": "test_test_tts_endpoint_test_tts_synthesize_empty_text_b76cb4f6",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_empty_text_1e078832",
     "invariants_proven": [],
     "target_symbols": [],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_tts_endpoint.py",
     "test_function": "test_tts_synthesize_empty_text"
+  },
+  {
+    "content_sha256": "48e6018e135ee1a4a2375980182dee3c771c187af333c2a5d8070bbbbc93db91",
+    "docstring": "Verify PRICE_MISMATCH becomes 'price mismatch' and SHA-256 becomes 'S H A, two five six'.",
+    "id": "test_test_tts_endpoint_test_tts_synthesize_security_terms_normalization_48e6018e",
+    "invariants_proven": [],
+    "target_symbols": [],
+    "test_category": "unit_policy",
+    "test_file": "backend/tests/unit/test_tts_endpoint.py",
+    "test_function": "test_tts_synthesize_security_terms_normalization"
   }
 ]

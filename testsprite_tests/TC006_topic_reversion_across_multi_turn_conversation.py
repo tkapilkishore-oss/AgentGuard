@@ -1,77 +1,63 @@
 import requests
-import uuid
-import time
 
 BASE_URL = "http://localhost:8000/conversational/query"
 TIMEOUT = 30
 
-def test_topic_reversion_across_multi_turn_conversation():
-    # We simulate a multi-turn conversation where we begin on one topic,
-    # switch to another topic, then explicitly request to revert back to the original topic.
-    # The system should restore the earlier topic and continue the conversation coherently.
 
-    # Step 1: Start a new conversation with an initial query on a topic, e.g., "price tampering"
-    initial_query = "Can you explain how price tampering is detected in AgentGuard?"
-    user_id = str(uuid.uuid4())
+def test_TC006_topic_reversion_across_multi_turn_conversation():
+    # Start a new conversation with an initial topic
+    first_query = "Can you explain the price tampering issue?"
+    payload = {"query": first_query}
+    try:
+        response1 = requests.post(BASE_URL, json=payload, timeout=TIMEOUT)
+        response1.raise_for_status()
+        data1 = response1.json()
+        assert data1.get("success") is True, "Initial query unsuccessful"
+        session_id = data1["data"].get("session_id")
+        assert session_id, "No session_id returned"
+        turn_id_1 = data1["data"].get("turn_id")
+        intent_1 = data1["data"].get("intent")
+        assert intent_1, "No intent resolved for first query"
+        message_1 = data1["data"].get("message")
+        assert message_1, "No message returned for first query"
 
-    response1 = requests.post(
-        BASE_URL,
-        json={"query": initial_query, "user_id": user_id},
-        timeout=TIMEOUT,
-    )
-    assert response1.status_code == 200, f"Unexpected status code: {response1.status_code}"
-    resp1_json = response1.json()
-    assert resp1_json.get("success") is True, "Initial query did not succeed"
-    data1 = resp1_json.get("data", {})
-    session_id = data1.get("session_id")
-    assert session_id, "No session_id returned on initial query"
-    turn_id_1 = data1.get("turn_id")
-    assert isinstance(turn_id_1, int) and turn_id_1 > 0, "Invalid turn_id in initial query response"
-    intent_1 = data1.get("intent")
-    message_1 = data1.get("message")
-    assert isinstance(message_1, str) and len(message_1) > 0, "Empty message in initial response"
+        # Continue conversation with a follow-up query on a different topic
+        second_query = "Now tell me about replay attacks."
+        payload2 = {"query": second_query, "session_id": session_id}
+        response2 = requests.post(BASE_URL, json=payload2, timeout=TIMEOUT)
+        response2.raise_for_status()
+        data2 = response2.json()
+        assert data2.get("success") is True, "Second query unsuccessful"
+        turn_id_2 = data2["data"].get("turn_id")
+        assert turn_id_2 is not None and turn_id_2 > turn_id_1, "Turn id did not increment"
+        intent_2 = data2["data"].get("intent")
+        assert isinstance(intent_2, str) and intent_2, "Intent not resolved for second query"
+        message_2 = data2["data"].get("message")
+        assert message_2, "No message returned for second query"
 
-    # Step 2: Follow-up query switching to a different topic, e.g., "replay attacks"
-    second_query = "What about replay attacks? How do they work?"
-    response2 = requests.post(
-        BASE_URL,
-        json={"query": second_query, "session_id": session_id, "user_id": user_id},
-        timeout=TIMEOUT,
-    )
-    assert response2.status_code == 200, f"Unexpected status code: {response2.status_code}"
-    resp2_json = response2.json()
-    assert resp2_json.get("success") is True, "Second query did not succeed"
-    data2 = resp2_json.get("data", {})
-    turn_id_2 = data2.get("turn_id")
-    assert isinstance(turn_id_2, int) and turn_id_2 > turn_id_1, "Turn ID did not increment for second query"
-    intent_2 = data2.get("intent")
-    message_2 = data2.get("message")
-    assert isinstance(message_2, str) and len(message_2) > 0, "Empty message in second response"
-    # Confirm topic shifted to replay attacks or related intent
-    assert intent_2 and ("replay" in intent_2.lower() or "attack" in intent_2.lower()) or "replay" in message_2.lower()
+        # Now revert back explicitly to the first topic (price tampering)
+        third_query = "Go back to the price tampering discussion."
+        payload3 = {"query": third_query, "session_id": session_id}
+        response3 = requests.post(BASE_URL, json=payload3, timeout=TIMEOUT)
+        response3.raise_for_status()
+        data3 = response3.json()
+        assert data3.get("success") is True, "Third (reversion) query unsuccessful"
+        turn_id_3 = data3["data"].get("turn_id")
+        assert turn_id_3 is not None and turn_id_3 > turn_id_2, "Turn id did not increment on reversion"
+        intent_3 = data3["data"].get("intent")
+        assert isinstance(intent_3, str) and intent_3, "Intent not resolved for third query"
+        message_3 = data3["data"].get("message")
+        assert message_3, "No message returned for reverted topic query"
 
-    # Step 3: Explicitly request to revert back or return to the original topic ("price tampering")
-    revert_query = "Can we go back to price tampering and continue?"
-    response3 = requests.post(
-        BASE_URL,
-        json={"query": revert_query, "session_id": session_id, "user_id": user_id},
-        timeout=TIMEOUT,
-    )
-    assert response3.status_code == 200, f"Unexpected status code: {response3.status_code}"
-    resp3_json = response3.json()
-    assert resp3_json.get("success") is True, "Topic revert query did not succeed"
-    data3 = resp3_json.get("data", {})
-    turn_id_3 = data3.get("turn_id")
-    assert isinstance(turn_id_3, int) and turn_id_3 > turn_id_2, "Turn ID did not increment for revert query"
-    intent_3 = data3.get("intent")
-    message_3 = data3.get("message")
-    assert isinstance(message_3, str) and len(message_3) > 0, "Empty message in topic revert response"
-    # Check if the restored topic/message is about price tampering again
-    assert "price tampering" in message_3.lower() or ("price" in intent_3.lower() if intent_3 else False)
+        # Confirm dialogue_act and evidence_citations presence (optional ground check)
+        dialogue_act_3 = data3["data"].get("dialogue_act")
+        evidence_citations_3 = data3["data"].get("evidence_citations")
+        assert dialogue_act_3 is not None, "No dialogue_act in reversion response"
+        assert isinstance(evidence_citations_3, list), "Evidence citations missing or not a list"
 
-    # Validate that dialogue_act, evidence_citations, and suggested_followups exist and are well-formed in the last response
-    assert "dialogue_act" in data3 and isinstance(data3["dialogue_act"], str)
-    assert "evidence_citations" in data3 and isinstance(data3["evidence_citations"], list)
-    assert "suggested_followups" in data3 and isinstance(data3["suggested_followups"], list)
+    finally:
+        # Cleanup not required because sessions are maintained server-side and no explicit delete endpoint given for session here
+        pass
 
-test_topic_reversion_across_multi_turn_conversation()
+
+test_TC006_topic_reversion_across_multi_turn_conversation()

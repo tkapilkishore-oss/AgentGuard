@@ -147,10 +147,10 @@ interface AgentGuardContextType {
   revokeMandate: () => Promise<void>;
 
   proposeClaim: (productId: string, claimedPrice: number, quantity?: number) => Promise<ProposeResponseData | null>;
-  executeActiveTransaction: (idempotencyKey?: string) => Promise<ExecuteResponseData | null>;
+  executeActiveTransaction: (idempotencyKey?: string, explicitTxnId?: string) => Promise<ExecuteResponseData | null>;
   approveActiveTransaction: () => Promise<boolean>;
   rejectActiveTransaction: () => Promise<boolean>;
-  triggerScenario: (scenarioId: number) => Promise<void>;
+  triggerScenario: (scenarioId: number) => Promise<ProposeResponseData | null>;
   sendAgentChatMessage: (prompt: string) => Promise<{ thought: string; claim: any; result: any } | null>;
   // Real B-3 Conversational Operations
   sendConversationalQuery: (query: string) => Promise<AssistantResponse | null>;
@@ -371,13 +371,17 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   };
 
-  const executeActiveTransaction = async (idempotencyKey?: string): Promise<ExecuteResponseData | null> => {
-    if (!activeTransaction) return null;
+  const executeActiveTransaction = async (
+    idempotencyKey?: string,
+    explicitTxnId?: string
+  ): Promise<ExecuteResponseData | null> => {
+    const targetTxnId = explicitTxnId || activeTransaction?.transaction_id;
+    if (!targetTxnId) return null;
     setLoadingAction(true);
     const start = performance.now();
     try {
       const { status, envelope } = await api.executeTransaction({
-        transaction_id: activeTransaction.transaction_id,
+        transaction_id: targetTxnId,
         idempotency_key: idempotencyKey,
       });
 
@@ -386,7 +390,7 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
         'POST',
         status,
         envelope,
-        { transaction_id: activeTransaction.transaction_id, idempotency_key: idempotencyKey },
+        { transaction_id: targetTxnId, idempotency_key: idempotencyKey },
         Math.round(performance.now() - start)
       );
 
@@ -394,7 +398,7 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
         setActiveExecutionResult(envelope.data);
       } else if (envelope.error) {
         setActiveExecutionResult({
-          transaction_id: activeTransaction.transaction_id,
+          transaction_id: targetTxnId,
           status: 'denied',
           reason_code: envelope.error.code,
           razorpay_payment_id: null,
@@ -403,8 +407,8 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
 
       await fetchMandate();
       await fetchTransactions();
-      if (activeTransaction.transaction_id) {
-        await fetchAuditData(activeTransaction.transaction_id);
+      if (targetTxnId) {
+        await fetchAuditData(targetTxnId);
       }
       return envelope.data;
     } finally {
@@ -474,7 +478,7 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   };
 
-  const triggerScenario = async (scenarioId: number): Promise<void> => {
+  const triggerScenario = async (scenarioId: number): Promise<ProposeResponseData | null> => {
     setLoadingAction(true);
     try {
       switch (scenarioId) {
@@ -482,25 +486,23 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
           // Scenario 1: Happy path within budget ₹2,799
           const result = await proposeClaim('prod-002', 2799.0, 1);
           if (result) {
-            await executeActiveTransaction();
+            await executeActiveTransaction(undefined, result.transaction_id);
           }
-          break;
+          return result;
         }
         case 2: {
           // Scenario 2: Over-budget ₹3,499 (exceeds ₹3,000 budget -> ESCALATE)
-          await proposeClaim('prod-001', 3499.0, 1);
-          break;
+          return await proposeClaim('prod-001', 3499.0, 1);
         }
         case 3: {
           // Scenario 3: Price tampering (claims ₹1,999 vs actual ₹3,499 -> DENY)
-          await proposeClaim('prod-001', 1999.0, 1);
-          break;
+          return await proposeClaim('prod-001', 1999.0, 1);
         }
         case 4: {
           // Scenario 4: Replay attack
           const propRes = await proposeClaim('prod-002', 2799.0, 1);
           if (propRes) {
-            await executeActiveTransaction();
+            await executeActiveTransaction(undefined, propRes.transaction_id);
             // Fire replay with new idempotency key on same successful transaction
             const start = performance.now();
             const { status, envelope } = await api.executeTransaction({
@@ -527,16 +529,16 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
               razorpay_payment_id: null,
             });
           }
-          break;
+          return propRes;
         }
         case 5: {
           // Scenario 5: Safe retry
           const propRes = await proposeClaim('prod-002', 2799.0, 1);
           if (propRes) {
             const retryKey = `retry-key-${Date.now()}`;
-            await executeActiveTransaction(retryKey);
+            await executeActiveTransaction(retryKey, propRes.transaction_id);
           }
-          break;
+          return propRes;
         }
         case 6: {
           // Scenario 6: Mandate Revocation mid-session
@@ -561,10 +563,10 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
               reason_code: envelope.error?.code || 'MANDATE_REVOKED',
             });
           }
-          break;
+          return propRes;
         }
         default:
-          break;
+          return null;
       }
     } finally {
       setLoadingAction(false);

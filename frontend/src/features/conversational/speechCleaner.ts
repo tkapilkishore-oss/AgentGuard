@@ -9,6 +9,13 @@
  *  - Selects the best available natural female English voice across operating systems.
  */
 
+/**
+ * Centralized AgentGuard TTS playback rate constant.
+ * Requirement: exactly 0.95 (95% of normal speed) across all AgentGuard voice playback paths
+ * (autonomous demo, conversational chatbot, pause/resume, etc.).
+ */
+export const AGENTGUARD_TTS_PLAYBACK_RATE = 0.95;
+
 export interface SpeechChunk {
   text: string;
   pauseAfterMs: number;
@@ -83,13 +90,27 @@ export function cleanTextForSpeech(text: string): string {
   // ── 12. Remove internal path references (file:// etc.) ───────────────────
   cleaned = cleaned.replace(/file:\/\/[^\s]*/g, '');
 
-  // ── 13. Natural pronunciation for common technical abbreviations ─────────
+  // ── 13. Natural pronunciation for common technical abbreviations & security codes ──
   cleaned = cleaned.replace(/\be\.g\.,?\s*/gi, 'for example, ');
   cleaned = cleaned.replace(/\bi\.e\.,?\s*/gi, 'that is, ');
   cleaned = cleaned.replace(/\bvs\.\s*/gi, 'versus ');
   cleaned = cleaned.replace(/\bapprox\.\s*/gi, 'approximately ');
   cleaned = cleaned.replace(/\btxns?\b/gi, 'transactions');
-  cleaned = cleaned.replace(/\bSHA-256\b/g, 'SHA 256');
+
+  // Targeted normalization for machine-readable security decision codes
+  cleaned = cleaned.replace(/\bPRICE_MISMATCH\b/g, 'price mismatch');
+  cleaned = cleaned.replace(/\bMANDATE_REVOKED\b/g, 'mandate revoked');
+  cleaned = cleaned.replace(/\bREPLAY_DETECTED\b/g, 'replay detected');
+  cleaned = cleaned.replace(/\bBUDGET_EXCEEDED\b/g, 'budget exceeded');
+  cleaned = cleaned.replace(/\bPOLICY_VIOLATION\b/g, 'policy violation');
+  cleaned = cleaned.replace(/\bRATE_LIMITED\b/g, 'rate limited');
+  cleaned = cleaned.replace(/\bUNAUTHORIZED_AGENT\b/g, 'unauthorized agent');
+  cleaned = cleaned.replace(/\bEXPIRED_MANDATE\b/g, 'expired mandate');
+  cleaned = cleaned.replace(/\bITEM_RESTRICTED\b/g, 'item restricted');
+  cleaned = cleaned.replace(/\bMERCHANT_RESTRICTED\b/g, 'merchant restricted');
+
+  // SHA-256 deliberately spelled character-by-character as a security/hash identifier
+  cleaned = cleaned.replace(/\bSHA[- ]?256\b/gi, 'S H A, two five six');
 
   // ── 14. Normalise whitespace ─────────────────────────────────────────────
   cleaned = cleaned.replace(/\n{3,}/g, '\n\n');

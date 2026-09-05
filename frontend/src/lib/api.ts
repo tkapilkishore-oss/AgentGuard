@@ -247,6 +247,15 @@ export const api = {
     });
   },
 
+  async resetDemoMandate(): Promise<{ status: number; envelope: ApiResponse<any> }> {
+    return fetchEnvelope<any>('/internal/demo/reset-mandate', {
+      method: 'POST',
+      headers: {
+        'X-Demo-Control': 'agentguard-autonomous-demo',
+      },
+    });
+  },
+
   async proposeTransaction(payload: {
     user_id?: string;
     mandate_id?: string;

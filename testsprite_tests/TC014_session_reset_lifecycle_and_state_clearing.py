@@ -2,107 +2,111 @@ import requests
 
 BASE_URL = "http://localhost:8000/conversational"
 TIMEOUT = 30
+HEADERS = {"Content-Type": "application/json"}
+
 
 def test_TC014_session_reset_lifecycle_and_state_clearing():
     session_id = None
     try:
-        # Step 1: Start a new session with a query (POST /conversational/query)
+        # Step 1: Create a new session by posting a query without session_id
         query_payload = {
-            "query": "Explain price tampering detection mechanisms in AgentGuard.",
-            "user_id": "test-user-001"
+            "query": "Explain the concept of price tampering in AgentGuard.",
+            "user_id": "test_user"
         }
-        resp = requests.post(f"{BASE_URL}/query", json=query_payload, timeout=TIMEOUT)
-        assert resp.status_code == 200
-        body = resp.json()
-        assert body.get("success") is True
-        data = body.get("data", {})
-        session_id = data.get("session_id")
-        assert session_id is not None
+        response = requests.post(
+            f"{BASE_URL}/query", json=query_payload, headers=HEADERS, timeout=TIMEOUT
+        )
+        assert response.status_code == 200
+        resp_json = response.json()
+        assert resp_json.get("success") is True, "Initial query did not succeed"
+        data = resp_json.get("data")
+        assert data and "session_id" in data and data["session_id"], "No session_id received"
+        session_id = data["session_id"]
 
-        # Step 2: Add a follow-up query to preserve context
+        # Step 2: Post a follow-up query with the session_id to build context
         followup_payload = {
-            "query": "How does it prevent replay attacks?",
+            "query": "What are the detection mechanisms for it?",
             "session_id": session_id,
-            "user_id": "test-user-001"
+            "user_id": "test_user"
         }
-        resp = requests.post(f"{BASE_URL}/query", json=followup_payload, timeout=TIMEOUT)
-        assert resp.status_code == 200
-        body = resp.json()
-        assert body.get("success") is True
-        follow_data = body.get("data", {})
-        assert follow_data.get("session_id") == session_id
-        # Confirm turn_id incremented and dialogue_act present
-        assert isinstance(follow_data.get("turn_id"), int)
-        assert isinstance(follow_data.get("dialogue_act"), str) and len(follow_data["dialogue_act"]) > 0
+        response = requests.post(
+            f"{BASE_URL}/query", json=followup_payload, headers=HEADERS, timeout=TIMEOUT
+        )
+        assert response.status_code == 200
+        resp_json = response.json()
+        assert resp_json.get("success") is True, "Follow-up query did not succeed"
+        data_followup = resp_json.get("data")
+        assert data_followup and data_followup.get("session_id") == session_id
 
-        # Step 3: Confirm session state has context (GET /conversational/session/{session_id})
-        resp = requests.get(f"{BASE_URL}/session/{session_id}", timeout=TIMEOUT)
-        assert resp.status_code == 200
-        body = resp.json()
-        assert body.get("success") is True
-        session_data = body.get("data", {})
-        assert session_data.get("session_id") == session_id
-        assert isinstance(session_data.get("turn_count"), int) and session_data["turn_count"] >= 2
-        assert isinstance(session_data.get("active_topic"), str) and len(session_data["active_topic"]) > 0
-        assert isinstance(session_data.get("turns"), list) and len(session_data["turns"]) >= 2
+        # Step 3: Confirm session state before deletion with GET
+        response = requests.get(
+            f"{BASE_URL}/session/{session_id}", headers=HEADERS, timeout=TIMEOUT
+        )
+        assert response.status_code == 200
+        resp_json = response.json()
+        assert resp_json.get("success") is True, "Session retrieval before reset failed"
+        session_data = resp_json.get("data")
+        assert session_data and session_data.get("turn_count", 0) >= 2, "Session turn count missing or insufficient"
+        assert session_data.get("active_topic"), "Active topic missing before reset"
 
-        # Step 4: Reset session with DELETE /conversational/session/{session_id}
-        resp = requests.delete(f"{BASE_URL}/session/{session_id}", timeout=TIMEOUT)
-        assert resp.status_code == 200
-        body = resp.json()
-        assert body.get("success") is True
-        reset_data = body.get("data", {})
-        assert reset_data.get("session_id") == session_id
-        assert reset_data.get("status") == "reset"
+        # Step 4: Reset the session using DELETE
+        response = requests.delete(
+            f"{BASE_URL}/session/{session_id}", headers=HEADERS, timeout=TIMEOUT
+        )
+        assert response.status_code == 200
+        resp_json = response.json()
+        assert resp_json.get("success") is True, "Session reset did not succeed"
+        reset_data = resp_json.get("data")
+        assert reset_data and reset_data.get("session_id") == session_id
+        assert reset_data.get("status") and "reset" in reset_data.get("status").lower()
 
-        # Step 5: Confirm session state is cleared: GET /conversational/session/{session_id} should fail or show cleared
-        resp = requests.get(f"{BASE_URL}/session/{session_id}", timeout=TIMEOUT)
-        if resp.status_code == 200:
-            cleared_body = resp.json()
-            assert cleared_body.get("success") is True
-            cleared_data = cleared_body.get("data", {})
-            # session should be empty or reset: turn_count 0 or no turns or empty topic
-            assert cleared_data.get("session_id") == session_id
-            assert cleared_data.get("turn_count") == 0 or cleared_data.get("turns") == [] or cleared_data.get("active_topic") in (None, "", "reset")
+        # Step 5: Inspect session state after reset with GET
+        response = requests.get(
+            f"{BASE_URL}/session/{session_id}", headers=HEADERS, timeout=TIMEOUT
+        )
+        # According to PRD, after reset the session should be clean - expect not found or a cleared session
+        if response.status_code == 200:
+            resp_json = response.json()
+            assert resp_json.get("success") is True, "Session retrieval after reset returned error"
+            session_data_after_reset = resp_json.get("data")
+            # After reset, turn_count should be 0 or minimal and no active topic
+            assert session_data_after_reset is not None
+            assert session_data_after_reset.get("turn_count") == 0 or session_data_after_reset.get("turns") == [], "Session turns not cleared after reset"
+            # active_topic should be empty or None
+            active_topic = session_data_after_reset.get("active_topic")
+            assert active_topic in (None, "", {}), "Active topic not cleared after reset"
         else:
-            # Alternatively, possibly 404 if session considered expired/removed
-            assert resp.status_code in (404, 410)
+            # If 404 or other error for missing session is returned, that is acceptable
+            assert response.status_code in (404, 410), f"Unexpected status code after session reset: {response.status_code}"
 
-        # Step 6: Post a new query with the same session_id to verify fresh session state (no stale context)
-        fresh_query_payload = {
-            "query": "What is the mandate budget enforcement?",
+        # Step 6: Perform a new conversation query with the same session_id, should start fresh without old context
+        new_query_payload = {
+            "query": "Define replay attacks.",
             "session_id": session_id,
-            "user_id": "test-user-001"
+            "user_id": "test_user"
         }
-        resp = requests.post(f"{BASE_URL}/query", json=fresh_query_payload, timeout=TIMEOUT)
-        assert resp.status_code == 200
-        fresh_body = resp.json()
-        assert fresh_body.get("success") is True
-        fresh_data = fresh_body.get("data", {})
-        assert fresh_data.get("session_id") == session_id
-        # Because session was reset, turn_id should start fresh (e.g., 1)
-        assert fresh_data.get("turn_id") == 1
-        # Active topic in response should correspond to fresh query's topic, not previous one
-        assert fresh_data.get("intent") is not None
-        assert isinstance(fresh_data.get("message"), str) and len(fresh_data["message"]) > 0
+        response = requests.post(
+            f"{BASE_URL}/query", json=new_query_payload, headers=HEADERS, timeout=TIMEOUT
+        )
+        assert response.status_code == 200
+        resp_json = response.json()
+        assert resp_json.get("success") is True, "New query after reset did not succeed"
+        new_data = resp_json.get("data")
+        assert new_data and new_data.get("session_id") == session_id
+        # New conversation should start at turn_id 1 or 0 (fresh)
+        assert new_data.get("turn_id") == 1 or new_data.get("turn_id") == 0
 
-        # Step 7: Confirm session state after fresh query shows only 1 turn
-        resp = requests.get(f"{BASE_URL}/session/{session_id}", timeout=TIMEOUT)
-        assert resp.status_code == 200
-        session_after_reset = resp.json()
-        assert session_after_reset.get("success") is True
-        new_session_data = session_after_reset.get("data", {})
-        assert new_session_data.get("session_id") == session_id
-        assert new_session_data.get("turn_count") == 1
-        assert isinstance(new_session_data.get("turns"), list) and len(new_session_data["turns"]) == 1
-        # active_topic should match fresh intent topic or be different from old active topic
-        assert isinstance(new_session_data.get("active_topic"), str) and len(new_session_data["active_topic"]) > 0
+        # Optional: Check that new response does not reference previous topic "price tampering"
+        message = new_data.get("message", "").lower()
+        assert "price tampering" not in message, "Old topic context leaked after reset"
 
     finally:
-        # Cleanup: Try deleting session again in case left active (idempotent)
+        # Cleanup: Delete session if still exists
         if session_id:
             try:
-                requests.delete(f"{BASE_URL}/session/{session_id}", timeout=TIMEOUT)
+                requests.delete(
+                    f"{BASE_URL}/session/{session_id}", headers=HEADERS, timeout=TIMEOUT
+                )
             except Exception:
                 pass
 

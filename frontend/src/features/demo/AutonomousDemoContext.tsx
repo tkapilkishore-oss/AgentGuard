@@ -19,8 +19,8 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAgentGuard } from '../../context/AgentGuardContext';
-import { api } from '../../lib/api';
-import { cleanTextForSpeech } from '../conversational/speechCleaner';
+import { api, ProposeResponseData } from '../../lib/api';
+import { cleanTextForSpeech, AGENTGUARD_TTS_PLAYBACK_RATE } from '../conversational/speechCleaner';
 import {
   DemoState,
   DemoStepId,
@@ -160,6 +160,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
     setSelectedTxnId,
     fetchTransactions,
     fetchAuditData,
+    fetchMandate,
     registerConversationalInterceptor,
     appendAgentMessage,
     setIsConversationalOpen,
@@ -194,33 +195,53 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
   // Single active audio playback controller refs
   const activeAudioRef = useRef<HTMLAudioElement | null>(null);
   const activeAudioUrlRef = useRef<string | null>(null);
+  const sharedAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Background prerequisite setup promise ref (mandate reset/check)
+  const prerequisitePromiseRef = useRef<Promise<void> | null>(null);
+
+  // In-flight audio prefetch deduplication guard
+  const inFlightPrefetchesRef = useRef<Set<string>>(new Set());
 
   // Pause greeting dedicated pre-synthesized audio ref
   const pauseGreetingBlobRef = useRef<Blob | null>(null);
   const pauseAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Single-chunk prefetch cache ref
-  const prefetchedBlobRef = useRef<{ key: string; blob: Blob; runId: number } | null>(null);
+  // Multi-chunk prefetch cache map: key -> { blob: Blob; runId: number }
+  const prefetchedBlobsRef = useRef<Map<string, { blob: Blob; runId: number }>>(new Map());
 
   // Timers registry
   const timerIdsRef = useRef<number[]>([]);
 
-  // Pre-synthesize static pause greeting on mount for instant pause response
+  // Pre-synthesize static pause greeting and Step 1 chunk 1 on mount for instant zero-latency playback
   useEffect(() => {
     let mounted = true;
-    const prefetchPausePrompt = async () => {
+    const prefetchMountAssets = async () => {
       try {
-        const { blob } = await api.synthesizeSpeech(
+        // 1. Static pause greeting pre-synthesis
+        const { blob: pBlob } = await api.synthesizeSpeech(
           "You've paused the demo. Do you have any questions I can help with?"
         );
-        if (blob && mounted) {
-          pauseGreetingBlobRef.current = blob;
+        if (pBlob && mounted) {
+          pauseGreetingBlobRef.current = pBlob;
+        }
+
+        // 2. Step 1 narration chunk 1 pre-synthesis (tagged with runId: 0 for static cache)
+        const step1Narration = DEMO_STEPS[1]?.spokenNarration;
+        if (step1Narration && mounted) {
+          const cleaned = cleanTextForSpeech(step1Narration);
+          if (cleaned) {
+            const { blob: sBlob } = await api.synthesizeSpeech(cleaned);
+            if (sBlob && mounted) {
+              prefetchedBlobsRef.current.set('step1-chunk1', { blob: sBlob, runId: 0 });
+            }
+          }
         }
       } catch {
-        // Safe fallback handled in pauseDemo
+        // Safe fallback handled in playNarration / pauseDemo
       }
     };
-    prefetchPausePrompt();
+    prefetchMountAssets();
     return () => {
       mounted = false;
     };
@@ -306,27 +327,33 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       if (!cleaned) return;
 
       // Don't re-fetch if already cached
-      if (
-        prefetchedBlobRef.current?.key === key &&
-        prefetchedBlobRef.current.runId === expectedRunId
-      ) {
+      const existing = prefetchedBlobsRef.current.get(key);
+      if (existing) {
         return;
       }
 
+      // Deduplicate concurrent in-flight prefetch requests
+      if (inFlightPrefetchesRef.current.has(key)) {
+        return;
+      }
+      inFlightPrefetchesRef.current.add(key);
+
       try {
         const { blob } = await api.synthesizeSpeech(cleaned);
-        if (blob && expectedRunId === runIdRef.current && isMountedRef.current) {
-          prefetchedBlobRef.current = { key, blob, runId: expectedRunId };
+        if (blob && (expectedRunId === runIdRef.current || expectedRunId === 0) && isMountedRef.current) {
+          prefetchedBlobsRef.current.set(key, { blob, runId: expectedRunId });
         }
       } catch {
         // Safe: playNarration will fall back to normal fetch
+      } finally {
+        inFlightPrefetchesRef.current.delete(key);
       }
     },
     []
   );
 
-  // ── Spoken Narration via Cartesia TTS with Live Rolling Captions (Issue 2) ────
-  // Uses audio.currentTime / audio.duration to progressively roll captions as voice speaks
+  // ── Spoken Narration via Deepgram Brooke TTS with Live Rolling Captions ─────
+  // Uses persistent audio controller and centralized AGENTGUARD_TTS_PLAYBACK_RATE (0.95)
   const playNarration = useCallback(
     async (text: string, expectedRunId: number, prefetchedKey?: string): Promise<void> => {
       if (!text || !text.trim()) return;
@@ -342,16 +369,15 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         // Check if pre-synthesized blob is available for this chunk
         let blob: Blob | null = null;
-        if (
-          prefetchedKey &&
-          prefetchedBlobRef.current?.key === prefetchedKey &&
-          prefetchedBlobRef.current.runId === expectedRunId
-        ) {
-          blob = prefetchedBlobRef.current.blob;
-          prefetchedBlobRef.current = null; // Consume
+        const cached = prefetchedKey ? prefetchedBlobsRef.current.get(prefetchedKey) : null;
+        if (cached) {
+          blob = cached.blob;
         } else {
           const res = await api.synthesizeSpeech(cleaned);
           blob = res.blob;
+          if (blob && prefetchedKey) {
+            prefetchedBlobsRef.current.set(prefetchedKey, { blob, runId: expectedRunId });
+          }
         }
 
         if (expectedRunId !== runIdRef.current || !isMountedRef.current) {
@@ -359,7 +385,8 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           return;
         }
 
-        const words = cleaned.split(/\s+/);
+        // Subtitles preserve visual punctuation & uppercase abbreviations (PRICE_MISMATCH, SHA-256)
+        const words = text.split(/\s+/);
 
         if (!blob) {
           // Graceful fallback reading timer if network fails
@@ -386,7 +413,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
               if (elapsed >= fallbackMs) {
                 window.clearInterval(timer);
-                setCurrentNarration(cleaned);
+                setCurrentNarration(text);
                 resolve();
               }
             }, 100);
@@ -401,8 +428,20 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         const audioUrl = URL.createObjectURL(blob);
         activeAudioUrlRef.current = audioUrl;
-        const audio = new Audio(audioUrl);
-        audio.playbackRate = 0.88;
+
+        // Use single persistent audio controller with strictly enforced 0.95 playback rate
+        let audio = sharedAudioRef.current;
+        if (!audio) {
+          audio = new Audio();
+          audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+          sharedAudioRef.current = audio;
+        }
+        audio.pause();
+        audio.src = audioUrl;
+        audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        audio.onplay = () => {
+          audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        };
         activeAudioRef.current = audio;
 
         // Set initial caption snippet
@@ -412,10 +451,15 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         await new Promise<void>((resolve) => {
           let resolved = false;
+          let intervalId: number | null = null;
 
           const finish = () => {
             if (!resolved) {
               resolved = true;
+              if (intervalId !== null) {
+                window.clearInterval(intervalId);
+                intervalId = null;
+              }
               audio.onended = null;
               audio.onerror = null;
               if (activeAudioRef.current === audio) {
@@ -423,7 +467,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
               }
               if (expectedRunId === runIdRef.current) {
                 setAgentVoiceState('IDLE');
-                setCurrentNarration(cleaned); // Reveal full text upon completion
+                setCurrentNarration(text); // Reveal full text upon completion
               }
               resolve();
             }
@@ -435,23 +479,54 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           if (!isPausedRef.current) {
             audio.play().catch((err) => {
               console.warn('[Demo TTS] Play error:', err);
-              finish();
+              // If browser autoplay restriction blocks playback, gracefully fallback to reading timer
+              if (err?.name === 'NotAllowedError') {
+                const wordCount = words.length;
+                const fallbackMs = Math.max(2000, Math.round((wordCount / 140) * 60 * 1000));
+                const startTime = Date.now();
+
+                const timer = window.setInterval(() => {
+                  if (expectedRunId !== runIdRef.current || !isMountedRef.current) {
+                    window.clearInterval(timer);
+                    finish();
+                    return;
+                  }
+                  if (isPausedRef.current) return;
+
+                  const elapsed = Date.now() - startTime;
+                  const progress = Math.min(1, elapsed / fallbackMs);
+                  const targetWordIdx = Math.min(words.length, Math.max(3, Math.ceil(progress * words.length)));
+                  const startIdx = Math.max(0, targetWordIdx - 14);
+                  setCurrentNarration(
+                    (startIdx > 0 ? '... ' : '') + words.slice(startIdx, targetWordIdx).join(' ')
+                  );
+
+                  if (elapsed >= fallbackMs) {
+                    window.clearInterval(timer);
+                    finish();
+                  }
+                }, 100);
+                timerIdsRef.current.push(timer);
+              } else {
+                finish();
+              }
             });
           }
 
           // Rolling caption updater & pause watcher
-          const intervalId = window.setInterval(() => {
+          intervalId = window.setInterval(() => {
             if (expectedRunId !== runIdRef.current || !isMountedRef.current) {
-              window.clearInterval(intervalId);
+              if (intervalId !== null) window.clearInterval(intervalId);
               audio.pause();
               finish();
               return;
             }
 
-            // Sync pause/resume state
+            // Sync pause/resume state and strictly re-enforce 0.95 rate
             if (isPausedRef.current && !audio.paused) {
               audio.pause();
             } else if (!isPausedRef.current && audio.paused && !resolved) {
+              audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
               audio.play().catch(() => {});
             }
 
@@ -477,7 +552,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           audio.addEventListener(
             'ended',
             () => {
-              window.clearInterval(intervalId);
+              if (intervalId !== null) window.clearInterval(intervalId);
               finish();
             },
             { once: true }
@@ -525,7 +600,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
   // Real scenario request starts immediately. Loading voice only if pending > 1.8s.
   // Stops loading voice immediately once real response arrives.
   const executeScenarioWithLoadingVoice = useCallback(
-    async (scenarioId: number, activeRunId: number): Promise<void> => {
+    async (scenarioId: number, activeRunId: number): Promise<ProposeResponseData | null> => {
       let pending = true;
       let loadingAudioPlaying = false;
 
@@ -542,7 +617,8 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       timerIdsRef.current.push(thresholdTimer);
 
       try {
-        await triggerScenario(scenarioId);
+        const res = await triggerScenario(scenarioId);
+        return res || null;
       } finally {
         pending = false;
         window.clearTimeout(thresholdTimer);
@@ -568,28 +644,30 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       // 1. Navigation if route changes
       if (window.location.pathname !== step.route) {
         navigate(step.route);
-        const ok = await safeDelay(700, activeRunId);
-        if (!ok || activeRunId !== runIdRef.current) return;
-      } else {
         const ok = await safeDelay(200, activeRunId);
+        if (!ok || activeRunId !== runIdRef.current) return;
+      } else if (stepId !== 1) {
+        const ok = await safeDelay(150, activeRunId);
         if (!ok || activeRunId !== runIdRef.current) return;
       }
 
       // 2. Perform step-specific ordered narration and actions with prefetching
       switch (stepId) {
         case 1: {
-          // Step 1: Introduction & Home Cockpit Tour
-          await scrollToTop(300, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
+          // Step 1: Introduction & Home Cockpit Tour (Immediate visual start)
+          if (window.scrollY > 50) {
+            await scrollToTop(250, activeRunId);
+            if (activeRunId !== runIdRef.current) return;
+          }
 
           const chunk2Text =
             'At the top of our cockpit, you see the active mandate boundary: a strict, server-enforced budget of ₹3,000. Beneath our hero banner, three core pillars define the architecture: zero prompt authority, a PostgreSQL truth gate that verifies prices before payment, and idempotent Razorpay execution.';
           prefetchAudio(chunk2Text, activeRunId, 'step1-chunk2');
 
-          // Chunk 1: Introduction
-          await playNarration(step.spokenNarration, activeRunId);
+          // Chunk 1: Introduction (consumes pre-synthesized audio chunk1)
+          await playNarration(step.spokenNarration, activeRunId, 'step1-chunk1');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(200, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           // Chunk 2: Cockpit Boundary & Architecture Cards
@@ -597,12 +675,20 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
             'Scrolling down, the Trust Journey Pipeline illustrates the four stages of every transaction: the untrusted AI agent formulates a purchase intent, AgentGuard evaluates the policy invariants, catalog truth is queried directly from PostgreSQL, and only verified transactions proceed to payment.';
           prefetchAudio(chunk3Text, activeRunId, 'step1-chunk3');
 
+          // Ensure clean ₹3,000 budget state is active before showcasing cockpit budget
+          if (prerequisitePromiseRef.current) {
+            await prerequisitePromiseRef.current;
+            if (activeRunId !== runIdRef.current) return;
+          }
+          await fetchMandate();
+          if (activeRunId !== runIdRef.current) return;
+
           setCurrentTargetId('cockpit-budget');
-          await scrollToSemanticTarget('cockpit-budget', 400, activeRunId);
+          await scrollToSemanticTarget('cockpit-budget', 350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await playNarration(chunk2Text, activeRunId, 'step1-chunk2');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(200, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           // Chunk 3: The Trust Journey Pipeline
@@ -611,22 +697,24 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           prefetchAudio(chunk4Text, activeRunId, 'step1-chunk4');
 
           setCurrentTargetId(null);
-          await scrollToSemanticTarget('#trust-journey', 500, activeRunId);
+          await scrollToSemanticTarget('#trust-journey', 400, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await playNarration(chunk3Text, activeRunId, 'step1-chunk3');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(200, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          // Chunk 4: Firewall Thinking Mechanics
-          await scrollToSemanticTarget('#firewall-thinking', 500, activeRunId);
+          // Chunk 4: Firewall Thinking Mechanics — Prefetch Step 2 boundary narration
+          prefetchAudio(DEMO_STEPS[2].spokenNarration, activeRunId, 'step2-narration');
+
+          await scrollToSemanticTarget('#firewall-thinking', 400, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await playNarration(chunk4Text, activeRunId, 'step1-chunk4');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(200, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          await scrollToTop(500, activeRunId);
+          await scrollToTop(350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await executeStep(2, activeRunId);
           break;
@@ -634,13 +722,17 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         case 2: {
           // Step 2: Cockpit Boundary
+          const step3Chunk1Text =
+            'Here in Live Protection, you can see the fundamental separation. On the left is the Untrusted Claim Chamber, simulating an intelligent shopping agent operating with zero financial authority. On the right is the Firewall Authorization Engine.';
+          prefetchAudio(step3Chunk1Text, activeRunId, 'step3-chunk1');
+
           setCurrentTargetId('cockpit-budget');
-          await scrollToSemanticTarget('cockpit-budget', 400, activeRunId);
+          await scrollToSemanticTarget('cockpit-budget', 350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          await playNarration(step.spokenNarration, activeRunId);
+          await playNarration(step.spokenNarration, activeRunId, 'step2-narration');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(300, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           await executeStep(3, activeRunId);
@@ -650,31 +742,36 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         case 3: {
           // Step 3: Live Protection Presentation
           setCurrentTargetId('live-protection-mandate');
-          await scrollToTop(300, activeRunId);
+          await scrollToTop(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           const chunk2Text =
             'When the agent proposes a purchase, AgentGuard independently validates the item, claimed price, merchant, and mandate budget against PostgreSQL catalog truth before money can move. If verified, payment executes via Razorpay; if tampered, it is stopped instantly.';
           prefetchAudio(chunk2Text, activeRunId, 'step3-chunk2');
 
+          const step3Chunk1Text =
+            'Here in Live Protection, you can see the fundamental separation. On the left is the Untrusted Claim Chamber, simulating an intelligent shopping agent operating with zero financial authority. On the right is the Firewall Authorization Engine.';
+
           // Chunk 1: Separation of Untrusted Chamber and Firewall Engine
-          await playNarration(
-            'Here in Live Protection, you can see the fundamental separation. On the left is the Untrusted Claim Chamber, simulating an intelligent shopping agent operating with zero financial authority. On the right is the Firewall Authorization Engine.',
-            activeRunId
-          );
+          await playNarration(step3Chunk1Text, activeRunId, 'step3-chunk1');
           if (activeRunId !== runIdRef.current) return;
           await safeDelay(200, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
+          // Prefetch Step 4 Chunk 1 while Chunk 2 is playing
+          const step4Chunk1Text =
+            'This is the Threat Simulation Lab, where we stress-test our deterministic boundaries under six distinct adversarial scenarios.';
+          prefetchAudio(step4Chunk1Text, activeRunId, 'step4-chunk1');
+
           // Chunk 2: Verification, Mandate Limits & Policy Decision
-          await scrollToSemanticTarget('.xl\\:col-span-7', 500, activeRunId);
+          await scrollToSemanticTarget('.xl\\:col-span-7', 400, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await playNarration(chunk2Text, activeRunId, 'step3-chunk2');
           if (activeRunId !== runIdRef.current) return;
           await safeDelay(200, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          await scrollToTop(400, activeRunId);
+          await scrollToTop(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await executeStep(4, activeRunId);
           break;
@@ -683,18 +780,18 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         case 4: {
           // Step 4: Threat Simulation Lab — Overview & Explanation of all 6 scenarios
           setCurrentTargetId('threat-happy-path');
-          await scrollToTop(300, activeRunId);
+          await scrollToTop(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           const scenarios12Text =
             'Scenario one is our Happy Path baseline: a standard, un-tampered transaction within budget. Scenario two is Over-Budget Escalation, where purchases exceeding the mandate budget require human approver authorization.';
           prefetchAudio(scenarios12Text, activeRunId, 'step4-chunk2');
 
+          const step4Chunk1Text =
+            'This is the Threat Simulation Lab, where we stress-test our deterministic boundaries under six distinct adversarial scenarios.';
+
           // Chunk 1: Threat Lab Intro
-          await playNarration(
-            'This is the Threat Simulation Lab, where we stress-test our deterministic boundaries under six distinct adversarial scenarios.',
-            activeRunId
-          );
+          await playNarration(step4Chunk1Text, activeRunId, 'step4-chunk1');
           if (activeRunId !== runIdRef.current) return;
           await safeDelay(200, activeRunId);
           if (activeRunId !== runIdRef.current) return;
@@ -705,7 +802,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
           // Chunk 2: Scenarios 1 & 2
           setCurrentTargetId('threat-happy-path');
-          await scrollToSemanticTarget('threat-happy-path', 400, activeRunId);
+          await scrollToSemanticTarget('threat-happy-path', 350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await playNarration(scenarios12Text, activeRunId, 'step4-chunk2');
           if (activeRunId !== runIdRef.current) return;
@@ -718,7 +815,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
           // Chunk 3: Scenarios 3 & 4
           setCurrentTargetId('threat-price-tampering');
-          await scrollToSemanticTarget('threat-price-tampering', 400, activeRunId);
+          await scrollToSemanticTarget('threat-price-tampering', 350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await playNarration(scenarios34Text, activeRunId, 'step4-chunk3');
           if (activeRunId !== runIdRef.current) return;
@@ -735,10 +832,12 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           await safeDelay(200, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
+          prefetchAudio(DEMO_STEPS[5].spokenNarration, activeRunId, 'step5-narration');
+
           // Chunk 5: Transition to live price tampering attack
           await playNarration(transitionText, activeRunId, 'step4-chunk5');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(300, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           await executeStep(5, activeRunId);
@@ -747,24 +846,30 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         case 5: {
           // Step 5: Execute Price Tampering attack through REAL Threat Lab flow
-          setCurrentTargetId('threat-custom-amount');
-          await scrollToSemanticTarget('threat-custom-amount', 400, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
-          await playNarration(step.spokenNarration, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
-          // Trigger real Scenario 3 with friendly loading voice if >1.8s
-          setCurrentTargetId('threat-price-tampering');
-          await executeScenarioWithLoadingVoice(3, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
-          // Capture generated transaction ID
-          if (activeTransactionRef.current?.transaction_id) {
-            lastPriceTamperingTxnIdRef.current = activeTransactionRef.current.transaction_id;
+          if (prerequisitePromiseRef.current) {
+            await prerequisitePromiseRef.current;
+            if (activeRunId !== runIdRef.current) return;
           }
 
-          await safeDelay(400, activeRunId);
+          setCurrentTargetId('threat-custom-amount');
+          await scrollToSemanticTarget('threat-custom-amount', 350, activeRunId);
+          if (activeRunId !== runIdRef.current) return;
+
+          prefetchAudio(DEMO_STEPS[6].spokenNarration, activeRunId, 'step6-narration');
+
+          await playNarration(step.spokenNarration, activeRunId, 'step5-narration');
+          if (activeRunId !== runIdRef.current) return;
+
+          setCurrentTargetId('threat-price-tampering');
+          const propRes = await executeScenarioWithLoadingVoice(3, activeRunId);
+          if (activeRunId !== runIdRef.current) return;
+
+          if (propRes?.transaction_id || activeTransactionRef.current?.transaction_id) {
+            lastPriceTamperingTxnIdRef.current =
+              propRes?.transaction_id || activeTransactionRef.current?.transaction_id || null;
+          }
+
+          await safeDelay(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await executeStep(6, activeRunId);
           break;
@@ -773,18 +878,16 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         case 6: {
           // Step 6: Price Tampering Decision — Highlight verdict & verify real backend result
           setCurrentTargetId('decision-result');
-          await scrollToSemanticTarget('decision-result', 500, activeRunId);
+          await scrollToSemanticTarget('decision-result', 400, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           const decisionStr = (activeTransactionRef.current?.decision as string) || '';
           const verdictReason = activeTransactionRef.current?.reason_code || '';
-          const isDenied =
-            decisionStr === 'DENY' ||
-            decisionStr === 'DENIED' ||
-            verdictReason.includes('PRICE') ||
-            verdictReason === 'PRICE_MISMATCH';
+          const isPriceMismatchDenied =
+            (decisionStr === 'DENY' || decisionStr === 'DENIED') &&
+            (verdictReason === 'PRICE_MISMATCH' || verdictReason.includes('PRICE'));
 
-          if (!isDenied && activeTransactionRef.current?.decision) {
+          if (!isPriceMismatchDenied && activeTransactionRef.current?.decision) {
             const safetyMsg =
               'The demonstration encountered an unexpected issue with the price tampering scenario, so I’ve paused rather than showing an incorrect result.';
             setCurrentNarration(safetyMsg);
@@ -793,9 +896,11 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
             return;
           }
 
-          await playNarration(step.spokenNarration, activeRunId);
+          prefetchAudio(DEMO_STEPS[7].spokenNarration, activeRunId, 'step7-narration');
+
+          await playNarration(step.spokenNarration, activeRunId, 'step6-narration');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(400, activeRunId);
+          await safeDelay(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           await executeStep(7, activeRunId);
@@ -804,22 +909,23 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         case 7: {
           // Step 7: Forensic Denial Record — Inspect the real denied transaction in audit chain
-          await fetchTransactions();
+          fetchTransactions();
           const targetTxnId =
             lastPriceTamperingTxnIdRef.current || activeTransactionRef.current?.transaction_id;
           if (targetTxnId) {
             setSelectedTxnId(targetTxnId);
-            await fetchAuditData(targetTxnId);
+            fetchAuditData(targetTxnId);
           }
-          if (activeRunId !== runIdRef.current) return;
+
+          prefetchAudio(DEMO_STEPS[8].spokenNarration, activeRunId, 'step8-narration');
 
           setCurrentTargetId('forensic-latest-transaction');
-          await scrollToSemanticTarget('forensic-latest-transaction', 500, activeRunId);
+          await scrollToSemanticTarget('forensic-latest-transaction', 350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          await playNarration(step.spokenNarration, activeRunId);
+          await playNarration(step.spokenNarration, activeRunId, 'step7-narration');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(400, activeRunId);
+          await safeDelay(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           await executeStep(8, activeRunId);
@@ -828,25 +934,30 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         case 8: {
           // Step 8: Legitimate Request — Highlight Scenario 1 & visual product/amount pill (Issue 4)
-          setCurrentTargetId('threat-legitimate-item');
-          await scrollToSemanticTarget('threat-happy-path', 400, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
-          // Visually demonstrate the legitimate item and ₹2,799 in-budget amount
-          await playNarration(step.spokenNarration, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
-          // Trigger real Scenario 1 with friendly loading voice if >1.8s
-          setCurrentTargetId('threat-happy-path');
-          await executeScenarioWithLoadingVoice(1, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
-          // Capture generated transaction ID
-          if (activeTransactionRef.current?.transaction_id) {
-            lastHappyPathTxnIdRef.current = activeTransactionRef.current.transaction_id;
+          if (prerequisitePromiseRef.current) {
+            await prerequisitePromiseRef.current;
+            if (activeRunId !== runIdRef.current) return;
           }
 
-          await safeDelay(400, activeRunId);
+          prefetchAudio(DEMO_STEPS[9].spokenNarration, activeRunId, 'step9-narration');
+
+          setCurrentTargetId('threat-legitimate-item');
+          await scrollToSemanticTarget('threat-happy-path', 350, activeRunId);
+          if (activeRunId !== runIdRef.current) return;
+
+          await playNarration(step.spokenNarration, activeRunId, 'step8-narration');
+          if (activeRunId !== runIdRef.current) return;
+
+          setCurrentTargetId('threat-happy-path');
+          const happyRes = await executeScenarioWithLoadingVoice(1, activeRunId);
+          if (activeRunId !== runIdRef.current) return;
+
+          if (happyRes?.transaction_id || activeTransactionRef.current?.transaction_id) {
+            lastHappyPathTxnIdRef.current =
+              happyRes?.transaction_id || activeTransactionRef.current?.transaction_id || null;
+          }
+
+          await safeDelay(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await executeStep(9, activeRunId);
           break;
@@ -855,7 +966,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         case 9: {
           // Step 9: Legitimate Approval Verdict — Highlight verdict & verify real backend result (ALLOW)
           setCurrentTargetId('decision-result');
-          await scrollToSemanticTarget('decision-result', 500, activeRunId);
+          await scrollToSemanticTarget('decision-result', 400, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           const decisionStr = (activeTransactionRef.current?.decision as string) || '';
@@ -870,9 +981,11 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
             return;
           }
 
-          await playNarration(step.spokenNarration, activeRunId);
+          prefetchAudio(DEMO_STEPS[10].spokenNarration, activeRunId, 'step10-narration');
+
+          await playNarration(step.spokenNarration, activeRunId, 'step9-narration');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(400, activeRunId);
+          await safeDelay(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           await executeStep(10, activeRunId);
@@ -881,22 +994,23 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
         case 10: {
           // Step 10: Forensic Success Record — Inspect legitimate transaction & contrast with denied record
-          await fetchTransactions();
+          fetchTransactions();
           const targetTxnId =
             lastHappyPathTxnIdRef.current || activeTransactionRef.current?.transaction_id;
           if (targetTxnId) {
             setSelectedTxnId(targetTxnId);
-            await fetchAuditData(targetTxnId);
+            fetchAuditData(targetTxnId);
           }
-          if (activeRunId !== runIdRef.current) return;
+
+          prefetchAudio(DEMO_STEPS[11].spokenNarration, activeRunId, 'step11-narration');
 
           setCurrentTargetId('forensic-latest-transaction');
-          await scrollToSemanticTarget('forensic-latest-transaction', 500, activeRunId);
+          await scrollToSemanticTarget('forensic-latest-transaction', 350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          await playNarration(step.spokenNarration, activeRunId);
+          await playNarration(step.spokenNarration, activeRunId, 'step10-narration');
           if (activeRunId !== runIdRef.current) return;
-          await safeDelay(400, activeRunId);
+          await safeDelay(300, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           await executeStep(11, activeRunId);
@@ -906,13 +1020,13 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         case 11: {
           // Step 11: Return to Home + Final Recap
           setCurrentTargetId('cockpit-budget');
-          await scrollToTop(500, activeRunId);
+          await scrollToTop(350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          await playNarration(step.spokenNarration, activeRunId);
+          await playNarration(step.spokenNarration, activeRunId, 'step11-narration');
           if (activeRunId !== runIdRef.current) return;
 
-          await safeDelay(300, activeRunId);
+          await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
           // Finish cleanly and restore normal UI state
@@ -920,6 +1034,14 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           setCurrentTargetId(null);
           setIsConversationalOpen(true);
           appendAgentMessage?.(step.spokenNarration);
+
+          // Restore demo mandate budget to clean ₹3,000 state for repeatability
+          try {
+            await api.resetDemoMandate();
+            await fetchMandate();
+          } catch (err) {
+            console.warn('[AutonomousDemo] Completion budget reset error:', err);
+          }
           break;
         }
 
@@ -959,16 +1081,63 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         pauseAudioRef.current = null;
       }
 
-      prefetchedBlobRef.current = null;
+      // Synchronous user-activation audio priming on user gesture
+      if (!sharedAudioRef.current) {
+        sharedAudioRef.current = new Audio();
+        sharedAudioRef.current.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+      }
+      try {
+        sharedAudioRef.current.src =
+          'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        sharedAudioRef.current
+          .play()
+          .then(() => {
+            sharedAudioRef.current?.pause();
+          })
+          .catch(() => {});
+      } catch {
+        // Safe: non-blocking priming
+      }
+
+      // Audio blobs remain cached across demo restarts to prevent duplicate Deepgram TTS calls
       pausePhaseRef.current = 'INACTIVE';
       setIsPaused(false);
       isPausedRef.current = false;
-      setIsConversationalOpen(false); // Slides completely offscreen during RUNNING
-      setDemoState('RUNNING');
+      setIsConversationalOpen(false); // Slides completely offscreen immediately
 
+      const initialStep = DEMO_STEPS[fromStep] || DEMO_STEPS[1];
+
+      // IMMEDIATE VISUAL STATE TRANSITION (Zero startup delay):
+      // 1. Enter RUNNING immediately
+      // 2. Set step immediately
+      // 3. Set visual target immediately (AgentCursor rendered prompt)
+      // 4. Set initial caption immediately (DemoControlBar displays it instantly)
+      setDemoState('RUNNING');
+      setCurrentStepId(fromStep);
+      setCurrentTargetId(initialStep.targetId || 'cockpit-budget');
+      setCurrentNarration(initialStep.captionText);
+
+      // Concurrent background prerequisite setup (mandate validation/reset does NOT block Step 1)
+      prerequisitePromiseRef.current = (async () => {
+        try {
+          const mandateRes = await api.getMandate('mandate-001');
+          const remaining = mandateRes.data ? parseFloat(mandateRes.data.budget_remaining) : 0;
+          const isRevoked = mandateRes.data?.status === 'revoked';
+          const isNotClean = remaining < 3000 || isRevoked;
+
+          if (isNotClean) {
+            await api.resetDemoMandate();
+            await fetchMandate();
+          }
+        } catch (err) {
+          console.warn('[AutonomousDemo] Prerequisite setup check error:', err);
+        }
+      })();
+
+      // Begin step execution immediately
       await executeStep(fromStep, nextRunId);
     },
-    [clearAllRegisteredTimers, stopActiveAudio, executeStep, setIsConversationalOpen]
+    [clearAllRegisteredTimers, stopActiveAudio, executeStep, setIsConversationalOpen, fetchMandate]
   );
 
   const pauseDemo = useCallback(() => {
@@ -1003,7 +1172,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
         const url = URL.createObjectURL(pauseGreetingBlobRef.current);
         const pAudio = new Audio(url);
-        pAudio.playbackRate = 0.88;
+        pAudio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
         pauseAudioRef.current = pAudio;
         setAgentVoiceState('SPEAKING');
 
@@ -1052,9 +1221,10 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       setIsConversationalOpen(false); // Slides completely offscreen
       setDemoState('RUNNING');
 
-      // 2. Resume running narration audio if paused mid-chunk
+      // 2. Resume running narration audio if paused mid-chunk with strictly enforced 0.95 rate
       if (activeAudioRef.current && activeAudioRef.current.paused) {
         setAgentVoiceState('SPEAKING');
+        activeAudioRef.current.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
         activeAudioRef.current.play().catch(() => {});
       }
     } finally {
@@ -1077,7 +1247,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       pauseAudioRef.current = null;
     }
 
-    prefetchedBlobRef.current = null;
+    // Audio blobs remain cached across demo restarts to prevent duplicate Deepgram TTS calls
     pausePhaseRef.current = 'INACTIVE';
     setIsPaused(false);
     isPausedRef.current = false;
@@ -1195,7 +1365,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       onQuery: async (query: string) => {
         const trimmed = query.trim().toLowerCase();
         if (
-          /^(start\s+demo|run\s+demo|launch\s+demo|demo|walkthrough|start\s+walkthrough)$/i.test(
+          /^(start\s+demo|run\s+demo|launch\s+demo|demo|walkthrough|start\s+walkthrough|project\s+demo)$/i.test(
             trimmed
           )
         ) {
