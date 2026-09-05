@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 # pyrefly: ignore [missing-import]
@@ -8,7 +9,8 @@ from fastapi.exceptions import RequestValidationError
 
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.api.approve import router as approve_router
 from backend.app.api.execute import router as execute_router
@@ -109,3 +111,28 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 @app.get("/health", response_model=ApiResponse[dict[str, Any]])
 async def health_check() -> ApiResponse[dict[str, Any]]:
     return ApiResponse.ok({"status": "ok", "service": "Agentic Commerce Firewall"})
+
+
+# ── Frontend Static Assets & SPA Client-Side Routing ─────────────────────────
+FRONTEND_DIST_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../frontend/dist")
+)
+FRONTEND_ASSETS_DIR = os.path.join(FRONTEND_DIST_DIR, "assets")
+
+if os.path.exists(FRONTEND_DIST_DIR):
+    if os.path.exists(FRONTEND_ASSETS_DIR):
+        app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS_DIR), name="assets")
+
+    # Serve SPA entrypoint index.html for all React Router client-side navigation views
+    @app.get("/", include_in_schema=False)
+    @app.get("/live", include_in_schema=False)
+    @app.get("/threats", include_in_schema=False)
+    @app.get("/forensics", include_in_schema=False)
+    async def serve_spa_views():
+        index_file = os.path.join(FRONTEND_DIST_DIR, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Frontend index.html not found. Run 'npm run build' in frontend directory.",
+        )

@@ -284,7 +284,9 @@ export const AgentGuardProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const checkHealth = useCallback(async () => {
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const apiBase =
+        import.meta.env.VITE_API_URL ??
+        (import.meta.env.DEV ? 'http://localhost:8000' : '');
       const res = await fetch(`${apiBase}/health`);
       setBackendHealth(res.ok);
     } catch {
