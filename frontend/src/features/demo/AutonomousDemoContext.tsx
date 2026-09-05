@@ -1,7 +1,7 @@
 /**
  * AutonomousDemoContext.tsx — Feature-Local Autonomous Demo State Machine
  *
- * Implements a controlled, deterministic 11-step walkthrough demonstrating
+ * Implements a controlled, deterministic 6-step walkthrough demonstrating
  * AgentGuard's commerce firewall against price tampering and legitimate in-budget
  * requests using the real backend.
  *
@@ -20,7 +20,11 @@ import React, { createContext, useContext, useState, useRef, useEffect, useCallb
 import { useNavigate } from 'react-router-dom';
 import { useAgentGuard } from '../../context/AgentGuardContext';
 import { api, ProposeResponseData } from '../../lib/api';
-import { cleanTextForSpeech, AGENTGUARD_TTS_PLAYBACK_RATE } from '../conversational/speechCleaner';
+import {
+  cleanTextForSpeech,
+  configureAgentGuardAudio,
+  enforcePlaybackRate,
+} from '../conversational/speechCleaner';
 import {
   DemoState,
   DemoStepId,
@@ -34,11 +38,11 @@ const DEMO_STEPS: Record<DemoStepId, DemoStepDefinition> = {
     id: 1,
     name: 'Introduction & Tour',
     route: '/',
-    targetId: null,
+    targetId: 'cockpit-budget',
     spokenNarration:
-      "Welcome to AgentGuard. AgentGuard is the server-authoritative financial firewall and trust boundary for autonomous AI agents. When autonomous agents are granted financial access, they can hallucinate prices, exceed budgets, or be manipulated by adversarial prompts. AgentGuard acts as the deterministic trust boundary: the model is allowed to be wrong, but it's not allowed to be authoritative. Today, I'll walk you through our live protection architecture, stress-test our firewall against adversarial attacks in the Threat Lab, and inspect the cryptographic audit ledger.",
-    captionText: 'Introduction — AgentGuard deterministic trust boundary for AI commerce',
-    expectedDurationMs: 24000,
+      "Welcome to AgentGuard. When autonomous agents are granted financial access, the model is allowed to be wrong, but it's not allowed to be authoritative. AgentGuard sits between an AI agent and financial execution, independently verifying what the agent proposes and making the authorization decision. Today, I'll walk you through our live protection architecture, stress-test our firewall against adversarial attacks in the Threat Lab, and inspect the cryptographic audit ledger.",
+    captionText: 'Introduction — The model is allowed to be wrong; the firewall is authoritative',
+    expectedDurationMs: 22000,
   },
   2: {
     id: 2,
@@ -200,8 +204,6 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
   // Background prerequisite setup promise ref (mandate reset/check)
   const prerequisitePromiseRef = useRef<Promise<void> | null>(null);
 
-  // In-flight audio prefetch deduplication guard
-  const inFlightPrefetchesRef = useRef<Set<string>>(new Set());
 
   // Pause greeting dedicated pre-synthesized audio ref
   const pauseGreetingBlobRef = useRef<Blob | null>(null);
@@ -210,33 +212,47 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
   // Multi-chunk prefetch cache map: key -> { blob: Blob; runId: number }
   const prefetchedBlobsRef = useRef<Map<string, { blob: Blob; runId: number }>>(new Map());
 
+  // In-flight synthesis promises map: key -> Promise<{ status: number; blob: Blob | null; error?: string }>
+  const inFlightPromisesRef = useRef<
+    Map<string, Promise<{ status: number; blob: Blob | null; error?: string }>>
+  >(new Map());
+
   // Timers registry
   const timerIdsRef = useRef<number[]>([]);
 
-  // Pre-synthesize static pause greeting and Step 1 chunk 1 on mount for instant zero-latency playback
+  // Pre-synthesize Step 1 narration and static pause greeting on mount for instant zero-latency playback
   useEffect(() => {
     let mounted = true;
     const prefetchMountAssets = async () => {
       try {
-        // 1. Static pause greeting pre-synthesis
-        const { blob: pBlob } = await api.synthesizeSpeech(
-          "You've paused the demo. Do you have any questions I can help with?"
-        );
-        if (pBlob && mounted) {
-          pauseGreetingBlobRef.current = pBlob;
+        const step1Narration = DEMO_STEPS[1]?.spokenNarration;
+        const cleanedStep1 = step1Narration ? cleanTextForSpeech(step1Narration) : '';
+        const pauseGreeting = "You've paused the demo. Do you have any questions I can help with?";
+
+        // 1. High priority: Step 1 narration for immediate playback
+        if (cleanedStep1) {
+          const promise = api.synthesizeSpeech(cleanedStep1);
+          inFlightPromisesRef.current.set('step1-chunk1', promise);
+          promise
+            .then(({ blob: sBlob }) => {
+              if (sBlob && mounted) {
+                prefetchedBlobsRef.current.set('step1-chunk1', { blob: sBlob, runId: 0 });
+              }
+            })
+            .catch(() => {})
+            .finally(() => {
+              inFlightPromisesRef.current.delete('step1-chunk1');
+            });
         }
 
-        // 2. Step 1 narration chunk 1 pre-synthesis (tagged with runId: 0 for static cache)
-        const step1Narration = DEMO_STEPS[1]?.spokenNarration;
-        if (step1Narration && mounted) {
-          const cleaned = cleanTextForSpeech(step1Narration);
-          if (cleaned) {
-            const { blob: sBlob } = await api.synthesizeSpeech(cleaned);
-            if (sBlob && mounted) {
-              prefetchedBlobsRef.current.set('step1-chunk1', { blob: sBlob, runId: 0 });
+        // 2. Pause greeting
+        api.synthesizeSpeech(pauseGreeting)
+          .then(({ blob: pBlob }) => {
+            if (pBlob && mounted) {
+              pauseGreetingBlobRef.current = pBlob;
             }
-          }
-        }
+          })
+          .catch(() => {});
       } catch {
         // Safe fallback handled in playNarration / pauseDemo
       }
@@ -333,20 +349,21 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       }
 
       // Deduplicate concurrent in-flight prefetch requests
-      if (inFlightPrefetchesRef.current.has(key)) {
+      if (inFlightPromisesRef.current.has(key)) {
         return;
       }
-      inFlightPrefetchesRef.current.add(key);
 
       try {
-        const { blob } = await api.synthesizeSpeech(cleaned);
+        const promise = api.synthesizeSpeech(cleaned);
+        inFlightPromisesRef.current.set(key, promise);
+        const { blob } = await promise;
         if (blob && (expectedRunId === runIdRef.current || expectedRunId === 0) && isMountedRef.current) {
           prefetchedBlobsRef.current.set(key, { blob, runId: expectedRunId });
         }
       } catch {
         // Safe: playNarration will fall back to normal fetch
       } finally {
-        inFlightPrefetchesRef.current.delete(key);
+        inFlightPromisesRef.current.delete(key);
       }
     },
     []
@@ -367,11 +384,26 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       try {
         setAgentVoiceState('SPEAKING');
 
+        // Subtitles preserve visual punctuation & uppercase abbreviations (PRICE_MISMATCH, SHA-256)
+        const words = text.split(/\s+/);
+
+        // Immediate visual caption feedback so UI never appears frozen while audio buffers
+        setCurrentNarration(
+          words.slice(0, Math.min(8, words.length)).join(' ') + (words.length > 8 ? '...' : '')
+        );
+
         // Check if pre-synthesized blob is available for this chunk
         let blob: Blob | null = null;
         const cached = prefetchedKey ? prefetchedBlobsRef.current.get(prefetchedKey) : null;
         if (cached) {
           blob = cached.blob;
+        } else if (prefetchedKey && inFlightPromisesRef.current.has(prefetchedKey)) {
+          // Await active in-flight prefetch promise directly without spawning duplicate request
+          const res = await inFlightPromisesRef.current.get(prefetchedKey)!;
+          blob = res.blob;
+          if (blob) {
+            prefetchedBlobsRef.current.set(prefetchedKey, { blob, runId: expectedRunId });
+          }
         } else {
           const res = await api.synthesizeSpeech(cleaned);
           blob = res.blob;
@@ -384,9 +416,6 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           setAgentVoiceState('IDLE');
           return;
         }
-
-        // Subtitles preserve visual punctuation & uppercase abbreviations (PRICE_MISMATCH, SHA-256)
-        const words = text.split(/\s+/);
 
         if (!blob) {
           // Graceful fallback reading timer if network fails
@@ -432,22 +461,18 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
         // Use single persistent audio controller with strictly enforced 0.95 playback rate
         let audio = sharedAudioRef.current;
         if (!audio) {
-          audio = new Audio();
-          audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+          audio = configureAgentGuardAudio(new Audio());
           sharedAudioRef.current = audio;
+        } else {
+          configureAgentGuardAudio(audio);
         }
         audio.pause();
         audio.src = audioUrl;
-        audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        enforcePlaybackRate(audio);
         audio.onplay = () => {
-          audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+          enforcePlaybackRate(audio);
         };
         activeAudioRef.current = audio;
-
-        // Set initial caption snippet
-        setCurrentNarration(
-          words.slice(0, Math.min(6, words.length)).join(' ') + (words.length > 6 ? '...' : '')
-        );
 
         await new Promise<void>((resolve) => {
           let resolved = false;
@@ -477,6 +502,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           audio.onerror = finish;
 
           if (!isPausedRef.current) {
+            enforcePlaybackRate(audio);
             audio.play().catch((err) => {
               console.warn('[Demo TTS] Play error:', err);
               // If browser autoplay restriction blocks playback, gracefully fallback to reading timer
@@ -526,7 +552,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
             if (isPausedRef.current && !audio.paused) {
               audio.pause();
             } else if (!isPausedRef.current && audio.paused && !resolved) {
-              audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+              enforcePlaybackRate(audio);
               audio.play().catch(() => {});
             }
 
@@ -692,9 +718,8 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           if (activeRunId !== runIdRef.current) return;
 
           // Chunk 3: The Trust Journey Pipeline
-          const chunk4Text =
-            'Further down, the firewall mechanics enforce four strict invariants: catalog integrity, hard mandate spending limits, human-in-the-loop escalation when budgets are exceeded, and an immutable SHA-256 evidence trail.';
-          prefetchAudio(chunk4Text, activeRunId, 'step1-chunk4');
+          // Prefetch Step 2 narration directly (Firewall Mechanics section is completely skipped)
+          prefetchAudio(DEMO_STEPS[2].spokenNarration, activeRunId, 'step2-narration');
 
           setCurrentTargetId(null);
           await scrollToSemanticTarget('#trust-journey', 400, activeRunId);
@@ -704,16 +729,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           await safeDelay(250, activeRunId);
           if (activeRunId !== runIdRef.current) return;
 
-          // Chunk 4: Firewall Thinking Mechanics — Prefetch Step 2 boundary narration
-          prefetchAudio(DEMO_STEPS[2].spokenNarration, activeRunId, 'step2-narration');
-
-          await scrollToSemanticTarget('#firewall-thinking', 400, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-          await playNarration(chunk4Text, activeRunId, 'step1-chunk4');
-          if (activeRunId !== runIdRef.current) return;
-          await safeDelay(250, activeRunId);
-          if (activeRunId !== runIdRef.current) return;
-
+          // Skip Firewall Mechanics completely and proceed directly to Step 2
           await scrollToTop(350, activeRunId);
           if (activeRunId !== runIdRef.current) return;
           await executeStep(2, activeRunId);
@@ -1068,9 +1084,17 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
   // ── Controls: Start, Pause, Resume, Stop (Concurrency Hardened) ─────────────
   const startDemo = useCallback(
     async (fromStep: DemoStepId = 1): Promise<void> => {
+      // Guard against duplicate invocations while running or transitioning
+      if (demoStateRef.current === 'RUNNING' && fromStep === currentStepIdRef.current) {
+        return;
+      }
+      if (isTransitioningRef.current) {
+        return;
+      }
+      isTransitioningRef.current = true;
+
       // Invalidate any previous run
       const nextRunId = ++runIdRef.current;
-      isTransitioningRef.current = false;
       setRunId(nextRunId);
       clearAllRegisteredTimers();
       stopActiveAudio();
@@ -1083,12 +1107,14 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
       // Synchronous user-activation audio priming on user gesture
       if (!sharedAudioRef.current) {
-        sharedAudioRef.current = new Audio();
-        sharedAudioRef.current.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        sharedAudioRef.current = configureAgentGuardAudio(new Audio());
+      } else {
+        configureAgentGuardAudio(sharedAudioRef.current);
       }
       try {
         sharedAudioRef.current.src =
           'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        enforcePlaybackRate(sharedAudioRef.current);
         sharedAudioRef.current
           .play()
           .then(() => {
@@ -1103,6 +1129,12 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       pausePhaseRef.current = 'INACTIVE';
       setIsPaused(false);
       isPausedRef.current = false;
+
+      // Immediate optimistic acknowledgement in conversational history
+      appendAgentMessage?.(
+        "I'm launching the autonomous AgentGuard demonstration. I'll walk you through the security boundary, live catalog verification, real price tampering defense, and cryptographic audit trail."
+      );
+
       setIsConversationalOpen(false); // Slides completely offscreen immediately
 
       const initialStep = DEMO_STEPS[fromStep] || DEMO_STEPS[1];
@@ -1116,6 +1148,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       setCurrentStepId(fromStep);
       setCurrentTargetId(initialStep.targetId || 'cockpit-budget');
       setCurrentNarration(initialStep.captionText);
+      isTransitioningRef.current = false;
 
       // Concurrent background prerequisite setup (mandate validation/reset does NOT block Step 1)
       prerequisitePromiseRef.current = (async () => {
@@ -1137,7 +1170,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       // Begin step execution immediately
       await executeStep(fromStep, nextRunId);
     },
-    [clearAllRegisteredTimers, stopActiveAudio, executeStep, setIsConversationalOpen, fetchMandate]
+    [clearAllRegisteredTimers, stopActiveAudio, executeStep, setIsConversationalOpen, fetchMandate, appendAgentMessage]
   );
 
   const pauseDemo = useCallback(() => {
@@ -1171,8 +1204,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
           pauseAudioRef.current = null;
         }
         const url = URL.createObjectURL(pauseGreetingBlobRef.current);
-        const pAudio = new Audio(url);
-        pAudio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        const pAudio = configureAgentGuardAudio(new Audio(url));
         pauseAudioRef.current = pAudio;
         setAgentVoiceState('SPEAKING');
 
@@ -1190,6 +1222,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
             setAgentVoiceState('IDLE');
           }
         };
+        enforcePlaybackRate(pAudio);
         pAudio.play().catch(() => {});
       } else {
         playNarration(pauseGreeting, runIdRef.current);
@@ -1224,7 +1257,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
       // 2. Resume running narration audio if paused mid-chunk with strictly enforced 0.95 rate
       if (activeAudioRef.current && activeAudioRef.current.paused) {
         setAgentVoiceState('SPEAKING');
-        activeAudioRef.current.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        enforcePlaybackRate(activeAudioRef.current);
         activeAudioRef.current.play().catch(() => {});
       }
     } finally {
@@ -1236,7 +1269,8 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const stopDemo = useCallback(() => {
     // Unconditionally invalidate current run immediately
-    runIdRef.current++;
+    const nextRunId = ++runIdRef.current;
+    setRunId(nextRunId);
     isTransitioningRef.current = false;
     clearAllRegisteredTimers();
     stopActiveAudio();
@@ -1259,7 +1293,7 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
     setDemoState('STOPPED_AWAITING_QUESTION');
     appendAgentMessage?.(stopMsg);
 
-    playNarration(stopMsg, runIdRef.current);
+    playNarration(stopMsg, nextRunId);
   }, [clearAllRegisteredTimers, stopActiveAudio, playNarration, appendAgentMessage, setIsConversationalOpen]);
 
   // ── Conversational Interceptors for Pause & Stop Lifecycles ──────────────────
@@ -1361,14 +1395,13 @@ export const AutonomousDemoProvider: React.FC<{ children: ReactNode }> = ({ chil
   useEffect(() => {
     if (!registerConversationalInterceptor) return;
 
+    const DEMO_TRIGGER_REGEX =
+      /^(start\s+demo(\s+mode)?|run\s+demo(\s+mode)?|launch\s+demo(\s+mode)?|demo(\s+mode)?|project\s+demo(\s+mode)?|start\s+demo\s+mode|launch\s+demo\s+mode|run\s+demo\s+mode|walkthrough|start\s+walkthrough|project\s+walkthrough|2-minute\s+project\s+walkthrough|two-minute\s+project\s+walkthrough|show\s+me\s+around|demonstrate\s+agentguard|show\s+demo|show\s+me\s+a\s+demo|play\s+demo|play\s+the\s+demo|take\s+a\s+tour|start\s+the\s+demo|run\s+the\s+demo)$/i;
+
     const unregister = registerConversationalInterceptor({
       onQuery: async (query: string) => {
         const trimmed = query.trim().toLowerCase();
-        if (
-          /^(start\s+demo|run\s+demo|launch\s+demo|demo|walkthrough|start\s+walkthrough|project\s+demo)$/i.test(
-            trimmed
-          )
-        ) {
+        if (DEMO_TRIGGER_REGEX.test(trimmed)) {
           startDemo(1);
           return true;
         }

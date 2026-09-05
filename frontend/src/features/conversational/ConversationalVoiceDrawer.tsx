@@ -441,15 +441,15 @@ export const ConversationalVoiceDrawer: React.FC = () => {
                     <span>Suggested Inquiries</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {/* Permanent Project Demo Button */}
+                    {/* Permanent Demo Mode Button */}
                     <button
                       onClick={() => startDemo(1)}
-                      disabled={isConversationalQuerying}
+                      disabled={isConversationalQuerying || demoState === 'RUNNING'}
                       className="px-3 py-1.5 bg-primary hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-xs flex items-center gap-1.5 active:scale-95 disabled:opacity-50 text-left cursor-pointer"
-                      title="Start Autonomous Project Demo"
+                      title="Start Autonomous Demo Mode"
                     >
                       <Play className="w-3 h-3 fill-current text-white" />
-                      <span>Project Demo</span>
+                      <span>Demo Mode</span>
                     </button>
 
                     {m.suggestedFollowups &&
@@ -508,12 +508,12 @@ export const ConversationalVoiceDrawer: React.FC = () => {
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => startDemo(1)}
-            disabled={isConversationalQuerying}
+            disabled={isConversationalQuerying || demoState === 'RUNNING'}
             className="px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary font-bold rounded-lg border border-primary/20 text-[11px] flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer disabled:opacity-50"
-            title="Start Autonomous Project Demo"
+            title="Start Autonomous Demo Mode"
           >
             <Play className="w-2.5 h-2.5 fill-current text-primary" />
-            <span>Project Demo</span>
+            <span>Demo Mode</span>
           </button>
 
           <button

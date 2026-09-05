@@ -627,8 +627,8 @@
     "id": "test_test_audit_log_test_multiple_sequential_events_and_verification_a0c5f720",
     "invariants_proven": [],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -643,8 +643,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -659,8 +659,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -675,8 +675,8 @@
       "SHA-256 Chain Verification"
     ],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -763,8 +763,8 @@
     "id": "test_test_audit_log_test_audit_seq_id_deterministic_ordering_3541dfd3",
     "invariants_proven": [],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",
@@ -776,8 +776,8 @@
     "id": "test_test_audit_log_test_audit_same_timestamp_events_verify_successfully_9b1affe6",
     "invariants_proven": [],
     "target_symbols": [
-      "verify_audit_chain",
-      "log_audit_event"
+      "log_audit_event",
+      "verify_audit_chain"
     ],
     "test_category": "unit_policy",
     "test_file": "backend/tests/unit/test_audit_log.py",

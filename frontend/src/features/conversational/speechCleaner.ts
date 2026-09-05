@@ -6,7 +6,6 @@
  *  - Replaces currency symbols with natural spoken words (e.g. ₹3,499 → 3,499 rupees).
  *  - Expands common abbreviations (e.g. e.g. → for example).
  *  - Segments text into sentence/paragraph chunks with conversational breathing pauses.
- *  - Selects the best available natural female English voice across operating systems.
  */
 
 /**
@@ -16,6 +15,41 @@
  */
 export const AGENTGUARD_TTS_PLAYBACK_RATE = 0.95;
 
+/**
+ * Strictly enforces 0.95x playback rate on an HTMLAudioElement.
+ * Synchronously sets both defaultPlaybackRate and playbackRate.
+ */
+export function enforcePlaybackRate(audio: HTMLAudioElement): void {
+  audio.defaultPlaybackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+  audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+}
+
+/**
+ * Attaches runtime rate guards to an HTMLAudioElement to prevent browser lifecycle
+ * events (loadedmetadata, canplay, play, ratechange) from resetting playbackRate to 1.0.
+ */
+export function configureAgentGuardAudio(audio: HTMLAudioElement): HTMLAudioElement {
+  enforcePlaybackRate(audio);
+
+  const reassert = () => {
+    enforcePlaybackRate(audio);
+  };
+
+  audio.addEventListener('loadedmetadata', reassert);
+  audio.addEventListener('canplay', reassert);
+  audio.addEventListener('play', reassert);
+  audio.addEventListener('ratechange', () => {
+    if (
+      audio.playbackRate !== AGENTGUARD_TTS_PLAYBACK_RATE ||
+      audio.defaultPlaybackRate !== AGENTGUARD_TTS_PLAYBACK_RATE
+    ) {
+      enforcePlaybackRate(audio);
+    }
+  });
+
+  return audio;
+}
+
 export interface SpeechChunk {
   text: string;
   pauseAfterMs: number;
@@ -23,11 +57,11 @@ export interface SpeechChunk {
 
 /**
  * Strips Markdown formatting, file paths, and UI artifacts from a chatbot response string
- * so that SpeechSynthesis produces natural, polished human speech.
+ * so that Deepgram Brooke TTS produces natural, polished human speech.
  *
  * CONTRACT:
  *  - The VISIBLE chatbot response is NEVER modified.
- *  - Only the copy passed to SpeechSynthesis is cleaned.
+ *  - Only the copy passed to speech synthesis is cleaned.
  *  - Natural conversational language is preserved.
  */
 export function cleanTextForSpeech(text: string): string {
@@ -163,94 +197,3 @@ export function splitTextIntoSpeechChunks(text: string): SpeechChunk[] {
   return chunks;
 }
 
-/**
- * Deterministically ranks and selects the best natural-sounding female English voice
- * available in the current browser/OS environment.
- *
- * Preference Hierarchy:
- *  1. Google UK English Female (Chrome en-GB — exceptionally clear, calm, polished)
- *  2. Microsoft Natural/Neural Female voices (Jenny, Aria, Sonia, Libby)
- *  3. Apple Enhanced/Premium Female voices (Ava, Samantha, Serena, Karen)
- *  4. Google US English (Chrome en-US female/neutral)
- *  5. Standard female English voices (Samantha, Victoria, Karen, Serena, Tessa, Allison)
- *  6. Any voice with 'female' in its metadata
- *  7. Any English voice
- *  8. Browser default voice
- */
-export function selectBestFemaleVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
-  if (!voices || voices.length === 0) return null;
-
-  // Filter for English voices first
-  const englishVoices = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith('en'));
-  const candidatePool = englishVoices.length > 0 ? englishVoices : voices;
-
-  const scoreVoice = (voice: SpeechSynthesisVoice): number => {
-    const name = voice.name.toLowerCase();
-    const lang = voice.lang.toLowerCase();
-    let score = 0;
-
-    // Reject novelty / sound-effect voices
-    const isNovelty = /\b(bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|organ)\b/i.test(
-      name
-    );
-    if (isNovelty) return -1000;
-
-    // Penalise explicitly male voices
-    const isMale =
-      /\b(male|david|daniel|alex|fred|george|mark|oliver|guy|albert|junior|ralph|tom|lee)\b/i.test(
-        name
-      ) && !/female/i.test(name);
-    if (isMale) score -= 150;
-
-    // ── Tier 1: Premium / Neural / Natural Female voices ───────────────────
-    if (name.includes('google uk english female')) {
-      score += 500; // Top choice for Chrome: calm, articulate, polished
-    } else if (
-      /microsoft (jenny|aria|sonia|libby|natasha|clara|emma)/i.test(name) &&
-      /natural|online/i.test(name)
-    ) {
-      score += 480;
-    } else if (
-      /(ava|samantha|serena|karen|victoria|tessa|allison|susan|zoe)/i.test(name) &&
-      /enhanced|premium/i.test(name)
-    ) {
-      score += 460;
-    } else if (name.includes('google us english')) {
-      score += 420;
-    }
-
-    // ── Tier 2: Standard high-quality female voices by name ─────────────────
-    else if (
-      /^(ava|samantha|serena|karen|victoria|tessa|allison|susan|zoe|kate|moira|fiona)\b/i.test(name)
-    ) {
-      score += 350;
-    } else if (
-      /\b(ava|samantha|serena|karen|victoria|tessa|allison|susan|zoe|kate|moira|fiona)\b/i.test(name)
-    ) {
-      score += 300;
-    }
-
-    // ── Tier 3: Any voice labeled 'female' or 'woman' ──────────────────────
-    else if (/\b(female|woman)\b/i.test(name)) {
-      score += 250;
-    } else if (/microsoft zira/i.test(name)) {
-      score += 200;
-    }
-
-    // ── Locale preferences ────────────────────────────────────────────────
-    if (lang === 'en-us' || lang === 'en_us') score += 20;
-    else if (lang === 'en-gb' || lang === 'en_gb') score += 25;
-    else if (lang.startsWith('en')) score += 10;
-
-    // Remote voices (Google / MS Cloud) often have higher audio fidelity
-    if (!voice.localService) score += 15;
-
-    // Slight preference for default voice if nothing else matched
-    if (voice.default) score += 5;
-
-    return score;
-  };
-
-  const sorted = [...candidatePool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
-  return sorted[0] || null;
-}

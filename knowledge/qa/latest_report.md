@@ -1,13 +1,13 @@
 # AgentGuard Knowledge QA & Validation Report
 
 - **Status**: `VALID`
-- **Generated At**: `2026-09-05T13:53:40.663039+00:00`
+- **Generated At**: `2026-09-05T17:15:58.567764+00:00`
 - **Secret Scan Clean**: `PASS`
 
 ## Coverage Metrics
 
-- **Total Knowledge Units**: `880`
-- **Documentation Chunks**: `116`
+- **Total Knowledge Units**: `908`
+- **Documentation Chunks**: `144`
 - **Python Code Symbols**: `307`
 - **TypeScript / TSX Components**: `38`
 - **FastAPI API Routes**: `19`

@@ -17,7 +17,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { AgentVoiceState } from '../../context/AgentGuardContext';
 import { api, AssistantResponse } from '../../lib/api';
-import { cleanTextForSpeech, AGENTGUARD_TTS_PLAYBACK_RATE } from './speechCleaner';
+import {
+  cleanTextForSpeech,
+  configureAgentGuardAudio,
+  enforcePlaybackRate,
+} from './speechCleaner';
 
 // ── Local button/label state machine (separate from context waveform state) ──
 export type VoiceIOState = 'IDLE' | 'LISTENING' | 'PROCESSING' | 'SPEAKING' | 'ERROR';
@@ -230,12 +234,11 @@ export function useVoiceIO({
         const audioUrl = URL.createObjectURL(blob);
         currentAudioUrlRef.current = audioUrl;
 
-        const audio = new Audio(audioUrl);
-        audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+        const audio = configureAgentGuardAudio(new Audio(audioUrl));
         currentAudioRef.current = audio;
 
         audio.onplay = () => {
-          audio.playbackRate = AGENTGUARD_TTS_PLAYBACK_RATE;
+          enforcePlaybackRate(audio);
           if (!isMountedRef.current || playbackSessionIdRef.current !== currentSessionId) return;
           updateVoiceState('SPEAKING');
           setAgentVoiceState('SPEAKING');
@@ -255,6 +258,7 @@ export function useVoiceIO({
           setAgentVoiceState('IDLE');
         };
 
+        enforcePlaybackRate(audio);
         await audio.play();
       } catch (err: any) {
         if (err?.name === 'AbortError' || abortController.signal.aborted) {
